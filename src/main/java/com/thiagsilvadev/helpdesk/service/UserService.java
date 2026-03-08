@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
+import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,11 @@ public class UserService {
         existingUser.setRole(user.getRole());
 
         return userRepository.save(existingUser);
+    }
+
+    public List<Ticket> getUserTickets(Long userId) {
+        User user = getUserById(userId);
+        return user.getTickets();
     }
 
     public void delete(Long id) {

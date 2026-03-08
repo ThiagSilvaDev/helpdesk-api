@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -19,6 +22,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Roles role;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "client")
+    private List<Ticket> tickets;
 
     public User() {
     }
@@ -55,5 +62,9 @@ public class User {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    public List<Ticket> getTickets() {
+        return tickets;
     }
 }

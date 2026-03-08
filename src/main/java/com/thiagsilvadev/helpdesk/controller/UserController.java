@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
+import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,12 @@ public class UserController {
     public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
         User updatedUser = userService.update(id, user);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/{userId}/tickets")
+    public ResponseEntity<List<Ticket>> getUserTickets(@PathVariable Long userId) {
+        List<Ticket> tickets = userService.getUserTickets(userId);
+        return ResponseEntity.ok(tickets);
     }
 
     @DeleteMapping("/{id}")
