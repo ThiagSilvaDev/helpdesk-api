@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "name": "bruno",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "size": 0.0007390975952148438,
+  "filesCount": 4,
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "http://localhost:8080"
+  }
+}

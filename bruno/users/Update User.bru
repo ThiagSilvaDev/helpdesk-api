@@ -1,0 +1,24 @@
+meta {
+  name: Update User
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/users/{{createdUserId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "John Doe Updated",
+    "email": "{{randomEmail}}",
+    "role": "ROLE_ADMIN"
+  }
+}
+
+script:pre-request {
+  const randomStr = Math.random().toString(36).substring(7);
+  bru.setEnvVar("randomEmail", `user_${randomStr}@email.com`);
+}

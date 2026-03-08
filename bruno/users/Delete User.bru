@@ -1,0 +1,15 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/users/{{createdUserId}}
+  body: none
+  auth: none
+}
+
+script:post-response {
+  bru.setEnvVar("createdUserId", undefined);
+}
