@@ -29,8 +29,7 @@ public class UserService {
     }
 
     public User update(Long id, User user) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User existingUser = getUserById(id);
 
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
@@ -40,8 +39,7 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User existingUser = getUserById(id);
 
         userRepository.delete(existingUser);
     }
