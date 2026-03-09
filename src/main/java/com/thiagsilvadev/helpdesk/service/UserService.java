@@ -5,6 +5,8 @@ import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
+import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +22,16 @@ public class UserService {
     }
 
     public UserResponse create(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException(request.email());
+        }
         User user = request.toEntity();
         return UserResponse.fromEntity(userRepository.save(user));
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
     public List<UserResponse> findAll() {
@@ -37,6 +42,10 @@ public class UserService {
 
     public UserResponse update(Long id, UpdateUserRequest request) {
         User existingUser = getUserById(id);
+
+        if (userRepository.existsByEmailAndIdNot(request.email(), id)) {
+            throw new EmailAlreadyExistsException(request.email());
+        }
 
         existingUser.setName(request.name());
         existingUser.setEmail(request.email());

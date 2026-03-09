@@ -4,8 +4,8 @@ import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class TicketService {
 
     public Ticket getTicketById(Long id) {
         return ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + id));
     }
 
     public List<TicketResponse> findAll() {
@@ -55,25 +55,18 @@ public class TicketService {
         User technician = userService.getUserById(technicianId);
 
         existingTicket.setTechnician(technician);
-        existingTicket.inProgressTicket();
 
         return TicketResponse.fromEntity(ticketRepository.save(existingTicket));
     }
 
     public void close(Long id) {
         Ticket existingTicket = getTicketById(id);
-
-        if (existingTicket.getStatus() == TicketStatus.CLOSED) {
-            throw new RuntimeException("Ticket is already closed with id: " + id);
-        }
         existingTicket.closeTicket();
-
         ticketRepository.save(existingTicket);
     }
 
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
-
         existingTicket.cancelTicket();
 
         ticketRepository.save(existingTicket);
