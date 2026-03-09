@@ -5,6 +5,7 @@ import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> create(@RequestBody @Valid CreateUserRequest request) {
         UserResponse createdUser = userService.create(request);
         return ResponseEntity.ok(createdUser);
     }
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateUserRequest request) {
         UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }

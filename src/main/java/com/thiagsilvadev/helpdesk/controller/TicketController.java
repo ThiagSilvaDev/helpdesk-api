@@ -5,6 +5,7 @@ import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.service.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<TicketResponse> create(@RequestBody CreateTicketRequest request) {
+    public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request) {
         TicketResponse newTicket = ticketService.create(request);
         return ResponseEntity.ok(newTicket);
     }
@@ -40,13 +41,13 @@ public class TicketController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody UpdateTicketRequest request) {
+    public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
         TicketResponse updatedTicket = ticketService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
     @PatchMapping("/{id}/technician")
-    public ResponseEntity<TicketResponse> assignTechnician(@PathVariable Long id, @RequestBody AssignTechnicianRequest request) {
+    public ResponseEntity<TicketResponse> assignTechnician(@PathVariable Long id, @RequestBody @Valid AssignTechnicianRequest request) {
         TicketResponse updatedTicket = ticketService
                 .assignTechnician(id, request.technicianId());
         return ResponseEntity.ok(updatedTicket);
