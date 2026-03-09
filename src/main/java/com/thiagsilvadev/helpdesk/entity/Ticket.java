@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.entity;
 
+import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,9 @@ public class Ticket {
     }
 
     public Ticket(String title, String description, User client) {
+        if (client.getRole() != Roles.ROLE_USER) {
+            throw new InvalidTicketStateException("Only users with ROLE_USER can open a ticket");
+        }
         this.title = title;
         this.description = description;
         this.status = TicketStatus.OPEN;
@@ -57,16 +61,24 @@ public class Ticket {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void inProgressTicket() {
-        this.status = TicketStatus.IN_PROGRESS;
-    }
-
     public void closeTicket() {
+        if (this.status == TicketStatus.CLOSED) {
+            throw new InvalidTicketStateException("Ticket is already closed");
+        }
+        if (this.status == TicketStatus.CANCELLED) {
+            throw new InvalidTicketStateException("Cannot close a cancelled ticket");
+        }
         this.status = TicketStatus.CLOSED;
         this.closedAt = LocalDateTime.now();
     }
 
     public void cancelTicket() {
+        if (this.status == TicketStatus.CLOSED) {
+            throw new InvalidTicketStateException("Cannot cancel a closed ticket");
+        }
+        if (this.status == TicketStatus.CANCELLED) {
+            throw new InvalidTicketStateException("Ticket is already cancelled");
+        }
         this.status = TicketStatus.CANCELLED;
     }
 
@@ -103,7 +115,14 @@ public class Ticket {
     }
 
     public void setTechnician(User technician) {
+        if (technician.getRole() != Roles.ROLE_TECHNICIAN) {
+            throw new InvalidTicketStateException("Assigned user must have TECHNICIAN role");
+        }
+        if (this.status == TicketStatus.CLOSED || this.status == TicketStatus.CANCELLED) {
+            throw new InvalidTicketStateException("Cannot assign technician to a " + this.status + " ticket");
+        }
         this.technician = technician;
+        this.status = TicketStatus.IN_PROGRESS;
     }
 
     public LocalDateTime getCreatedAt() {
