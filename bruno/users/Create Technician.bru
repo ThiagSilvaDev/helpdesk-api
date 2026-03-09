@@ -1,0 +1,29 @@
+meta {
+  name: Create Technician
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Tech Support",
+    "email": "{{randomTechEmail}}",
+    "role": "ROLE_TECHNICIAN"
+  }
+}
+
+script:pre-request {
+  const randomStr = Math.random().toString(36).substring(7);
+  bru.setEnvVar("randomTechEmail", `tech_${randomStr}@email.com`);
+}
+
+script:post-response {
+  bru.setEnvVar("createdTechnicianId", res.body.id);
+}
+
