@@ -1,0 +1,15 @@
+meta {
+  name: Assign Technician
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/tickets/{{createdTicketId}}/technician
+  body: json
+  auth: none
+}
+
+body:json {
+  {{createdTechnicianId}}
+}

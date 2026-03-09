@@ -1,0 +1,18 @@
+meta {
+  name: Update Ticket
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/tickets/{{createdTicketId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Server is down - URGENT",
+    "description": "The main server is not responding since 10am. All services are affected."
+  }
+}

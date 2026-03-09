@@ -1,0 +1,11 @@
+meta {
+  name: Close Ticket
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/tickets/{{createdTicketId}}/close
+  body: none
+  auth: none
+}

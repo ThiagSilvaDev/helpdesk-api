@@ -1,0 +1,12 @@
+meta {
+  name: Cancel Ticket
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/tickets/{{createdTicketId}}/cancel
+  body: none
+  auth: none
+}
+

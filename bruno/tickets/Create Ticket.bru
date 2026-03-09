@@ -1,0 +1,23 @@
+meta {
+  name: Create Ticket
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/tickets
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Server is down",
+    "description": "The main server is not responding since 10am",
+    "clientId": {{createdUserId}}
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("createdTicketId", res.body.id);
+}
