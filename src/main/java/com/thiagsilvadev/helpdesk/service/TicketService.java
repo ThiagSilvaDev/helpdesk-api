@@ -1,5 +1,8 @@
 package com.thiagsilvadev.helpdesk.service;
 
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.User;
@@ -19,11 +22,12 @@ public class TicketService {
         this.userService = userService;
     }
 
-    public Ticket create(String title, String description, Long clientId) {
-        User client = userService.getUserById(clientId);
+    public TicketResponse create(CreateTicketRequest request) {
+        User client = userService.getUserById(request.clientId());
 
-        Ticket newTicket = new Ticket(title, description, client);
-        return ticketRepository.save(newTicket);
+        Ticket newTicket = new Ticket(request.title(), request.description(), client);
+
+        return TicketResponse.fromEntity(ticketRepository.save(newTicket));
     }
 
     public Ticket getTicketById(Long id) {
@@ -31,25 +35,29 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
     }
 
-    public List<Ticket> findAll() {
-        return ticketRepository.findAll();
+    public List<TicketResponse> findAll() {
+        return ticketRepository.findAll().stream()
+                .map(TicketResponse::fromEntity)
+                .toList();
     }
 
-    public Ticket update(Long id, Ticket ticket) {
+    public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
-        existingTicket.setTitle(ticket.getTitle());
-        existingTicket.setDescription(ticket.getDescription());
 
-        return ticketRepository.save(existingTicket);
+        existingTicket.setTitle(request.title());
+        existingTicket.setDescription(request.description());
+
+        return TicketResponse.fromEntity(ticketRepository.save(existingTicket));
     }
 
-    public Ticket assignTechnician(Long ticketId, Long technicianId) {
+    public TicketResponse assignTechnician(Long ticketId, Long technicianId) {
         Ticket existingTicket = getTicketById(ticketId);
         User technician = userService.getUserById(technicianId);
+
         existingTicket.setTechnician(technician);
         existingTicket.inProgressTicket();
 
-        return ticketRepository.save(existingTicket);
+        return TicketResponse.fromEntity(ticketRepository.save(existingTicket));
     }
 
     public void close(Long id) {
@@ -65,7 +73,9 @@ public class TicketService {
 
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
+
         existingTicket.cancelTicket();
+
         ticketRepository.save(existingTicket);
     }
 }

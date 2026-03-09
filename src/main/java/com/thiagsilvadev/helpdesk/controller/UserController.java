@@ -1,7 +1,9 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,32 +21,32 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        User createdUser = userService.create(user);
+    public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
+        UserResponse createdUser = userService.create(request);
         return ResponseEntity.ok(createdUser);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        UserResponse user = UserResponse.fromEntity(userService.getUserById(id));
         return ResponseEntity.ok(user);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> findAll() {
-        List<User> users = userService.findAll();
+    public ResponseEntity<List<UserResponse>> findAll() {
+        List<UserResponse> users = userService.findAll();
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = userService.update(id, user);
+    public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+        UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/{userId}/tickets")
-    public ResponseEntity<List<Ticket>> getUserTickets(@PathVariable Long userId) {
-        List<Ticket> tickets = userService.getUserTickets(userId);
+    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable Long userId) {
+        List<TicketResponse> tickets = userService.getUserTickets(userId);
         return ResponseEntity.ok(tickets);
     }
 

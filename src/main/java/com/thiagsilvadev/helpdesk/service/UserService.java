@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.entity.Ticket;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -16,8 +19,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User create(User user) {
-        return userRepository.save(user);
+    public UserResponse create(CreateUserRequest request) {
+        User user = request.toEntity();
+        return UserResponse.fromEntity(userRepository.save(user));
     }
 
     public User getUserById(Long id) {
@@ -25,23 +29,27 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(UserResponse::fromEntity)
+                .toList();
     }
 
-    public User update(Long id, User user) {
+    public UserResponse update(Long id, UpdateUserRequest request) {
         User existingUser = getUserById(id);
 
-        existingUser.setName(user.getName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setRole(user.getRole());
+        existingUser.setName(request.name());
+        existingUser.setEmail(request.email());
+        existingUser.setRole(request.role());
 
-        return userRepository.save(existingUser);
+        return UserResponse.fromEntity(userRepository.save(existingUser));
     }
 
-    public List<Ticket> getUserTickets(Long userId) {
+    public List<TicketResponse> getUserTickets(Long userId) {
         User user = getUserById(userId);
-        return user.getTickets();
+        return user.getTickets().stream()
+                .map(TicketResponse::fromEntity)
+                .toList();
     }
 
     public void delete(Long id) {

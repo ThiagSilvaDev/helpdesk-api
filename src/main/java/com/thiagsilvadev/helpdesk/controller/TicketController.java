@@ -1,10 +1,12 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.entity.Ticket;
+import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.service.TicketService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -19,36 +21,34 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<Ticket> create(@RequestBody JsonNode body) {
-        String title = body.get("title").asString();
-        String description = body.get("description").asString();
-        Long clientId = body.get("clientId").asLong();
-
-        Ticket newTicket = ticketService.create(title, description, clientId);
+    public ResponseEntity<TicketResponse> create(@RequestBody CreateTicketRequest request) {
+        TicketResponse newTicket = ticketService.create(request);
         return ResponseEntity.ok(newTicket);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ticket> getById(@PathVariable Long id) {
-        Ticket ticket = ticketService.getTicketById(id);
+    public ResponseEntity<TicketResponse> getById(@PathVariable Long id) {
+        TicketResponse ticket = TicketResponse
+                .fromEntity(ticketService.getTicketById(id));
         return ResponseEntity.ok(ticket);
     }
 
     @GetMapping
-    public ResponseEntity<List<Ticket>> findAll() {
-        List<Ticket> tickets = ticketService.findAll();
+    public ResponseEntity<List<TicketResponse>> findAll() {
+        List<TicketResponse> tickets = ticketService.findAll();
         return ResponseEntity.ok(tickets);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ticket> update(@PathVariable Long id, @RequestBody Ticket ticket) {
-        Ticket updatedTicket = ticketService.update(id, ticket);
+    public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody UpdateTicketRequest request) {
+        TicketResponse updatedTicket = ticketService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
     @PatchMapping("/{id}/technician")
-    public ResponseEntity<Ticket> assignTechnician(@PathVariable Long id, @RequestBody Long technicianId) {
-        Ticket updatedTicket = ticketService.assignTechnician(id, technicianId);
+    public ResponseEntity<TicketResponse> assignTechnician(@PathVariable Long id, @RequestBody AssignTechnicianRequest request) {
+        TicketResponse updatedTicket = ticketService
+                .assignTechnician(id, request.technicianId());
         return ResponseEntity.ok(updatedTicket);
     }
 
