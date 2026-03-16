@@ -7,6 +7,9 @@ import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
+import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
+import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +19,26 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final UserRequestMapper userRequestMapper;
+    private final TicketMapper ticketMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                       UserMapper userMapper,
+                       UserRequestMapper userRequestMapper,
+                       TicketMapper ticketMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.userRequestMapper = userRequestMapper;
+        this.ticketMapper = ticketMapper;
     }
 
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
-        User user = request.toEntity();
-        return UserResponse.fromEntity(userRepository.save(user));
+        User user = userRequestMapper.toEntity(request);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     public User getUserById(Long id) {
@@ -34,9 +46,13 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
+    public UserResponse getUserResponseById(Long id) {
+        return userMapper.toResponse(getUserById(id));
+    }
+
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
-                .map(UserResponse::fromEntity)
+                .map(userMapper::toResponse)
                 .toList();
     }
 
@@ -47,17 +63,15 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        existingUser.setName(request.name());
-        existingUser.setEmail(request.email());
-        existingUser.setRole(request.role());
+        userRequestMapper.applyUpdate(request, existingUser);
 
-        return UserResponse.fromEntity(userRepository.save(existingUser));
+        return userMapper.toResponse(userRepository.save(existingUser));
     }
 
     public List<TicketResponse> getUserTickets(Long userId) {
         User user = getUserById(userId);
         return user.getTickets().stream()
-                .map(TicketResponse::fromEntity)
+                .map(ticketMapper::toResponse)
                 .toList();
     }
 

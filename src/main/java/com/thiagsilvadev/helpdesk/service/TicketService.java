@@ -6,6 +6,8 @@ import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
+import com.thiagsilvadev.helpdesk.mapper.TicketRequestMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,38 +18,48 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserService userService;
+    private final TicketMapper ticketMapper;
+    private final TicketRequestMapper ticketRequestMapper;
 
-    public TicketService(TicketRepository ticketRepository, UserService userService) {
+    public TicketService(TicketRepository ticketRepository,
+                         UserService userService,
+                         TicketMapper ticketMapper,
+                         TicketRequestMapper ticketRequestMapper) {
         this.ticketRepository = ticketRepository;
         this.userService = userService;
+        this.ticketMapper = ticketMapper;
+        this.ticketRequestMapper = ticketRequestMapper;
     }
 
     public TicketResponse create(CreateTicketRequest request) {
         User client = userService.getUserById(request.clientId());
 
-        Ticket newTicket = new Ticket(request.title(), request.description(), client);
+        Ticket newTicket = ticketRequestMapper.toEntity(request, client);
 
-        return TicketResponse.fromEntity(ticketRepository.save(newTicket));
+        return ticketMapper.toResponse(ticketRepository.save(newTicket));
     }
 
-    public Ticket getTicketById(Long id) {
+    private Ticket getTicketById(Long id) {
         return ticketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + id));
     }
 
+    public TicketResponse getTicketResponseById(Long id) {
+        return ticketMapper.toResponse(getTicketById(id));
+    }
+
     public List<TicketResponse> findAll() {
         return ticketRepository.findAll().stream()
-                .map(TicketResponse::fromEntity)
+                .map(ticketMapper::toResponse)
                 .toList();
     }
 
     public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
 
-        existingTicket.setTitle(request.title());
-        existingTicket.setDescription(request.description());
+        ticketRequestMapper.applyUpdate(request, existingTicket);
 
-        return TicketResponse.fromEntity(ticketRepository.save(existingTicket));
+        return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
     public TicketResponse assignTechnician(Long ticketId, Long technicianId) {
@@ -56,7 +68,7 @@ public class TicketService {
 
         existingTicket.setTechnician(technician);
 
-        return TicketResponse.fromEntity(ticketRepository.save(existingTicket));
+        return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
     public void close(Long id) {
@@ -68,7 +80,6 @@ public class TicketService {
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.cancelTicket();
-
         ticketRepository.save(existingTicket);
     }
 }

@@ -102,8 +102,8 @@ public class Ticket {
         this.description = description;
     }
 
-    public TicketStatus getStatus() {
-        return status;
+    public String getStatus() {
+        return String.valueOf(status);
     }
 
     public User getClient() {

@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.user;
 
 import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +18,4 @@ public record CreateUserRequest(
         @NotNull(message = "Role is required")
         Roles role
 ) {
-    public User toEntity() {
-        return new User(name, email, role);
-    }
 }
