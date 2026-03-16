@@ -6,9 +6,12 @@ import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -24,7 +27,15 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> create(@RequestBody @Valid CreateUserRequest request) {
         UserResponse createdUser = userService.create(request);
-        return ResponseEntity.ok(createdUser);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdUser.id())
+                .toUri();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(location)
+                .body(createdUser);
     }
 
     @GetMapping("/{id}")
