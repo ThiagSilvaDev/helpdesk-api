@@ -10,6 +10,10 @@ patch {
   auth: none
 }
 
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
 body:json {
   {
     "technicianId": {{createdTechnicianId}}

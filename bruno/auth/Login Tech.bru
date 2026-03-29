@@ -1,0 +1,26 @@
+meta {
+  name: Login Tech
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{loginTechEmail}}",
+    "password": "{{loginTechPassword}}"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body?.token) {
+    bru.setEnvVar("technicianAccessToken", res.body.token);
+    bru.setEnvVar("accessToken", res.body.token);
+  }
+}
+

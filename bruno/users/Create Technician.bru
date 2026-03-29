@@ -10,10 +10,15 @@ post {
   auth: none
 }
 
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
 body:json {
   {
     "name": "Tech Support",
     "email": "{{randomTechEmail}}",
+    "password": "{{defaultTechnicianPassword}}",
     "role": "ROLE_TECHNICIAN"
   }
 }
@@ -26,4 +31,3 @@ script:pre-request {
 script:post-response {
   bru.setEnvVar("createdTechnicianId", res.body.id);
 }
-

@@ -10,10 +10,15 @@ post {
   auth: none
 }
 
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
 body:json {
   {
     "name": "John Doe",
     "email": "{{randomEmail}}",
+    "password": "{{defaultUserPassword}}",
     "role": "ROLE_USER"
   }
 }

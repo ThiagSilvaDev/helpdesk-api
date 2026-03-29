@@ -10,6 +10,10 @@ put {
   auth: none
 }
 
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
 body:json {
   {
     "title": "Server is down - URGENT",
