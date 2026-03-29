@@ -39,7 +39,7 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
         TicketResponse ticket = ticketService.getTicketResponseById(id);
         return ResponseEntity.ok(ticket);
     }
