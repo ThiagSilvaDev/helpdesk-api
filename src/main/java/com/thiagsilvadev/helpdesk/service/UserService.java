@@ -11,6 +11,7 @@ import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +23,18 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRequestMapper userRequestMapper;
     private final TicketMapper ticketMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserRequestMapper userRequestMapper,
-                       TicketMapper ticketMapper) {
+                       TicketMapper ticketMapper,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userRequestMapper = userRequestMapper;
         this.ticketMapper = ticketMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse create(CreateUserRequest request) {
@@ -38,6 +42,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
         User user = userRequestMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
         return userMapper.toResponse(userRepository.save(user));
     }
 

@@ -13,7 +13,7 @@ public class UserRequestMapper {
             return null;
         }
 
-        return new User(request.name(), request.email(), request.role());
+        return new User(request.name(), request.email(), request.password(), request.role());
     }
 
     public void applyUpdate(UpdateUserRequest request, User user) {

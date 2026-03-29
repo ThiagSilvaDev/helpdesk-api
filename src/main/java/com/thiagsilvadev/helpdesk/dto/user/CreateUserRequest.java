@@ -15,6 +15,10 @@ public record CreateUserRequest(
         @Email(message = "Email format is invalid")
         String email,
 
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+        String password,
+
         @NotNull(message = "Role is required")
         Roles role
 ) {
