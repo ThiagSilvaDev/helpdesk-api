@@ -10,9 +10,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+
 @Configuration
 @Profile("dev")
 public class DevAdminSeederConfig {
+
+    private record SeedUserSpec(String name, String email, String password, Roles role) {
+    }
 
     @Bean
     CommandLineRunner devAdminSeeder(UserRepository userRepository,
@@ -27,36 +32,27 @@ public class DevAdminSeederConfig {
                                      @Value("${app.dev-tech.email}") String technicianEmail,
                                      @Value("${app.dev-tech.password}") String technicianPassword) {
         return args -> {
-            if (!userRepository.existsByEmail(adminEmail)) {
-                User admin = new User(
-                        adminName,
-                        adminEmail,
-                        passwordEncoder.encode(adminPassword),
-                        Roles.ROLE_ADMIN
-                );
-                userRepository.save(admin);
-            }
+            List<SeedUserSpec> usersToSeed = List.of(
+                    new SeedUserSpec(adminName, adminEmail, adminPassword, Roles.ROLE_ADMIN),
+                    new SeedUserSpec(userName, userEmail, userPassword, Roles.ROLE_USER),
+                    new SeedUserSpec(technicianName, technicianEmail, technicianPassword, Roles.ROLE_TECHNICIAN)
+            );
 
-            if (!userRepository.existsByEmail(userEmail)) {
-                User user = new User(
-                        userName,
-                        userEmail,
-                        passwordEncoder.encode(userPassword),
-                        Roles.ROLE_USER
-                );
-                userRepository.save(user);
-            }
-
-            if (!userRepository.existsByEmail(technicianEmail)) {
-                User technician = new User(
-                        technicianName,
-                        technicianEmail,
-                        passwordEncoder.encode(technicianPassword),
-                        Roles.ROLE_TECHNICIAN
-                );
-                userRepository.save(technician);
-            }
+            usersToSeed.forEach(spec -> seedIfAbsent(userRepository, passwordEncoder, spec));
         };
     }
-}
 
+    private void seedIfAbsent(UserRepository userRepository, PasswordEncoder passwordEncoder, SeedUserSpec spec) {
+        if (userRepository.existsByEmail(spec.email())) {
+            return;
+        }
+
+        User user = new User(
+                spec.name(),
+                spec.email(),
+                passwordEncoder.encode(spec.password()),
+                spec.role()
+        );
+        userRepository.save(user);
+    }
+}

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import com.thiagsilvadev.helpdesk.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -49,7 +51,7 @@ class WebSecurityConfig {
                         // Ticket endpoints
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/tickets/**").hasAnyRole("ADMIN", "TECHNICIAN", "USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/tickets/**").hasAnyRole("ADMIN", "TECHNICIAN")
+                        .requestMatchers(HttpMethod.PUT, "/api/tickets/**").hasAnyRole("ADMIN", "TECHNICIAN", "USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/technician").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/close").hasAnyRole("ADMIN", "TECHNICIAN")
                         .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/cancel").hasAnyRole("ADMIN", "TECHNICIAN")

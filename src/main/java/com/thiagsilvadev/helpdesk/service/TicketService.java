@@ -9,6 +9,7 @@ import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.TicketRequestMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class TicketService {
                 .toList();
     }
 
+    @PreAuthorize("@ticketSecurity.canUpdate(#id, authentication)")
     public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
 
