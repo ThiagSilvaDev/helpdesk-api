@@ -26,7 +26,9 @@ public class User {
     @Column(nullable = false)
     private Roles role;
 
-    @JsonIgnore
+    @Column(nullable = false)
+    private boolean active = true;
+
     @OneToMany(mappedBy = "client")
     private List<Ticket> tickets;
 
@@ -80,6 +82,14 @@ public class User {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public List<Ticket> getTickets() {

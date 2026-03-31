@@ -82,9 +82,9 @@ public class UserService {
                 .toList();
     }
 
-    public void delete(Long id) {
+    public void deactivate(Long id) {
         User existingUser = getUserById(id);
-
-        userRepository.delete(existingUser);
+        existingUser.setActive(false);
+        userRepository.save(existingUser);
     }
 }
