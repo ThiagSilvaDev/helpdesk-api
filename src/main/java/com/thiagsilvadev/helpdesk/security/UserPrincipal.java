@@ -1,33 +1,37 @@
 package com.thiagsilvadev.helpdesk.security;
 
 import com.thiagsilvadev.helpdesk.entity.User;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
-public class UserPrincipal implements UserDetails {
+public final class UserPrincipal implements UserDetails {
 
     private final User user;
 
     public UserPrincipal(User user) {
-        this.user = user;
+        this.user = Objects.requireNonNull(user, "user must not be null");
     }
 
     @Override
+    @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return user.getPassword();
+    @NonNull
+    public String getPassword() {
+        return Objects.requireNonNull(user.getPassword(), "user password must not be null");
     }
 
     @Override
+    @NonNull
     public String getUsername() {
         return user.getEmail();
     }

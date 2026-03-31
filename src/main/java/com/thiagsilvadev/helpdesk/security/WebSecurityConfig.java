@@ -46,15 +46,17 @@ class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/tickets").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "TECHNICIAN")
 
                         // Ticket endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/tickets").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.GET, "/api/tickets/**").hasAnyRole("ADMIN", "TECHNICIAN", "USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/tickets/**").hasAnyRole("ADMIN", "TECHNICIAN", "USER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/technician").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/close").hasAnyRole("ADMIN", "TECHNICIAN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/cancel").hasAnyRole("ADMIN", "TECHNICIAN")
+                        .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/tickets").hasAnyRole("ADMIN", "TECHNICIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/tickets/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/tickets/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/technician").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/close").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/cancel").authenticated()
 
                         .anyRequest().authenticated()
                 )

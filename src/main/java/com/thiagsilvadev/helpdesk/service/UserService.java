@@ -11,6 +11,7 @@ import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +74,7 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(existingUser));
     }
 
+    @PreAuthorize("@userSecurity.canReadUserTickets(#userId, authentication)")
     public List<TicketResponse> getUserTickets(Long userId) {
         User user = getUserById(userId);
         return user.getTickets().stream()

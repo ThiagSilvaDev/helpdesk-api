@@ -32,6 +32,7 @@ public class TicketService {
         this.ticketRequestMapper = ticketRequestMapper;
     }
 
+    @PreAuthorize("@ticketSecurity.canCreate(#request.clientId(), authentication)")
     public TicketResponse create(CreateTicketRequest request) {
         User client = userService.getUserById(request.clientId());
 
@@ -45,14 +46,16 @@ public class TicketService {
                 .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + id));
     }
 
-    public TicketResponse getTicketResponseById(Long id) {
-        return ticketMapper.toResponse(getTicketById(id));
-    }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public List<TicketResponse> findAll() {
         return ticketRepository.findAll().stream()
                 .map(ticketMapper::toResponse)
                 .toList();
+    }
+
+    @PreAuthorize("@ticketSecurity.canRead(#id, authentication)")
+    public TicketResponse getTicketResponseById(Long id) {
+        return ticketMapper.toResponse(getTicketById(id));
     }
 
     @PreAuthorize("@ticketSecurity.canUpdate(#id, authentication)")
@@ -64,6 +67,7 @@ public class TicketService {
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
+    @PreAuthorize("@ticketSecurity.canAssignTechnician(#technicianId, authentication)")
     public TicketResponse assignTechnician(Long ticketId, Long technicianId) {
         Ticket existingTicket = getTicketById(ticketId);
         User technician = userService.getUserById(technicianId);
@@ -73,12 +77,14 @@ public class TicketService {
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
+    @PreAuthorize("@ticketSecurity.canClose(#id, authentication)")
     public void close(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.closeTicket();
         ticketRepository.save(existingTicket);
     }
 
+    @PreAuthorize("@ticketSecurity.canCancel(#id, authentication)")
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.cancelTicket();
