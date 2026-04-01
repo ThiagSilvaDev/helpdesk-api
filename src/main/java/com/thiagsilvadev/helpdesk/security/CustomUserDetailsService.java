@@ -1,8 +1,6 @@
-package com.thiagsilvadev.helpdesk.service;
+package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,12 +19,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @NonNull
     public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with email: " + email);
-        }
-
-        return new UserPrincipal(user);
+        return userRepository.findByEmail(email)
+                .map(UserPrincipal::new)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }

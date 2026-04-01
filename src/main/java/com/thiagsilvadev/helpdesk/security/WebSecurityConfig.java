@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.security;
 
+import com.thiagsilvadev.helpdesk.config.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,19 +17,20 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
 
-import com.thiagsilvadev.helpdesk.service.CustomUserDetailsService;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RequestLoggingFilter requestLoggingFilter;
     private final CustomUserDetailsService userDetailsService;
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                             RequestLoggingFilter requestLoggingFilter,
                              CustomUserDetailsService userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.requestLoggingFilter = requestLoggingFilter;
         this.userDetailsService = userDetailsService;
     }
 
@@ -41,6 +43,8 @@ class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
 
                         // User management endpoints
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
@@ -61,7 +65,8 @@ class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(requestLoggingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationFilter, RequestLoggingFilter.class);
 
         return http.build();
     }
