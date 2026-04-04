@@ -14,10 +14,12 @@ import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -39,6 +41,7 @@ public class UserService {
     }
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
+    @Transactional
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
@@ -68,6 +71,7 @@ public class UserService {
     }
 
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
+    @Transactional
     public UserResponse update(Long id, UpdateUserRequest request) {
         User existingUser = getUserById(id);
 
@@ -88,6 +92,7 @@ public class UserService {
     }
 
     @PreAuthorize("@userAuthorization.canDeactivate(authentication)")
+    @Transactional
     public void deactivate(Long id) {
         User existingUser = getUserById(id);
         existingUser.setActive(false);

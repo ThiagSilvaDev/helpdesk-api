@@ -11,10 +11,12 @@ import com.thiagsilvadev.helpdesk.mapper.TicketRequestMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class TicketService {
 
     private final TicketRepository ticketRepository;
@@ -33,6 +35,7 @@ public class TicketService {
     }
 
     @PreAuthorize("@ticketAuthorization.canCreate(authentication)")
+    @Transactional
     public TicketResponse create(CreateTicketRequest request, Long authenticatedUserId) {
         User client = userService.getUserById(authenticatedUserId);
 
@@ -59,6 +62,7 @@ public class TicketService {
     }
 
     @PreAuthorize("@ticketAuthorization.canUpdate(#id, authentication)")
+    @Transactional
     public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
 
@@ -68,6 +72,7 @@ public class TicketService {
     }
 
     @PreAuthorize("@ticketAuthorization.canAssignTechnician(#technicianId, authentication)")
+    @Transactional
     public TicketResponse assignTechnician(Long ticketId, Long technicianId) {
         Ticket existingTicket = getTicketById(ticketId);
         User technician = userService.getUserById(technicianId);
@@ -78,6 +83,7 @@ public class TicketService {
     }
 
     @PreAuthorize("@ticketAuthorization.canClose(#id, authentication)")
+    @Transactional
     public void close(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.closeTicket();
@@ -85,6 +91,7 @@ public class TicketService {
     }
 
     @PreAuthorize("@ticketAuthorization.canCancel(#id, authentication)")
+    @Transactional
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.cancelTicket();
