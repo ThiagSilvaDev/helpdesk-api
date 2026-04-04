@@ -68,7 +68,7 @@ public class TicketService {
     public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
 
-        ticketRequestMapper.applyUpdate(request, existingTicket);
+        existingTicket.update(request.title(), request.description());
 
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }

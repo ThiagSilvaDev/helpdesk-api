@@ -66,6 +66,15 @@ public class Ticket {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void update(String title, String description) {
+        if (this.status == TicketStatus.CLOSED) {
+            throw new IllegalStateException("Cannot update a closed ticket");
+        }
+
+        this.title = title;
+        this.description = description;
+    }
+
     public void changePriority(TicketPriority priority) {
         if (this.status == TicketStatus.CLOSED) {
             throw new IllegalStateException("Cannot change priority of a closed ticket");

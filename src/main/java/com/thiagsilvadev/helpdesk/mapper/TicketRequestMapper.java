@@ -16,14 +16,5 @@ public class TicketRequestMapper {
 
         return new Ticket(request.title(), request.description(), client);
     }
-
-    public void applyUpdate(UpdateTicketRequest request, Ticket ticket) {
-        if (request == null || ticket == null) {
-            return;
-        }
-
-        ticket.setTitle(request.title());
-        ticket.setDescription(request.description());
-    }
 }
 
