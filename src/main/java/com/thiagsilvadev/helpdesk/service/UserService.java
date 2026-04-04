@@ -38,7 +38,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PreAuthorize("@userSecurity.canCreate(authentication)")
+    @PreAuthorize("@userAuthorization.canCreate(authentication)")
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
@@ -50,24 +50,24 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(user));
     }
 
-    public User getUserById(Long id) {
+    User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
-    @PreAuthorize("@userSecurity.canRead(authentication)")
+    @PreAuthorize("@userAuthorization.canRead(authentication)")
     public UserResponse getUserResponseById(Long id) {
         return userMapper.toResponse(getUserById(id));
     }
 
-    @PreAuthorize("@userSecurity.canReadAll(authentication)")
+    @PreAuthorize("@userAuthorization.canReadAll(authentication)")
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
                 .map(userMapper::toResponse)
                 .toList();
     }
 
-    @PreAuthorize("@userSecurity.canUpdate(#id, authentication)")
+    @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
     public UserResponse update(Long id, UpdateUserRequest request) {
         User existingUser = getUserById(id);
 
@@ -79,7 +79,7 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(existingUser));
     }
 
-    @PreAuthorize("@userSecurity.canReadUserTickets(#id, authentication)")
+    @PreAuthorize("@userAuthorization.canReadUserTickets(#id, authentication)")
     public List<TicketResponse> getUserTickets(Long id) {
         User user = getUserById(id);
         return user.getTickets().stream()
@@ -87,7 +87,7 @@ public class UserService {
                 .toList();
     }
 
-    @PreAuthorize("@userSecurity.canDeactivate(authentication)")
+    @PreAuthorize("@userAuthorization.canDeactivate(authentication)")
     public void deactivate(Long id) {
         User existingUser = getUserById(id);
         existingUser.setActive(false);

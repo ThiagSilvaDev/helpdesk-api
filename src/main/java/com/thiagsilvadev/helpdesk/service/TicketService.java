@@ -32,7 +32,7 @@ public class TicketService {
         this.ticketRequestMapper = ticketRequestMapper;
     }
 
-    @PreAuthorize("@ticketSecurity.canCreate(authentication)")
+    @PreAuthorize("@ticketAuthorization.canCreate(authentication)")
     public TicketResponse create(CreateTicketRequest request, Long authenticatedUserId) {
         User client = userService.getUserById(authenticatedUserId);
 
@@ -53,12 +53,12 @@ public class TicketService {
                 .toList();
     }
 
-    @PreAuthorize("@ticketSecurity.canRead(#id, authentication)")
+    @PreAuthorize("@ticketAuthorization.canRead(#id, authentication)")
     public TicketResponse getTicketResponseById(Long id) {
         return ticketMapper.toResponse(getTicketById(id));
     }
 
-    @PreAuthorize("@ticketSecurity.canUpdate(#id, authentication)")
+    @PreAuthorize("@ticketAuthorization.canUpdate(#id, authentication)")
     public TicketResponse update(Long id, UpdateTicketRequest request) {
         Ticket existingTicket = getTicketById(id);
 
@@ -67,7 +67,7 @@ public class TicketService {
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
-    @PreAuthorize("@ticketSecurity.canAssignTechnician(#technicianId, authentication)")
+    @PreAuthorize("@ticketAuthorization.canAssignTechnician(#technicianId, authentication)")
     public TicketResponse assignTechnician(Long ticketId, Long technicianId) {
         Ticket existingTicket = getTicketById(ticketId);
         User technician = userService.getUserById(technicianId);
@@ -77,14 +77,14 @@ public class TicketService {
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 
-    @PreAuthorize("@ticketSecurity.canClose(#id, authentication)")
+    @PreAuthorize("@ticketAuthorization.canClose(#id, authentication)")
     public void close(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.closeTicket();
         ticketRepository.save(existingTicket);
     }
 
-    @PreAuthorize("@ticketSecurity.canCancel(#id, authentication)")
+    @PreAuthorize("@ticketAuthorization.canCancel(#id, authentication)")
     public void cancel(Long id) {
         Ticket existingTicket = getTicketById(id);
         existingTicket.cancelTicket();
