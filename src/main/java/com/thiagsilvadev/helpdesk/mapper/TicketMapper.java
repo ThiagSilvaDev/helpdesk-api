@@ -18,6 +18,7 @@ public class TicketMapper {
                 ticket.getTitle(),
                 ticket.getDescription(),
                 ticket.getStatus(),
+                ticket.getPriority(),
                 toUserInfo(ticket.getClient()),
                 toUserInfo(ticket.getTechnician()),
                 ticket.getCreatedAt(),

@@ -2,8 +2,10 @@ package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdatePriorityRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
+import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
@@ -68,6 +70,14 @@ public class TicketService {
 
         ticketRequestMapper.applyUpdate(request, existingTicket);
 
+        return ticketMapper.toResponse(ticketRepository.save(existingTicket));
+    }
+
+    @PreAuthorize("@ticketAuthorization.canUpdatePriority(authentication)")
+    @Transactional
+    public TicketResponse updatePriority(Long id, UpdatePriorityRequest request) {
+        Ticket existingTicket = getTicketById(id);
+        existingTicket.changePriority(request.priority());
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }
 

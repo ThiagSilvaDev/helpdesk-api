@@ -24,6 +24,10 @@ public class TicketAuthorization {
         return canReadUpdateOrCancel(ticketId, authentication);
     }
 
+    public boolean canUpdatePriority(Authentication authentication) {
+        return authorizationSupport.isAdminOrTechnician(authentication);
+    }
+
     public boolean canCancel(Long ticketId, Authentication authentication) {
         return canReadUpdateOrCancel(ticketId, authentication);
     }

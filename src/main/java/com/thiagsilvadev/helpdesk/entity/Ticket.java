@@ -23,6 +23,10 @@ public class Ticket {
     @Column(nullable = false)
     private TicketStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TicketPriority priority;
+
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false, updatable = false)
     private User client;
@@ -48,6 +52,7 @@ public class Ticket {
         this.title = title;
         this.description = description;
         this.status = TicketStatus.OPEN;
+        this.priority = TicketPriority.TRIAGE;
         this.client = client;
     }
 
@@ -59,6 +64,18 @@ public class Ticket {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void changePriority(TicketPriority priority) {
+        if (this.status == TicketStatus.CLOSED) {
+            throw new IllegalStateException("Cannot change priority of a closed ticket");
+        }
+
+        if (this.priority == priority) {
+            return;
+        }
+
+        this.priority = priority;
     }
 
     public void closeTicket() {
@@ -102,8 +119,12 @@ public class Ticket {
         this.description = description;
     }
 
-    public String getStatus() {
-        return String.valueOf(status);
+    public TicketStatus getStatus() {
+        return status;
+    }
+
+    public TicketPriority getPriority() {
+        return priority;
     }
 
     public User getClient() {

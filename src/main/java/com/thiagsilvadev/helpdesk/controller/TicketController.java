@@ -1,9 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
-import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
-import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.*;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
@@ -61,6 +58,12 @@ public class TicketController {
     @PutMapping("/{id}")
     public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
         TicketResponse updatedTicket = ticketService.update(id, request);
+        return ResponseEntity.ok(updatedTicket);
+    }
+
+    @PatchMapping("/{id}/priority")
+    public ResponseEntity<TicketResponse> updatePriority(@PathVariable Long id, @RequestBody @Valid UpdatePriorityRequest request) {
+        TicketResponse updatedTicket = ticketService.updatePriority(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
