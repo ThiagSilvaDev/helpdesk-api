@@ -4,10 +4,13 @@ import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
+import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +28,13 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request) {
-        TicketResponse newTicket = ticketService.create(request);
+    public ResponseEntity<TicketResponse> create(@RequestBody @Valid CreateTicketRequest request,
+                                                 @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new AccessDeniedException("Authentication is required");
+        }
+
+        TicketResponse newTicket = ticketService.create(request, principal.getId());
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

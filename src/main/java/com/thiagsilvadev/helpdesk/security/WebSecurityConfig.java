@@ -48,7 +48,7 @@ class WebSecurityConfig {
 
                         // User management endpoints
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users/*/tickets").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "TECHNICIAN")

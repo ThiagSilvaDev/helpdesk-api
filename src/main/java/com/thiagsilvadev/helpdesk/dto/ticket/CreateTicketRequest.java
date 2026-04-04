@@ -11,10 +11,7 @@ public record CreateTicketRequest(
 
         @NotBlank(message = "Description is required")
         @Size(min = 10, message = "Description must be at least 10 characters")
-        String description,
-
-        @NotNull(message = "Client ID is required")
-        Long clientId
+        String description
 ) {
 }
 

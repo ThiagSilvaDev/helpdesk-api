@@ -1,31 +1,48 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component("userSecurity")
 public class UserSecurity {
 
-    private final UserRepository userRepository;
+    private final AuthenticationSecurityHelper authenticationSecurityHelper;
 
-    public UserSecurity(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    UserSecurity(AuthenticationSecurityHelper authenticationSecurityHelper) {
+        this.authenticationSecurityHelper = authenticationSecurityHelper;
     }
 
-    public boolean canReadUserTickets(Long userId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public boolean canCreate(Authentication authentication) {
+        return authenticationSecurityHelper.isAdmin(authentication);
+    }
+
+    public boolean canReadAll(Authentication authentication) {
+        return authenticationSecurityHelper.isAdmin(authentication);
+    }
+
+    public boolean canRead(Authentication authentication) {
+        return authenticationSecurityHelper.isAdminOrTechnician(authentication);
+    }
+
+    public boolean canUpdate(Long id, Authentication authentication) {
+        return authenticationSecurityHelper.isAdmin(authentication)
+                || authenticationSecurityHelper.isPrincipalOwner(id, authentication);
+    }
+
+    public boolean canReadUserTickets(Long id, Authentication authentication) {
+        if (!authenticationSecurityHelper.isAuthenticated(authentication)) {
             return false;
         }
 
-        boolean isAdminOrTechnician = authentication.getAuthorities().stream()
-                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority())
-                        || "ROLE_TECHNICIAN".equals(authority.getAuthority()));
-        if (isAdminOrTechnician) {
+        if (authenticationSecurityHelper.isAdminOrTechnician(authentication)) {
             return true;
         }
 
-        return userRepository.existsByIdAndEmail(userId, authentication.getName());
+        return authenticationSecurityHelper.isPrincipalOwner(id, authentication);
+    }
+
+    public boolean canDeactivate(Authentication authentication) {
+        return authenticationSecurityHelper.isAdmin(authentication);
     }
 }
 

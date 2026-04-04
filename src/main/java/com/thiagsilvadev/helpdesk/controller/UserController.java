@@ -56,9 +56,9 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @GetMapping("/{userId}/tickets")
-    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable Long userId) {
-        List<TicketResponse> tickets = userService.getUserTickets(userId);
+    @GetMapping("/{id}/tickets")
+    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable Long id) {
+        List<TicketResponse> tickets = userService.getUserTickets(id);
         return ResponseEntity.ok(tickets);
     }
 

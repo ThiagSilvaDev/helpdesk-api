@@ -8,50 +8,44 @@ import org.springframework.stereotype.Component;
 @Component("ticketSecurity")
 public class TicketSecurity {
 
-    private static final String ROLE_USER = "ROLE_USER";
-    private static final String ROLE_TECHNICIAN = "ROLE_TECHNICIAN";
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
-
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final AuthenticationSecurityHelper authenticationSecurityHelper;
 
-    public TicketSecurity(TicketRepository ticketRepository, UserRepository userRepository) {
+    TicketSecurity(TicketRepository ticketRepository,
+                   UserRepository userRepository,
+                   AuthenticationSecurityHelper authenticationSecurityHelper) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
+        this.authenticationSecurityHelper = authenticationSecurityHelper;
     }
 
-    public boolean canCreate(Long clientId, Authentication authentication) {
-        if (isNotAuthenticated(authentication) || !isUser(authentication)) {
-            return false;
-        }
-        return userRepository.existsByIdAndEmail(clientId, authentication.getName());
+    public boolean canCreate(Authentication authentication) {
+        return authenticationSecurityHelper.isUser(authentication);
     }
 
     public boolean canRead(Long ticketId, Authentication authentication) {
-        if (isNotAuthenticated(authentication)) return false;
-
-        if (isAdmin(authentication) || isTechnician(authentication)) return true;
-
-        return isOwner(ticketId, authentication);
+        return canReadUpdateOrCancel(ticketId, authentication);
     }
 
     public boolean canUpdate(Long ticketId, Authentication authentication) {
-        if (isNotAuthenticated(authentication)) return false;
+        return canReadUpdateOrCancel(ticketId, authentication);
+    }
 
-        if (isAdmin(authentication) || isTechnician(authentication)) return true;
+    public boolean canCancel(Long ticketId, Authentication authentication) {
+        return canReadUpdateOrCancel(ticketId, authentication);
+    }
+
+    private boolean canReadUpdateOrCancel(Long ticketId, Authentication authentication) {
+        if (authenticationSecurityHelper.isAdminOrTechnician(authentication)) return true;
 
         return isOwner(ticketId, authentication);
     }
 
-    public boolean canCancel(Long ticketId, Authentication authentication) {
-        return canUpdate(ticketId, authentication);
-    }
-
     public boolean canClose(Long ticketId, Authentication authentication) {
-        if (isNotAuthenticated(authentication)) return false;
-        if (isAdmin(authentication)) return true;
+        if (authenticationSecurityHelper.isAdmin(authentication)) return true;
 
-        if (isTechnician(authentication)) {
+        if (authenticationSecurityHelper.isTechnician(authentication)) {
             return ticketRepository.existsByIdAndTechnicianEmail(ticketId, authentication.getName());
         }
 
@@ -59,10 +53,9 @@ public class TicketSecurity {
     }
 
     public boolean canAssignTechnician(Long technicianId, Authentication authentication) {
-        if (isNotAuthenticated(authentication)) return false;
-        if (isAdmin(authentication)) return true;
+        if (authenticationSecurityHelper.isAdmin(authentication)) return true;
 
-        if (isTechnician(authentication)) {
+        if (authenticationSecurityHelper.isTechnician(authentication)) {
             return userRepository.existsByIdAndEmail(technicianId, authentication.getName());
         }
 
@@ -70,32 +63,15 @@ public class TicketSecurity {
     }
 
     private boolean isOwner(Long ticketId, Authentication authentication) {
-        if (isNotAuthenticated(authentication)) {
+        if (!authenticationSecurityHelper.isAuthenticated(authentication)) {
             return false;
         }
-        return ticketRepository.existsByIdAndClientEmail(ticketId, authentication.getName());
-    }
 
-    private boolean isNotAuthenticated(Authentication authentication) {
-        return authentication == null || !authentication.isAuthenticated();
-    }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserPrincipal userPrincipal)) {
+            return false;
+        }
 
-    private boolean hasRole(Authentication authentication, String role) {
-        return authentication != null
-                && authentication.getAuthorities().stream()
-                .anyMatch(authority -> role.equals(authority.getAuthority()));
+        return ticketRepository.existsByIdAndClientId(ticketId, userPrincipal.getId());
     }
-
-    private boolean isUser(Authentication authentication) {
-        return hasRole(authentication, ROLE_USER);
-    }
-
-    private boolean isTechnician(Authentication authentication) {
-        return hasRole(authentication, ROLE_TECHNICIAN);
-    }
-
-    private boolean isAdmin(Authentication authentication) {
-        return hasRole(authentication, ROLE_ADMIN);
-    }
-
 }

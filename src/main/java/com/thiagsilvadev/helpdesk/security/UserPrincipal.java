@@ -18,6 +18,10 @@ public final class UserPrincipal implements UserDetails {
         this.user = Objects.requireNonNull(user, "user must not be null");
     }
 
+    public Long getId() {
+        return user.getId();
+    }
+
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {

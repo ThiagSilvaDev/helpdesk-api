@@ -32,9 +32,9 @@ public class TicketService {
         this.ticketRequestMapper = ticketRequestMapper;
     }
 
-    @PreAuthorize("@ticketSecurity.canCreate(#request.clientId(), authentication)")
-    public TicketResponse create(CreateTicketRequest request) {
-        User client = userService.getUserById(request.clientId());
+    @PreAuthorize("@ticketSecurity.canCreate(authentication)")
+    public TicketResponse create(CreateTicketRequest request, Long authenticatedUserId) {
+        User client = userService.getUserById(authenticatedUserId);
 
         Ticket newTicket = ticketRequestMapper.toEntity(request, client);
 

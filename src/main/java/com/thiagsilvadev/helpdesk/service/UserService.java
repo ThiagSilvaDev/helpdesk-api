@@ -38,12 +38,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @PreAuthorize("@userSecurity.canCreate(authentication)")
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
+
         User user = userRequestMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
+
         return userMapper.toResponse(userRepository.save(user));
     }
 
@@ -52,16 +55,19 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
+    @PreAuthorize("@userSecurity.canRead(authentication)")
     public UserResponse getUserResponseById(Long id) {
         return userMapper.toResponse(getUserById(id));
     }
 
+    @PreAuthorize("@userSecurity.canReadAll(authentication)")
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
                 .map(userMapper::toResponse)
                 .toList();
     }
 
+    @PreAuthorize("@userSecurity.canUpdate(#id, authentication)")
     public UserResponse update(Long id, UpdateUserRequest request) {
         User existingUser = getUserById(id);
 
@@ -70,18 +76,18 @@ public class UserService {
         }
 
         userRequestMapper.applyUpdate(request, existingUser);
-
         return userMapper.toResponse(userRepository.save(existingUser));
     }
 
-    @PreAuthorize("@userSecurity.canReadUserTickets(#userId, authentication)")
-    public List<TicketResponse> getUserTickets(Long userId) {
-        User user = getUserById(userId);
+    @PreAuthorize("@userSecurity.canReadUserTickets(#id, authentication)")
+    public List<TicketResponse> getUserTickets(Long id) {
+        User user = getUserById(id);
         return user.getTickets().stream()
                 .map(ticketMapper::toResponse)
                 .toList();
     }
 
+    @PreAuthorize("@userSecurity.canDeactivate(authentication)")
     public void deactivate(Long id) {
         User existingUser = getUserById(id);
         existingUser.setActive(false);
