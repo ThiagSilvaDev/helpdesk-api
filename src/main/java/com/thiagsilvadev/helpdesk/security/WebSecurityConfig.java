@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -46,21 +45,6 @@ class WebSecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
 
-                        // User management endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/users/*/tickets").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "TECHNICIAN")
-
-                        // Ticket endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/tickets").hasAnyRole("ADMIN", "TECHNICIAN")
-                        .requestMatchers(HttpMethod.GET, "/api/tickets/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/tickets/**").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/technician").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/close").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/cancel").authenticated()
 
                         .anyRequest().authenticated()
                 )
