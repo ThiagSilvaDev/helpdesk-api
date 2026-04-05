@@ -8,12 +8,12 @@ import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.TicketRequestMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.specification.TicketSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,14 +50,11 @@ public class TicketService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
-    public List<TicketResponse> findAll(TicketSearchCriteria criteria) {
+    public Page<TicketResponse> findAll(TicketSearchCriteria criteria, Pageable pageable) {
         Specification<Ticket> spec = TicketSpecification.withCriteria(criteria);
 
-        List<Ticket> tickets = ticketRepository.findAll(spec);
-
-        return tickets.stream()
-                .map(ticketMapper::toResponse)
-                .toList();
+        return ticketRepository.findAll(spec, pageable)
+                .map(ticketMapper::toResponse);
     }
 
     @PreAuthorize("@ticketAuthorization.canRead(#id, authentication)")

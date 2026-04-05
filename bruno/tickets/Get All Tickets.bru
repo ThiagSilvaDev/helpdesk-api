@@ -10,6 +10,17 @@ get {
   auth: none
 }
 
+params:query {
+  page: 0
+  size: 20
+  sort: createdAt,desc
+}
+
 headers {
   Authorization: Bearer {{accessToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }

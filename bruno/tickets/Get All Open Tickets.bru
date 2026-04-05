@@ -5,13 +5,16 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/tickets?status=OPEN
+  url: {{baseUrl}}/api/tickets
   body: none
   auth: inherit
 }
 
 params:query {
   status: OPEN
+  page: 0
+  size: 20
+  sort: createdAt,desc
 }
 
 headers {

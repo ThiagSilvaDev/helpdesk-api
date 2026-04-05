@@ -5,13 +5,16 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/tickets?priority=TRIAGE
+  url: {{baseUrl}}/api/tickets
   body: none
   auth: inherit
 }
 
 params:query {
   priority: TRIAGE
+  page: 0
+  size: 20
+  sort: createdAt,desc
 }
 
 headers {
