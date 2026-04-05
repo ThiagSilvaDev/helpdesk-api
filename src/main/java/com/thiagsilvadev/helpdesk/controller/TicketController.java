@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.*;
+import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
@@ -50,8 +51,8 @@ public class TicketController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TicketResponse>> findAll() {
-        List<TicketResponse> tickets = ticketService.findAll();
+    public ResponseEntity<List<TicketResponse>> findAll(TicketSearchCriteria criteria) {
+        List<TicketResponse> tickets = ticketService.findAll(criteria);
         return ResponseEntity.ok(tickets);
     }
 

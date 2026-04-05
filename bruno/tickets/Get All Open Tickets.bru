@@ -1,0 +1,24 @@
+meta {
+  name: Get All Open Tickets
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/tickets?status=OPEN
+  body: none
+  auth: inherit
+}
+
+params:query {
+  status: OPEN
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Get All Triage Tickets
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/tickets?priority=TRIAGE
+  body: none
+  auth: inherit
+}
+
+params:query {
+  priority: TRIAGE
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
