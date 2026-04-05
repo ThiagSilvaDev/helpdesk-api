@@ -87,7 +87,7 @@ public class TicketService {
         Ticket existingTicket = getTicketById(ticketId);
         User technician = userService.getUserById(technicianId);
 
-        existingTicket.setTechnician(technician);
+        existingTicket.assignTechnician(technician);
 
         return ticketMapper.toResponse(ticketRepository.save(existingTicket));
     }

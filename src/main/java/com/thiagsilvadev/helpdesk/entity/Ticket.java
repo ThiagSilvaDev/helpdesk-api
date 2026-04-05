@@ -87,6 +87,19 @@ public class Ticket {
         this.priority = priority;
     }
 
+    public void assignTechnician(User technician) {
+        if (technician.getRole() != Roles.ROLE_TECHNICIAN) {
+            throw new InvalidTicketStateException("Assigned user must have TECHNICIAN role");
+        }
+
+        if (this.status == TicketStatus.CLOSED || this.status == TicketStatus.CANCELLED) {
+            throw new InvalidTicketStateException("Cannot assign technician to a " + this.status + " ticket");
+        }
+
+        this.technician = technician;
+        this.status = TicketStatus.IN_PROGRESS;
+    }
+
     public void closeTicket() {
         if (this.status == TicketStatus.CLOSED) {
             throw new InvalidTicketStateException("Ticket is already closed");
@@ -116,16 +129,8 @@ public class Ticket {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public TicketStatus getStatus() {
@@ -142,17 +147,6 @@ public class Ticket {
 
     public User getTechnician() {
         return technician;
-    }
-
-    public void setTechnician(User technician) {
-        if (technician.getRole() != Roles.ROLE_TECHNICIAN) {
-            throw new InvalidTicketStateException("Assigned user must have TECHNICIAN role");
-        }
-        if (this.status == TicketStatus.CLOSED || this.status == TicketStatus.CANCELLED) {
-            throw new InvalidTicketStateException("Cannot assign technician to a " + this.status + " ticket");
-        }
-        this.technician = technician;
-        this.status = TicketStatus.IN_PROGRESS;
     }
 
     public LocalDateTime getCreatedAt() {
