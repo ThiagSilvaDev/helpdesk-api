@@ -15,28 +15,23 @@ public final class TicketSpecification {
     }
 
     public static Specification<Ticket> withCriteria(TicketSearchCriteria criteria) {
-        TicketSearchCriteria safeCriteria = criteria == null
-                ? new TicketSearchCriteria(null, null)
-                : criteria;
+        if (criteria == null) {
+            return Specification.unrestricted();
+        }
 
-        return Specification.where(all())
-                .and(hasStatus(safeCriteria.status()))
-                .and(hasPriority(safeCriteria.priority()));
+        return Specification.where(hasStatus(criteria.status()))
+                .and(hasPriority(criteria.priority()));
     }
 
     private static Specification<Ticket> hasStatus(TicketStatus status) {
         return status == null
-                ? all()
+                ? Specification.unrestricted()
                 : (root, query, cb) -> cb.equal(root.get(STATUS_FIELD), status);
     }
 
     private static Specification<Ticket> hasPriority(TicketPriority priority) {
         return priority == null
-                ? all()
+                ? Specification.unrestricted()
                 : (root, query, cb) -> cb.equal(root.get(PRIORITY_FIELD), priority);
-    }
-
-    private static Specification<Ticket> all() {
-        return (root, query, cb) -> cb.conjunction();
     }
 }
