@@ -3,7 +3,6 @@ package com.thiagsilvadev.helpdesk.exception;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -13,7 +12,7 @@ import java.util.Objects;
 
 public abstract class GlobalExceptionHandler {
 
-    protected ProblemDetail enrichProblemDetail(ProblemDetail problemDetail, @Nullable List<String> errors) {
+    protected ProblemDetail enrichProblemDetail(ProblemDetail problemDetail, @Nullable List<InvalidParam> invalidParam) {
         int statusCode = problemDetail.getStatus();
         HttpStatus status = HttpStatus.resolve(statusCode);
 
@@ -31,8 +30,8 @@ public abstract class GlobalExceptionHandler {
         problemDetail.setInstance(instanceUri);
         problemDetail.setProperty("timestamp", Instant.now());
 
-        if (errors != null && !errors.isEmpty()) {
-            problemDetail.setProperty("errors", errors);
+        if (invalidParam != null) {
+            problemDetail.setProperty("invalid_params:", invalidParam);
         }
 
         return problemDetail;
