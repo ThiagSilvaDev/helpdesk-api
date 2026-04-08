@@ -6,6 +6,7 @@ import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
         UserResponse user = userService.getUserResponseById(id);
         return ResponseEntity.ok(user);
     }
@@ -51,13 +52,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserRequest request) {
         UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/{id}/tickets")
-    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable Long id) {
+    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
         List<TicketResponse> tickets = userService.getUserTickets(id);
         return ResponseEntity.ok(tickets);
     }
