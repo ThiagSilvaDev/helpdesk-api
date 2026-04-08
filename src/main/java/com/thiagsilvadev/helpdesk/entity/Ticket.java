@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.entity;
 
+import com.thiagsilvadev.helpdesk.exception.InvalidRoleAssignmentException;
 import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
 import jakarta.persistence.*;
 
@@ -47,7 +48,7 @@ public class Ticket {
 
     public Ticket(String title, String description, User client) {
         if (client.getRole() != Roles.ROLE_USER) {
-            throw new InvalidTicketStateException("Only users with ROLE_USER can open a ticket");
+            throw new InvalidRoleAssignmentException("Only users with ROLE_USER can open a ticket");
         }
         this.title = title;
         this.description = description;
@@ -68,7 +69,7 @@ public class Ticket {
 
     public void update(String title, String description) {
         if (this.status == TicketStatus.CLOSED) {
-            throw new IllegalStateException("Cannot update a closed ticket");
+            throw new InvalidTicketStateException("Cannot update a closed ticket");
         }
 
         this.title = title;
@@ -77,7 +78,7 @@ public class Ticket {
 
     public void changePriority(TicketPriority priority) {
         if (this.status == TicketStatus.CLOSED) {
-            throw new IllegalStateException("Cannot change priority of a closed ticket");
+            throw new InvalidTicketStateException("Cannot change priority of a closed ticket");
         }
 
         if (this.priority == priority) {
@@ -89,11 +90,11 @@ public class Ticket {
 
     public void assignTechnician(User technician) {
         if (technician.getRole() != Roles.ROLE_TECHNICIAN) {
-            throw new InvalidTicketStateException("Assigned user must have TECHNICIAN role");
+            throw new InvalidRoleAssignmentException("Assigned user must have TECHNICIAN role");
         }
 
         if (this.status == TicketStatus.CLOSED || this.status == TicketStatus.CANCELLED) {
-            throw new InvalidTicketStateException("Cannot assign technician to a " + this.status + " ticket");
+            throw new InvalidRoleAssignmentException("Cannot assign technician to a " + this.status + " ticket");
         }
 
         this.technician = technician;
