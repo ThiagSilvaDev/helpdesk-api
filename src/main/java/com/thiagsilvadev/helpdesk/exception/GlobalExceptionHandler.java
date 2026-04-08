@@ -31,7 +31,7 @@ public abstract class GlobalExceptionHandler {
         problemDetail.setProperty("timestamp", Instant.now());
 
         if (invalidParam != null) {
-            problemDetail.setProperty("invalid_params:", invalidParam);
+            problemDetail.setProperty("invalid_params", invalidParam);
         }
 
         return problemDetail;
