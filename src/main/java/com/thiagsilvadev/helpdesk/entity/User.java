@@ -20,6 +20,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -28,9 +29,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean active = true;
-
-    @OneToMany(mappedBy = "client")
-    private List<Ticket> tickets;
 
     public User() {
     }
@@ -90,9 +88,5 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public List<Ticket> getTickets() {
-        return tickets;
     }
 }
