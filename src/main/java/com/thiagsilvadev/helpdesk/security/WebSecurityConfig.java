@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.security;
 
+import com.thiagsilvadev.helpdesk.config.RateLimitFilter;
 import com.thiagsilvadev.helpdesk.config.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -23,21 +25,29 @@ public class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RequestLoggingFilter requestLoggingFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                              RequestLoggingFilter requestLoggingFilter,
-                             CustomUserDetailsService userDetailsService, CustomAuthenticationEntryPoint authenticationEntryPoint) {
+                             RateLimitFilter rateLimitFilter,
+                             CustomUserDetailsService userDetailsService,
+                             CustomAuthenticationEntryPoint authenticationEntryPoint,
+                             CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.requestLoggingFilter = requestLoggingFilter;
+        this.rateLimitFilter = rateLimitFilter;
         this.userDetailsService = userDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -52,6 +62,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(requestLoggingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtAuthenticationFilter, RequestLoggingFilter.class);
 
