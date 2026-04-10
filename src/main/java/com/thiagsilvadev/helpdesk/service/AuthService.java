@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class AuthService {
 
@@ -26,8 +28,8 @@ public class AuthService {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        assert userDetails != null;
-        String token = jwtService.generateToken(userDetails);
+
+        String token = jwtService.generateToken(Objects.requireNonNull(userDetails));
 
         return new AuthResponse(token);
     }
