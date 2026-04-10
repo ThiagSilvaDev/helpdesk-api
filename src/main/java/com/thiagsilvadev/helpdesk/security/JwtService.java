@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     private final String secret;
     private final long expirationMs;
@@ -66,7 +70,8 @@ public class JwtService {
             byte[] keyBytes = Decoders.BASE64.decode(secret);
             return Keys.hmacShaKeyFor(keyBytes);
         } catch (DecodingException | IllegalArgumentException ignored) {
-            // Allows using a plain text secret during local development.
+            logger.warn("JWT secret is not valid Base64 — falling back to plain text encoding. "
+                    + "Use a Base64-encoded secret in production environments.");
             return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         }
     }
