@@ -12,12 +12,8 @@ public class TicketAuthorization {
         this.authorizationSupport = authorizationSupport;
     }
 
-    public boolean canCreate(Authentication authentication) {
-        return authorizationSupport.isUser(authentication);
-    }
-
     public boolean canRead(Long ticketId, Authentication authentication) {
-        return canReadUpdateOrCancel(ticketId, authentication);
+        return authorizationSupport.isAuthenticatedTicketOwner(ticketId, authentication);
     }
 
     public boolean canUpdate(Long ticketId, Authentication authentication) {
@@ -43,16 +39,6 @@ public class TicketAuthorization {
 
         if (authorizationSupport.isTechnician(authentication)) {
             return authorizationSupport.isAuthenticatedTechnicianAssignedToTicket(ticketId, authentication);
-        }
-
-        return false;
-    }
-
-    public boolean canAssignTechnician(Long technicianId, Authentication authentication) {
-        if (authorizationSupport.isAdmin(authentication)) return true;
-
-        if (authorizationSupport.isTechnician(authentication)) {
-            return authorizationSupport.isAuthenticatedUserByIdAndEmail(technicianId, authentication);
         }
 
         return false;
