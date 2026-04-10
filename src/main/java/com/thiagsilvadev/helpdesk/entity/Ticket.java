@@ -68,8 +68,8 @@ public class Ticket {
     }
 
     public void update(String title, String description) {
-        if (this.status == TicketStatus.CLOSED) {
-            throw new InvalidTicketStateException("Cannot update a closed ticket");
+        if (this.status == TicketStatus.CLOSED || this.status == TicketStatus.CANCELLED) {
+            throw new InvalidTicketStateException("Cannot update a " + this.status + " ticket");
         }
 
         this.title = title;
