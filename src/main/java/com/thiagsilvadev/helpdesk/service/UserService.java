@@ -1,16 +1,13 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
-import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
-import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,21 +23,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserRequestMapper userRequestMapper;
-    private final TicketMapper ticketMapper;
     private final PasswordEncoder passwordEncoder;
-    private final TicketRepository ticketRepository;
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserRequestMapper userRequestMapper,
-                       TicketMapper ticketMapper,
-                       PasswordEncoder passwordEncoder, TicketRepository ticketRepository) {
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userRequestMapper = userRequestMapper;
-        this.ticketMapper = ticketMapper;
         this.passwordEncoder = passwordEncoder;
-        this.ticketRepository = ticketRepository;
     }
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
