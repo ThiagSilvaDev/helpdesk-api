@@ -1,0 +1,29 @@
+meta {
+  name: Create Ticket With Client Id
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/staff/tickets
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+  Authorization: Bearer {{technicianAccessToken}}
+}
+
+body:json {
+  {
+    "title": "Client cannot access dashboard",
+    "description": "Client reports a 403 error after login",
+    "requesterId": 2,
+    "priority": "URGENT"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("createdTicketId", res.body.id);
+}

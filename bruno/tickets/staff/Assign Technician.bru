@@ -5,13 +5,13 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/technician
+  url: {{baseUrl}}/api/staff/tickets/{{createdTicketId}}/technician
   body: json
   auth: none
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{adminAccessToken}}
 }
 
 body:json {
@@ -19,3 +19,4 @@ body:json {
     "technicianId": 3
   }
 }
+

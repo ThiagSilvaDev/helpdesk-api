@@ -1,0 +1,16 @@
+meta {
+  name: Domain - User Not Found
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/users/999999
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
+

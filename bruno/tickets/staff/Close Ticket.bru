@@ -1,0 +1,16 @@
+meta {
+  name: Close Ticket
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/api/staff/tickets/{{createdTicketId}}/close
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
+

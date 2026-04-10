@@ -1,0 +1,19 @@
+meta {
+  name: Validation - Invalid Login Payload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "not-an-email",
+    "password": ""
+  }
+}
+

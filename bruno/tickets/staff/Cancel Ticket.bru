@@ -1,0 +1,16 @@
+meta {
+  name: Cancel Ticket
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/api/staff/tickets/{{createdTicketId}}/cancel
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
+

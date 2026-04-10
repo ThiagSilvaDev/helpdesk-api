@@ -1,0 +1,25 @@
+meta {
+  name: Domain - Duplicate Email
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/users
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
+
+body:json {
+  {
+    "name": "Duplicate User",
+    "email": "{{loginUserEmail}}",
+    "password": "User@123456",
+    "role": "ROLE_USER"
+  }
+}
+

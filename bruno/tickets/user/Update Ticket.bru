@@ -5,13 +5,13 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/api/tickets/{{createdTicketId}}
+  url: {{baseUrl}}/api/users/tickets/{{createdTicketId}}
   body: json
   auth: none
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{userAccessToken}}
 }
 
 body:json {
@@ -20,3 +20,4 @@ body:json {
     "description": "The main server is not responding since 10am. All services are affected."
   }
 }
+

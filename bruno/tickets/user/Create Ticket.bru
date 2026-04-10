@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/tickets
+  url: {{baseUrl}}/api/users/tickets
   body: json
   auth: none
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{userAccessToken}}
 }
 
 body:json {
@@ -24,3 +24,4 @@ body:json {
 script:post-response {
   bru.setEnvVar("createdTicketId", res.body.id);
 }
+

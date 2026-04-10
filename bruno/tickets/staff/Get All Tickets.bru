@@ -1,27 +1,27 @@
 meta {
-  name: Get All Triage Tickets
+  name: Get All Tickets
   type: http
-  seq: 10
+  seq: 3
 }
 
 get {
-  url: {{baseUrl}}/api/tickets
+  url: {{baseUrl}}/api/staff/tickets
   body: none
-  auth: inherit
+  auth: none
 }
 
 params:query {
-  priority: TRIAGE
   page: 0
   size: 20
   sort: createdAt,desc
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{adminAccessToken}}
 }
 
 settings {
   encodeUrl: true
   timeout: 0
 }
+
