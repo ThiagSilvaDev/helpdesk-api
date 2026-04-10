@@ -46,14 +46,14 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(String title, String description, User client) {
+    public Ticket(String title, String description, User client, TicketPriority priority) {
         if (client.getRole() != Roles.ROLE_USER) {
             throw new InvalidRoleAssignmentException("Only users with ROLE_USER can open a ticket");
         }
         this.title = title;
         this.description = description;
         this.status = TicketStatus.OPEN;
-        this.priority = TicketPriority.TRIAGE;
+        this.priority = priority != null ? priority : TicketPriority.TRIAGE;
         this.client = client;
     }
 

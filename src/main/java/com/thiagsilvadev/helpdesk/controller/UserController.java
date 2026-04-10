@@ -1,6 +1,5 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
@@ -55,12 +54,6 @@ public class UserController {
     public ResponseEntity<UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserRequest request) {
         UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
-    }
-
-    @GetMapping("/{id}/tickets")
-    public ResponseEntity<List<TicketResponse>> getUserTickets(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
-        List<TicketResponse> tickets = userService.getUserTickets(id);
-        return ResponseEntity.ok(tickets);
     }
 
     @DeleteMapping("/{id}")

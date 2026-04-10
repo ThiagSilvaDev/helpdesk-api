@@ -10,6 +10,7 @@ import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
+import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,17 +28,19 @@ public class UserService {
     private final UserRequestMapper userRequestMapper;
     private final TicketMapper ticketMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TicketRepository ticketRepository;
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserRequestMapper userRequestMapper,
                        TicketMapper ticketMapper,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder, TicketRepository ticketRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userRequestMapper = userRequestMapper;
         this.ticketMapper = ticketMapper;
         this.passwordEncoder = passwordEncoder;
+        this.ticketRepository = ticketRepository;
     }
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
@@ -53,7 +56,7 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(user));
     }
 
-    User getUserById(Long id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
@@ -81,14 +84,6 @@ public class UserService {
 
         userRequestMapper.applyUpdate(request, existingUser);
         return userMapper.toResponse(userRepository.save(existingUser));
-    }
-
-    @PreAuthorize("@userAuthorization.canReadUserTickets(#id, authentication)")
-    public List<TicketResponse> getUserTickets(Long id) {
-        User user = getUserById(id);
-        return user.getTickets().stream()
-                .map(ticketMapper::toResponse)
-                .toList();
     }
 
     @PreAuthorize("@userAuthorization.canDeactivate(authentication)")
