@@ -126,6 +126,40 @@ Base: `src/main/resources/application.properties`
   - user: `user@helpdesk.local`
   - technician: `tech@helpdesk.local`
 
+### Get Dev JWT Tokens (curl)
+
+Use the default dev credentials from `application-dev.properties` to get JWTs from `POST /api/auth/login`.
+
+Admin token:
+
+```zsh
+curl -s -X POST 'http://localhost:8080/api/auth/login' \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@helpdesk.local","password":"Admin@123456"}'
+```
+
+Technician token:
+
+```zsh
+curl -s -X POST 'http://localhost:8080/api/auth/login' \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"tech@helpdesk.local","password":"Tech@123456"}'
+```
+
+User token:
+
+```zsh
+curl -s -X POST 'http://localhost:8080/api/auth/login' \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"user@helpdesk.local","password":"User@123456"}'
+```
+
+Each response returns JSON in the format:
+
+```json
+{"token":"<jwt>"}
+```
+
 `prod` profile (`application-prod.properties`):
 
 - External DB via env vars (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`)
