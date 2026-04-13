@@ -3,6 +3,8 @@ package com.thiagsilvadev.helpdesk.exception;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -23,11 +25,15 @@ public abstract class GlobalExceptionHandler {
 
         problemDetail.setType(typeUri);
 
-        URI instanceUri = URI.create(Objects.requireNonNull(
-                ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()
-        ));
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        problemDetail.setInstance(instanceUri);
+        if (attributes != null) {
+            URI instanceUri = URI.create(attributes.getRequest().getRequestURI());
+            problemDetail.setInstance(instanceUri);
+        } else {
+            problemDetail.setInstance(URI.create("urn:helpdesk:background-process"));
+        }
+        
         problemDetail.setProperty("timestamp", Instant.now());
 
         if (invalidParam != null) {
