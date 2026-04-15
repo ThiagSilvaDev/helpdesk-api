@@ -6,7 +6,6 @@ import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
-import com.thiagsilvadev.helpdesk.mapper.UserRequestMapper;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,16 +22,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final UserRequestMapper userRequestMapper;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
-                       UserRequestMapper userRequestMapper,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        this.userRequestMapper = userRequestMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,7 +39,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        User user = userRequestMapper.toEntity(request);
+        User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
 
         return userMapper.toResponse(userRepository.save(user));
@@ -74,7 +70,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        userRequestMapper.applyUpdate(request, existingUser);
+        userMapper.applyUpdate(request, existingUser);
         return userMapper.toResponse(userRepository.save(existingUser));
     }
 

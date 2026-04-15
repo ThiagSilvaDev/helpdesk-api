@@ -4,7 +4,6 @@ import com.thiagsilvadev.helpdesk.dto.ticket.*;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
-import com.thiagsilvadev.helpdesk.mapper.TicketRequestMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,8 +24,7 @@ public class TicketCommandService {
     private final TicketRequestMapper ticketRequestMapper;
 
     public TicketCommandService(TicketRepository ticketRepository, UserService userService,
-                                TicketQueryService ticketQueryService, TicketMapper ticketMapper,
-                                TicketRequestMapper ticketRequestMapper) {
+                                TicketQueryService ticketQueryService, TicketMapper ticketMapper) {
         this.ticketRepository = ticketRepository;
         this.userService = userService;
         this.ticketQueryService = ticketQueryService;
@@ -38,13 +36,13 @@ public class TicketCommandService {
     @PreAuthorize("hasRole('USER')")
     @Transactional
     public TicketResponse createByUser(UserCreateTicketRequest request, Long authenticatedUserId) {
-        return createTicket(authenticatedUserId, client -> ticketRequestMapper.toEntity(request, client));
+        return createTicket(authenticatedUserId, client -> ticketMapper.toEntity(request, client));
     }
 
     @PreAuthorize("hasAnyRole('TECHNICIAN', 'ADMIN')")
     @Transactional
     public TicketResponse createByStaff(StaffCreateTicketRequest request) {
-        return createTicket(request.requesterId(), client -> ticketRequestMapper.toEntity(request, client));
+        return createTicket(request.requesterId(), client -> ticketMapper.toEntity(request, client));
     }
 
     private TicketResponse createTicket(Long clientId, Function<User, Ticket> ticketFactory) {
