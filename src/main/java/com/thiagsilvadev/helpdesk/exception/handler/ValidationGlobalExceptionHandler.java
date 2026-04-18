@@ -12,10 +12,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,24 +60,61 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        if (ex.getCause() instanceof InvalidFormatException cause && cause.getTargetType().isEnum()) {
-            String accepted = Arrays.stream(cause.getTargetType().getEnumConstants())
-                    .map(Object::toString)
-                    .collect(Collectors.joining(", "));
-
+        if (ex.getCause() instanceof MismatchedInputException cause) {
             String name = cause.getPath() != null && !cause.getPath().isEmpty()
                     ? cause.getPath().getLast().getPropertyName()
                     : "unknown";
 
-            String reason = "Accepted values are: " + accepted;
+            String reason;
+            if (cause instanceof InvalidFormatException formatException && formatException.getTargetType().isEnum()) {
+                String accepted = Arrays.stream(formatException.getTargetType().getEnumConstants())
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
+                reason = "Accepted values are: " + accepted;
+            } else {
+                String targetType = cause.getTargetType() != null
+                        ? cause.getTargetType().getSimpleName()
+                        : "valid type";
+                reason = String.format("must be of type %s", targetType);
+            }
 
             List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
-
             ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
             return enrichProblemDetail(problemDetail, invalidParams);
         }
 
         return createProblemDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        List<InvalidParam> invalidParams = ex.getConstraintViolations().stream()
+                .map(error -> new InvalidParam(error.getPropertyPath().toString(), error.getMessage()))
+                .toList();
+
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Constraint violation");
+        return enrichProblemDetail(problemDetail, invalidParams);
+    }
+
+    @ExceptionHandler(ServletRequestBindingException.class)
+    public ProblemDetail handleServletRequestBinding(ServletRequestBindingException ex) {
+        String name = "unknown";
+        String reason = ex.getMessage();
+
+        if (ex instanceof MissingServletRequestParameterException e) {
+            name = e.getParameterName();
+            reason = String.format("Parameter '%s' is mandatory", name);
+        } else if (ex instanceof MissingRequestHeaderException e) {
+            name = e.getHeaderName();
+            reason = String.format("Header '%s' is mandatory", name);
+        } else if (ex instanceof MissingRequestCookieException e) {
+            name = e.getCookieName();
+            reason = String.format("Cookie '%s' is mandatory", name);
+        }
+
+        List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Missing required request component");
+        return enrichProblemDetail(problemDetail, invalidParams);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
