@@ -5,6 +5,8 @@ import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -38,9 +41,12 @@ public class UserTicketController {
     @PostMapping
     @Operation(summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Ticket created"),
-            @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Access denied — only ROLE_USER can create tickets")
+            @ApiResponse(responseCode = "201", description = "Ticket created",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied — only ROLE_USER can create tickets",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<TicketResponse> create(@RequestBody @Valid UserCreateTicketRequest request,
                                                  @AuthenticationPrincipal UserPrincipal principal) {
@@ -57,8 +63,10 @@ public class UserTicketController {
     @GetMapping("/{ticketId}")
     @Operation(summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket found"),
-            @ApiResponse(responseCode = "404", description = "Ticket not found or not owned by user")
+            @ApiResponse(responseCode = "200", description = "Ticket found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Ticket not found or not owned by user",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<TicketResponse> getOwnTicketById(@PathVariable Long ticketId,
                                                            @AuthenticationPrincipal UserPrincipal principal) {
@@ -68,7 +76,10 @@ public class UserTicketController {
 
     @GetMapping
     @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
-    @ApiResponse(responseCode = "200", description = "Own tickets retrieved")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Own tickets retrieved",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
+    })
     public ResponseEntity<Page<TicketResponse>> getUserTickets(@AuthenticationPrincipal UserPrincipal principal,
                                                                @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         Page<TicketResponse> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);
@@ -78,11 +89,16 @@ public class UserTicketController {
     @PutMapping("/{id}")
     @Operation(summary = "Update ticket", description = "Updates title and description of an existing ticket")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket updated"),
-            @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "Ticket not found"),
-            @ApiResponse(responseCode = "422", description = "Invalid ticket state for update")
+            @ApiResponse(responseCode = "200", description = "Ticket updated",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Ticket not found",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "422", description = "Invalid ticket state for update",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
         TicketResponse updatedTicket = ticketCommandService.update(id, request);

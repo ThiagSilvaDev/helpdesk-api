@@ -5,6 +5,8 @@ import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
@@ -36,10 +39,14 @@ public class UserController {
     @PostMapping
     @Operation(summary = "Create user", description = "Creates a new user (admin only)")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "User created"),
-            @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "409", description = "Email already exists")
+            @ApiResponse(responseCode = "201", description = "User created",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409", description = "Email already exists",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<UserResponse> create(@RequestBody @Valid CreateUserRequest request) {
         UserResponse createdUser = userService.create(request);
@@ -57,9 +64,12 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User found"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Access denied")
+            @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
         UserResponse user = userService.getUserResponseById(id);
@@ -69,8 +79,10 @@ public class UserController {
     @GetMapping
     @Operation(summary = "List all users", description = "Returns a paginated list of all users (admin only)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Users retrieved"),
-            @ApiResponse(responseCode = "403", description = "Access denied")
+            @ApiResponse(responseCode = "200", description = "Users retrieved",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<Page<UserResponse>> findAll(
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
@@ -81,11 +93,16 @@ public class UserController {
     @PutMapping("/{id}")
     @Operation(summary = "Update user", description = "Updates user data (admin or self)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User updated"),
-            @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "409", description = "Email already exists")
+            @ApiResponse(responseCode = "200", description = "User updated",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409", description = "Email already exists",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserRequest request) {
         UserResponse updatedUser = userService.update(id, request);
@@ -96,8 +113,10 @@ public class UserController {
     @Operation(summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
-            @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "403", description = "Access denied",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deactivate(id);
