@@ -8,18 +8,20 @@ import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+    private static final String CLAIM_USER_ROLE = "role";
 
     private final String secret;
     private final long expirationMs;
@@ -30,12 +32,20 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserPrincipal userPrincipal) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
+        Long userId = Objects.requireNonNull(userPrincipal.getId(), "user id must not be null");
+        String role = userPrincipal.getAuthorities().stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElseThrow(() -> new IllegalArgumentException("user must have at least one authority"));
 
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .claims(Map.of(
+                        CLAIM_USER_ROLE, role
+                ))
+                .subject(userId.toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSignInKey())
@@ -46,9 +56,18 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public Long extractUserId(String token) {
+        String subject = extractUsername(token);
+        return subject == null ? null : Long.valueOf(subject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_USER_ROLE, String.class));
+    }
+
+    public boolean isTokenValid(String token, UserPrincipal userPrincipal) {
+        Long userId = extractUserId(token);
+        return userId != null && userId.equals(userPrincipal.getId()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
