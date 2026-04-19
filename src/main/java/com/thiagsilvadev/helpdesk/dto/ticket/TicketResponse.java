@@ -3,7 +3,7 @@ package com.thiagsilvadev.helpdesk.dto.ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record TicketResponse(
         Long id,
@@ -13,9 +13,9 @@ public record TicketResponse(
         TicketPriority priority,
         UserInfo client,
         UserInfo technician,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        LocalDateTime closedAt
+        Instant createdAt,
+        Instant updatedAt,
+        Instant closedAt
 ) {
     public record UserInfo(Long id, String name) {}
 }

@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springdoc.core.annotations.ParameterObject;
 
 import java.net.URI;
 
@@ -84,8 +85,8 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "200", description = "Tickets retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     })
-    public ResponseEntity<Page<TicketResponse>> findAll(TicketSearchCriteria criteria,
-                                                        @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+    public ResponseEntity<Page<TicketResponse>> findAll(@ParameterObject TicketSearchCriteria criteria,
+                                                        @ParameterObject @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         Page<TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
         return ResponseEntity.ok(tickets);
     }

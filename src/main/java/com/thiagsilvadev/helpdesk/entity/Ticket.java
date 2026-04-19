@@ -3,8 +3,10 @@ package com.thiagsilvadev.helpdesk.entity;
 import com.thiagsilvadev.helpdesk.exception.InvalidRoleAssignmentException;
 import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "tickets")
@@ -36,12 +38,15 @@ public class Ticket {
     @JoinColumn(name = "technician_id")
     private User technician;
 
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant updatedAt;
 
-    private LocalDateTime updatedAt;
-
-    private LocalDateTime closedAt;
+    private Instant closedAt;
 
     public Ticket() {
     }
@@ -55,16 +60,6 @@ public class Ticket {
         this.status = TicketStatus.OPEN;
         this.priority = priority != null ? priority : TicketPriority.TRIAGE;
         this.client = client;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void update(String title, String description) {
@@ -116,7 +111,7 @@ public class Ticket {
             throw new InvalidTicketStateException("Cannot close a cancelled ticket");
         }
         this.status = TicketStatus.CLOSED;
-        this.closedAt = LocalDateTime.now();
+        this.closedAt = Instant.now();
     }
 
     public void cancelTicket() {
@@ -157,15 +152,15 @@ public class Ticket {
         return technician;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public LocalDateTime getClosedAt() {
+    public Instant getClosedAt() {
         return closedAt;
     }
 }
