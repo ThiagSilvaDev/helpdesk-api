@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,10 +42,8 @@ public class UserTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied — only ROLE_USER can create tickets",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.UserCreateTicketRequest request,
                                                   @AuthenticationPrincipal UserPrincipal principal) {
@@ -65,8 +62,7 @@ public class UserTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found or not owned by user",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketDto.TicketResponse> getOwnTicketById(@PathVariable Long ticketId,
                                                             @AuthenticationPrincipal UserPrincipal principal) {
@@ -91,14 +87,10 @@ public class UserTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket updated",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "422", description = "Invalid ticket state for update",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<TicketDto.TicketResponse> update(@PathVariable Long id, @RequestBody @Valid TicketDto.UpdateTicketRequest request) {
         TicketDto.TicketResponse updatedTicket = ticketCommandService.update(id, request);

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -44,12 +43,9 @@ public class StaffTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Requester not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.StaffCreateTicketRequest request) {
         TicketDto.TicketResponse newTicket = ticketCommandService.createByStaff(request);
@@ -69,10 +65,8 @@ public class StaffTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketDto.TicketResponse> getTicketById(@PathVariable Long ticketId) {
         TicketDto.TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
@@ -96,12 +90,9 @@ public class StaffTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Priority updated",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "422", description = "Invalid state — cannot change priority of closed ticket",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<TicketDto.TicketResponse> updatePriority(@PathVariable Long ticketId, @RequestBody @Valid TicketDto.UpdatePriorityRequest request) {
         TicketDto.TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
@@ -113,12 +104,9 @@ public class StaffTicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Technician assigned",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket or technician not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "422", description = "Invalid state or role assignment",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<TicketDto.TicketResponse> assignTechnician(@PathVariable Long ticketId,
                                                            @RequestBody @Valid TicketDto.AssignTechnicianRequest request,
@@ -132,12 +120,9 @@ public class StaffTicketController {
     @Operation(summary = "Close ticket", description = "Closes a ticket (admin, or assigned technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "422", description = "Invalid state — already closed or cancelled",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<Void> close(@PathVariable Long ticketId) {
         ticketCommandService.close(ticketId);
@@ -148,12 +133,9 @@ public class StaffTicketController {
     @Operation(summary = "Cancel ticket", description = "Cancels a ticket (admin, technician, or ticket owner)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Ticket not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "422", description = "Invalid state — already closed or cancelled",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<Void> cancel(@PathVariable Long ticketId) {
         ticketCommandService.cancel(ticketId);

@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,16 +34,8 @@ public class AuthController {
 					description = "Authentication successful",
 					content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDto.AuthResponse.class))
 			),
-			@ApiResponse(
-					responseCode = "401",
-					description = "Invalid credentials",
-					content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))
-			),
-			@ApiResponse(
-					responseCode = "400",
-					description = "Validation error",
-					content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))
-			)
+			@ApiResponse(responseCode = "401", ref = "Unauthorized"),
+			@ApiResponse(responseCode = "400", ref = "BadRequest")
 	})
 	public ResponseEntity<AuthDto.AuthResponse> login(@RequestBody @Valid AuthDto.LoginRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));

@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
@@ -39,12 +38,9 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User created",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "409", description = "Email already exists",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "409", ref = "Conflict")
     })
     public ResponseEntity<UserDto.UserResponse> create(@RequestBody @Valid UserDto.CreateUserRequest request) {
         UserDto.UserResponse createdUser = userService.create(request);
@@ -64,10 +60,8 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<UserDto.UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
         UserDto.UserResponse user = userService.getUserResponseById(id);
@@ -79,8 +73,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<Page<UserDto.UserResponse>> findAll(
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
@@ -93,14 +86,10 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "409", description = "Email already exists",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound"),
+            @ApiResponse(responseCode = "409", ref = "Conflict")
     })
     public ResponseEntity<UserDto.UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDto.UpdateUserRequest request) {
         UserDto.UserResponse updatedUser = userService.update(id, request);
@@ -111,10 +100,8 @@ public class UserController {
     @Operation(summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deactivate(id);

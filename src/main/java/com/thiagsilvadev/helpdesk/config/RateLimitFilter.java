@@ -6,10 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,7 +31,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final int MAX_REQUESTS = 10;
     private static final long WINDOW_MS = 60_000L;
 
+    private final ObjectMapper objectMapper;
     private final Map<String, RateLimitBucket> buckets = new ConcurrentHashMap<>();
+
+    public RateLimitFilter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -44,17 +53,26 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if (bucket.tryConsume()) {
             filterChain.doFilter(request, response);
         } else {
+            ProblemDetail problem = buildRateLimitProblem(request);
+
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType("application/problem+json");
-            response.getWriter().write("""
-                    {
-                        "type": "/errors/too-many-requests",
-                        "title": "Too Many Requests",
-                        "status": 429,
-                        "detail": "Rate limit exceeded. Try again later."
-                    }
-                    """);
+            response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            objectMapper.writeValue(response.getOutputStream(), problem);
         }
+    }
+
+    private ProblemDetail buildRateLimitProblem(HttpServletRequest request) {
+        String baseUrl = request.getScheme() + "://" + request.getServerName()
+                + ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : ":" + request.getServerPort());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "Rate limit exceeded. Try again later."
+        );
+        problem.setType(URI.create(baseUrl + "/errors/too-many-requests"));
+        problem.setInstance(URI.create(baseUrl + request.getRequestURI()));
+        return problem;
     }
 
     @Override

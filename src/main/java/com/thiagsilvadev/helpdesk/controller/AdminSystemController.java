@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +37,7 @@ public class AdminSystemController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Health retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemHealthResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<AdminSystemDto.AdminSystemHealthResponse> getHealth() {
         return ResponseEntity.ok(adminSystemService.getHealth());
@@ -54,8 +52,7 @@ public class AdminSystemController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric names retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricNamesResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<AdminSystemDto.AdminSystemMetricNamesResponse> listMetricNames() {
         return ResponseEntity.ok(adminSystemService.listMetricNames());
@@ -70,10 +67,8 @@ public class AdminSystemController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Access denied",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Metric not found",
-                    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<AdminSystemDto.AdminSystemMetricResponse> getMetric(
             @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
