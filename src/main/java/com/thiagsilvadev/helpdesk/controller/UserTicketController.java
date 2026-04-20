@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.*;
+import com.thiagsilvadev.helpdesk.dto.TicketDto;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
@@ -42,15 +42,15 @@ public class UserTicketController {
     @Operation(summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied — only ROLE_USER can create tickets",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> create(@RequestBody @Valid UserCreateTicketRequest request,
-                                                 @AuthenticationPrincipal UserPrincipal principal) {
-        TicketResponse newTicket = ticketCommandService.createByUser(request, principal.getId());
+    public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.UserCreateTicketRequest request,
+                                                  @AuthenticationPrincipal UserPrincipal principal) {
+        TicketDto.TicketResponse newTicket = ticketCommandService.createByUser(request, principal.getId());
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -64,13 +64,13 @@ public class UserTicketController {
     @Operation(summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "404", description = "Ticket not found or not owned by user",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> getOwnTicketById(@PathVariable Long ticketId,
-                                                           @AuthenticationPrincipal UserPrincipal principal) {
-        TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, principal.getId());
+    public ResponseEntity<TicketDto.TicketResponse> getOwnTicketById(@PathVariable Long ticketId,
+                                                            @AuthenticationPrincipal UserPrincipal principal) {
+        TicketDto.TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, principal.getId());
         return ResponseEntity.ok(ticket);
     }
 
@@ -80,9 +80,9 @@ public class UserTicketController {
             @ApiResponse(responseCode = "200", description = "Own tickets retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     })
-    public ResponseEntity<Page<TicketResponse>> getUserTickets(@AuthenticationPrincipal UserPrincipal principal,
-                                                               @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
-        Page<TicketResponse> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);
+    public ResponseEntity<Page<TicketDto.TicketResponse>> getUserTickets(@AuthenticationPrincipal UserPrincipal principal,
+                                                                @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        Page<TicketDto.TicketResponse> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);
         return ResponseEntity.ok(tickets);
     }
 
@@ -90,7 +90,7 @@ public class UserTicketController {
     @Operation(summary = "Update ticket", description = "Updates title and description of an existing ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
@@ -100,8 +100,8 @@ public class UserTicketController {
             @ApiResponse(responseCode = "422", description = "Invalid ticket state for update",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> update(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
-        TicketResponse updatedTicket = ticketCommandService.update(id, request);
+    public ResponseEntity<TicketDto.TicketResponse> update(@PathVariable Long id, @RequestBody @Valid TicketDto.UpdateTicketRequest request) {
+        TicketDto.TicketResponse updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 }

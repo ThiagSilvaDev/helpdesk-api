@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
-import com.thiagsilvadev.helpdesk.dto.auth.LoginRequest;
+import com.thiagsilvadev.helpdesk.dto.AuthDto;
 import com.thiagsilvadev.helpdesk.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +33,7 @@ public class AuthController {
 			@ApiResponse(
 					responseCode = "200",
 					description = "Authentication successful",
-					content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDto.AuthResponse.class))
 			),
 			@ApiResponse(
 					responseCode = "401",
@@ -47,7 +46,7 @@ public class AuthController {
 					content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))
 			)
 	})
-	public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+	public ResponseEntity<AuthDto.AuthResponse> login(@RequestBody @Valid AuthDto.LoginRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
 }

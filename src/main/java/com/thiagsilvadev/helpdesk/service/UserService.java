@@ -1,8 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
+import com.thiagsilvadev.helpdesk.dto.UserDto;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
@@ -34,7 +32,7 @@ public class UserService {
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
     @Transactional
-    public UserResponse create(CreateUserRequest request) {
+    public UserDto.UserResponse create(UserDto.CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
@@ -51,19 +49,19 @@ public class UserService {
     }
 
     @PreAuthorize("@userAuthorization.canRead(authentication)")
-    public UserResponse getUserResponseById(Long id) {
+    public UserDto.UserResponse getUserResponseById(Long id) {
         return userMapper.toResponse(getUserById(id));
     }
 
     @PreAuthorize("@userAuthorization.canReadAll(authentication)")
-    public Page<UserResponse> findAll(Pageable pageable) {
+    public Page<UserDto.UserResponse> findAll(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(userMapper::toResponse);
     }
 
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
     @Transactional
-    public UserResponse update(Long id, UpdateUserRequest request) {
+    public UserDto.UserResponse update(Long id, UserDto.UpdateUserRequest request) {
         User existingUser = getUserById(id);
 
         if (userRepository.existsByEmailAndIdNot(request.email(), id)) {

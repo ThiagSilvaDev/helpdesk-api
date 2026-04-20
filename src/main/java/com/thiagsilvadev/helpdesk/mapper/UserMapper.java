@@ -1,20 +1,18 @@
 package com.thiagsilvadev.helpdesk.mapper;
 
-import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
+import com.thiagsilvadev.helpdesk.dto.UserDto;
 import com.thiagsilvadev.helpdesk.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
-    public UserResponse toResponse(User user) {
+    public UserDto.UserResponse toResponse(User user) {
         if (user == null) {
             return null;
         }
 
-        return new UserResponse(
+        return new UserDto.UserResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
@@ -23,7 +21,7 @@ public class UserMapper {
         );
     }
 
-    public User toEntity(CreateUserRequest request) {
+    public User toEntity(UserDto.CreateUserRequest request) {
         if (request == null) {
             return null;
         }
@@ -31,7 +29,7 @@ public class UserMapper {
         return new User(request.name(), request.email(), request.password(), request.role());
     }
 
-    public void applyUpdate(UpdateUserRequest request, User user) {
+    public void applyUpdate(UserDto.UpdateUserRequest request, User user) {
         if (request == null || user == null) {
             return;
         }

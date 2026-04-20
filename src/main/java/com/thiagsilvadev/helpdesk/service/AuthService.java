@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
-import com.thiagsilvadev.helpdesk.dto.auth.LoginRequest;
+import com.thiagsilvadev.helpdesk.dto.AuthDto;
 import com.thiagsilvadev.helpdesk.security.JwtService;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public AuthResponse authenticate(LoginRequest request) {
+    public AuthDto.AuthResponse authenticate(AuthDto.LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -38,6 +37,6 @@ public class AuthService {
 
         log.info("Generated token");
 
-        return new AuthResponse(token);
+        return new AuthDto.AuthResponse(token);
     }
 }

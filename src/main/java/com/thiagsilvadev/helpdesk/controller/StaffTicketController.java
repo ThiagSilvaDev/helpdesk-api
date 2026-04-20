@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.*;
+import com.thiagsilvadev.helpdesk.dto.TicketDto;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
@@ -43,7 +43,7 @@ public class StaffTicketController {
     @Operation(summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
@@ -51,8 +51,8 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "404", description = "Requester not found",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> create(@RequestBody @Valid StaffCreateTicketRequest request) {
-        TicketResponse newTicket = ticketCommandService.createByStaff(request);
+    public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.StaffCreateTicketRequest request) {
+        TicketDto.TicketResponse newTicket = ticketCommandService.createByStaff(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -68,14 +68,14 @@ public class StaffTicketController {
     @Operation(summary = "Get ticket by ID", description = "Returns a single ticket (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Ticket not found",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long ticketId) {
-        TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
+    public ResponseEntity<TicketDto.TicketResponse> getTicketById(@PathVariable Long ticketId) {
+        TicketDto.TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
         return ResponseEntity.ok(ticket);
     }
 
@@ -85,9 +85,9 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "200", description = "Tickets retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     })
-    public ResponseEntity<Page<TicketResponse>> findAll(@ParameterObject TicketSearchCriteria criteria,
+    public ResponseEntity<Page<TicketDto.TicketResponse>> findAll(@ParameterObject TicketDto.TicketSearchCriteria criteria,
                                                         @ParameterObject @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
-        Page<TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
+        Page<TicketDto.TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
         return ResponseEntity.ok(tickets);
     }
 
@@ -95,7 +95,7 @@ public class StaffTicketController {
     @Operation(summary = "Update ticket priority", description = "Changes the priority of a ticket (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Priority updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Ticket not found",
@@ -103,8 +103,8 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "422", description = "Invalid state — cannot change priority of closed ticket",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> updatePriority(@PathVariable Long ticketId, @RequestBody @Valid UpdatePriorityRequest request) {
-        TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
+    public ResponseEntity<TicketDto.TicketResponse> updatePriority(@PathVariable Long ticketId, @RequestBody @Valid TicketDto.UpdatePriorityRequest request) {
+        TicketDto.TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
@@ -112,7 +112,7 @@ public class StaffTicketController {
     @Operation(summary = "Assign technician", description = "Assigns a technician to a ticket and sets status to IN_PROGRESS")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Technician assigned",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Ticket or technician not found",
@@ -120,11 +120,11 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "422", description = "Invalid state or role assignment",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<TicketResponse> assignTechnician(@PathVariable Long ticketId,
-                                                           @RequestBody @Valid AssignTechnicianRequest request,
+    public ResponseEntity<TicketDto.TicketResponse> assignTechnician(@PathVariable Long ticketId,
+                                                           @RequestBody @Valid TicketDto.AssignTechnicianRequest request,
                                                            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        TicketResponse updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
+        TicketDto.TicketResponse updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
         return ResponseEntity.ok(updatedTicket);
     }
 

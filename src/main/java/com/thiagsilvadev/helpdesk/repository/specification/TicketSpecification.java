@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.repository.specification;
 
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
+import com.thiagsilvadev.helpdesk.dto.TicketDto;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
@@ -14,7 +14,7 @@ public final class TicketSpecification {
     private TicketSpecification() {
     }
 
-    public static Specification<Ticket> withCriteria(TicketSearchCriteria criteria) {
+    public static Specification<Ticket> withCriteria(TicketDto.TicketSearchCriteria criteria) {
         if (criteria == null) {
             return Specification.unrestricted();
         }

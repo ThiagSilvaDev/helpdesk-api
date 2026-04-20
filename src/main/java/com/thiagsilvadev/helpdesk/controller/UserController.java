@@ -1,8 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UpdateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
+import com.thiagsilvadev.helpdesk.dto.UserDto;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,7 +38,7 @@ public class UserController {
     @Operation(summary = "Create user", description = "Creates a new user (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
@@ -48,8 +46,8 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Email already exists",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<UserResponse> create(@RequestBody @Valid CreateUserRequest request) {
-        UserResponse createdUser = userService.create(request);
+    public ResponseEntity<UserDto.UserResponse> create(@RequestBody @Valid UserDto.CreateUserRequest request) {
+        UserDto.UserResponse createdUser = userService.create(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -65,14 +63,14 @@ public class UserController {
     @Operation(summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
-        UserResponse user = userService.getUserResponseById(id);
+    public ResponseEntity<UserDto.UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
+        UserDto.UserResponse user = userService.getUserResponseById(id);
         return ResponseEntity.ok(user);
     }
 
@@ -84,9 +82,9 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<Page<UserResponse>> findAll(
+    public ResponseEntity<Page<UserDto.UserResponse>> findAll(
             @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        Page<UserResponse> users = userService.findAll(pageable);
+        Page<UserDto.UserResponse> users = userService.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
@@ -94,7 +92,7 @@ public class UserController {
     @Operation(summary = "Update user", description = "Updates user data (admin or self)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.UserResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
@@ -104,8 +102,8 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Email already exists",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserRequest request) {
-        UserResponse updatedUser = userService.update(id, request);
+    public ResponseEntity<UserDto.UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDto.UpdateUserRequest request) {
+        UserDto.UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 

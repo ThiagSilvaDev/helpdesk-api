@@ -1,8 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.system.AdminSystemHealthResponse;
-import com.thiagsilvadev.helpdesk.dto.system.AdminSystemMetricNamesResponse;
-import com.thiagsilvadev.helpdesk.dto.system.AdminSystemMetricResponse;
+import com.thiagsilvadev.helpdesk.dto.AdminSystemDto;
 import com.thiagsilvadev.helpdesk.service.AdminSystemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,11 +37,11 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Health retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemHealthResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemHealthResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<AdminSystemHealthResponse> getHealth() {
+    public ResponseEntity<AdminSystemDto.AdminSystemHealthResponse> getHealth() {
         return ResponseEntity.ok(adminSystemService.getHealth());
     }
 
@@ -55,11 +53,11 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric names retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemMetricNamesResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricNamesResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<AdminSystemMetricNamesResponse> listMetricNames() {
+    public ResponseEntity<AdminSystemDto.AdminSystemMetricNamesResponse> listMetricNames() {
         return ResponseEntity.ok(adminSystemService.listMetricNames());
     }
 
@@ -71,13 +69,13 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemMetricResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Metric not found",
                     content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     })
-    public ResponseEntity<AdminSystemMetricResponse> getMetric(
+    public ResponseEntity<AdminSystemDto.AdminSystemMetricResponse> getMetric(
             @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
             @PathVariable String metricName
     ) {
