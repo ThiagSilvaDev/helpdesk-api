@@ -1,0 +1,21 @@
+name: helpdesk-dev
+
+services:
+  api:
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+  postgres:
+    extends:
+      file: compose.yaml
+      service: postgres
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev-pgdata:/var/lib/postgresql/data
+
+volumes:
+  dev-pgdata:

@@ -6,6 +6,8 @@ import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +19,12 @@ import java.util.function.Function;
 @Service
 public class TicketCommandService {
 
+    private static final Logger log = LoggerFactory.getLogger(TicketCommandService.class);
+
     private final TicketRepository ticketRepository;
     private final UserService userService;
     private final TicketQueryService ticketQueryService;
     private final TicketMapper ticketMapper;
-    private final TicketRequestMapper ticketRequestMapper;
 
     public TicketCommandService(TicketRepository ticketRepository, UserService userService,
                                 TicketQueryService ticketQueryService, TicketMapper ticketMapper) {
@@ -29,7 +32,6 @@ public class TicketCommandService {
         this.userService = userService;
         this.ticketQueryService = ticketQueryService;
         this.ticketMapper = ticketMapper;
-        this.ticketRequestMapper = ticketRequestMapper;
     }
 
 
@@ -48,7 +50,11 @@ public class TicketCommandService {
     private TicketResponse createTicket(Long clientId, Function<User, Ticket> ticketFactory) {
         User client = userService.getUserById(clientId);
         Ticket newTicket = ticketFactory.apply(client);
-        return ticketMapper.toResponse(ticketRepository.save(newTicket));
+        Ticket savedTicket = ticketRepository.save(newTicket);
+
+        log.info("Ticket created successfully with id {}", savedTicket.getId());
+
+        return ticketMapper.toResponse(savedTicket);
     }
 
     @PreAuthorize("@ticketAuthorization.canUpdate(#id, authentication)")
@@ -69,18 +75,22 @@ public class TicketCommandService {
         Long userId = Objects.requireNonNullElse(technicianId, authenticatedUserId);
         User technician = userService.getUserById(userId);
 
+        log.info("Assigning technician {} to ticket {}", technicianId, ticketId);
+
         return modifyAndSave(ticketId, ticket -> ticket.assignTechnician(technician));
     }
 
     @PreAuthorize("@ticketAuthorization.canClose(#id, authentication)")
     @Transactional
     public void close(Long id) {
+        log.info("Closing ticket with id {}", id);
         modifyAndSaveVoid(id, Ticket::closeTicket);
     }
 
     @PreAuthorize("@ticketAuthorization.canCancel(#id, authentication)")
     @Transactional
     public void cancel(Long id) {
+        log.info("Canceling ticket with id {}", id);
         modifyAndSaveVoid(id, Ticket::cancelTicket);
     }
 

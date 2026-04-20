@@ -168,13 +168,14 @@ Each response returns JSON in the format:
 
 ## Running Locally
 
-### 1) Start PostgreSQL (optional, recommended)
+### 1) Start PostgreSQL for local development (optional, recommended)
 
 ```zsh
-docker compose up -d
+docker compose -f compose.dev.yaml up -d
 ```
 
-This project is configured to run with PostgreSQL as the runtime database.
+This starts the local development database only. The `dev` profile is configured to use `compose.dev.yaml` and connects to `localhost:5432` by default.
+`compose.dev.yaml` inherits shared settings from `compose.base.yaml`.
 
 ### 2) Run the API
 
@@ -187,6 +188,16 @@ To run with dev profile:
 ```zsh
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
+
+## Containerized Production Stack
+
+To run the API and PostgreSQL together with the `prod` profile:
+
+```zsh
+docker compose -f compose.prod.yaml up -d --build
+```
+
+`compose.prod.yaml` also inherits shared service defaults from `compose.base.yaml`.
 
 ## API Testing with Bruno
 
@@ -213,5 +224,3 @@ When enabled, use:
 ## License
 
 See `LICENSE.md`.
-
-
