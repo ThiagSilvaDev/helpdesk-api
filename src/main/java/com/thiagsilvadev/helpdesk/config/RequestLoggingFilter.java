@@ -15,13 +15,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestLoggingFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(RequestLoggingFilter.class);
     private static final String REQUEST_ID_HEADER = "X-Request-Id";
     private static final String REQUEST_ID_MDC_KEY = "requestId";
 
@@ -39,12 +40,11 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         MDC.put(REQUEST_ID_MDC_KEY, requestId);
         response.setHeader(REQUEST_ID_HEADER, requestId);
 
-        long startedAt = System.currentTimeMillis();
+        long startedAt = System.nanoTime();
         try {
             filterChain.doFilter(request, response);
         } finally {
-            long elapsedMs = System.currentTimeMillis() - startedAt;
-            logger.info("{} {} -> {} ({} ms)", request.getMethod(), getPathWithQuery(request), response.getStatus(), elapsedMs);
+            logRequestCompletion(request, response, startedAt);
             MDC.remove(REQUEST_ID_MDC_KEY);
         }
     }
@@ -56,11 +56,15 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         return UUID.randomUUID().toString();
     }
 
-    private String getPathWithQuery(HttpServletRequest request) {
-        String queryString = request.getQueryString();
-        if (queryString == null) {
-            return request.getRequestURI();
+    private void logRequestCompletion(HttpServletRequest request, HttpServletResponse response, long startedAt) {
+        long elapsedMs = Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
+        int status = response.getStatus();
+
+        if (status >= HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
+            log.error("HTTP {} {} -> {} ({} ms)", request.getMethod(), request.getRequestURI(), status, elapsedMs);
+            return;
         }
-        return request.getRequestURI() + "?" + queryString;
+
+        log.info("HTTP {} {} -> {} ({} ms)", request.getMethod(), request.getRequestURI(), status, elapsedMs);
     }
 }

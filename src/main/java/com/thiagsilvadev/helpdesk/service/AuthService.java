@@ -30,12 +30,9 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 
-        log.info("User authenticated: {}", authentication.getName());
-
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        log.info("User authenticated successfully with id={}", Objects.requireNonNull(userPrincipal).getId());
         String token = jwtService.generateToken(Objects.requireNonNull(userPrincipal));
-
-        log.info("Generated token");
 
         return new AuthDto.AuthResponse(token);
     }

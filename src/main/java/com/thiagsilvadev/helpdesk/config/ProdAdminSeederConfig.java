@@ -37,11 +37,11 @@ public class ProdAdminSeederConfig {
 
     private void seedIfAbsent(UserRepository userRepository, PasswordEncoder passwordEncoder, SeedUserSpec spec) {
         if (userRepository.existsByEmail(spec.email())) {
-            log.info("Production Admin user '{}' already exists. Skipping seed.", spec.email());
+            log.info("Production admin user already exists. Skipping seed.");
             return;
         }
 
-        log.info("Seeding initial Production Admin user: {}", spec.email());
+        log.info("Seeding initial production admin user.");
         User user = new User(
                 spec.name(),
                 spec.email(),

@@ -165,6 +165,14 @@ Each response returns JSON in the format:
 - External DB via env vars (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`)
 - JWT secret required from env
 - Swagger disabled
+- Structured ECS JSON logs to stdout via Spring Boot's default Logback backend
+
+## Logging
+
+- Spring Boot's built-in Logback setup is used; no separate logging framework is added
+- Every request gets an `X-Request-Id` header and the same value is added to the logging MDC as `requestId`
+- Local and non-`prod` profiles keep the default human-readable console output
+- `prod` emits structured JSON logs to stdout, which fits container log collectors better than local file rotation
 
 ## Running Locally
 

@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.GlobalExceptionHandler;
+import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +26,8 @@ public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = (auth != null) ? auth.getName() : "anonymous";
-
-        logger.warn("Access denied for user '{}' on URI: {} - Reason: {}",
-                username, request.getRequestURI(), ex.getMessage());
+        logger.warn("Access denied for {} on {}",
+                describePrincipal(auth), request.getRequestURI());
 
         return createProblemDetail(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
     }
@@ -42,10 +41,21 @@ public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
-
-        logger.warn("Authentication failed on URI: {} - Reason: {}",
-                request.getRequestURI(), ex.getMessage());
+        logger.warn("Authentication failed on {} with {}",
+                request.getRequestURI(), ex.getClass().getSimpleName());
 
         return createProblemDetail(HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
+    }
+
+    private String describePrincipal(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return "anonymous";
+        }
+
+        if (auth.getPrincipal() instanceof UserPrincipal userPrincipal && userPrincipal.getId() != null) {
+            return "userId=" + userPrincipal.getId();
+        }
+
+        return "authenticated-user";
     }
 }
