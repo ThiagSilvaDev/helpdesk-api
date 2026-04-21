@@ -1,5 +1,10 @@
 package com.thiagsilvadev.helpdesk.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,29 +15,26 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.time.Duration;
 
-/**
- * Simple in-memory rate limiter for the authentication endpoint.
- * Limits requests per IP to prevent brute-force attacks.
- *
- * <p>For production deployments behind a load balancer, consider using
- * a distributed rate limiter (e.g., Redis-backed via Spring Cloud Gateway).</p>
- */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final int MAX_REQUESTS = 10;
-    private static final long WINDOW_MS = 60_000L;
+    private static final int MAX_BUCKET_ENTRIES = 20_000;
+    private static final Duration WINDOW = Duration.ofMinutes(1);
+    private static final long TOKENS_PER_REQUEST = 1L;
 
     private final ObjectMapper objectMapper;
-    private final Map<String, RateLimitBucket> buckets = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+            .maximumSize(MAX_BUCKET_ENTRIES)
+            .expireAfterAccess(WINDOW.multipliedBy(2))
+            .build();
 
     public RateLimitFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -43,14 +45,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String clientIp = getClientIp(request);
-        RateLimitBucket bucket = buckets.compute(clientIp, (key, existing) -> {
-            if (existing == null || existing.isExpired()) {
-                return new RateLimitBucket();
-            }
-            return existing;
-        });
+        Bucket bucket = buckets.get(clientIp, key -> createBucket());
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(TOKENS_PER_REQUEST);
 
-        if (bucket.tryConsume()) {
+        if (probe.isConsumed()) {
             filterChain.doFilter(request, response);
         } else {
             ProblemDetail problem = buildRateLimitProblem(request);
@@ -58,13 +56,28 @@ public class RateLimitFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
+            long nanosToWaitForRefill = probe.getNanosToWaitForRefill();
+            long retryAfterSeconds = Math.max(1L, (nanosToWaitForRefill + 1_000_000_000L - 1) / 1_000_000_000L);
+            response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
             objectMapper.writeValue(response.getOutputStream(), problem);
         }
     }
 
+    private Bucket createBucket() {
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(MAX_REQUESTS)
+                .refillGreedy(MAX_REQUESTS, WINDOW)
+                .build();
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
+    }
+
     private ProblemDetail buildRateLimitProblem(HttpServletRequest request) {
-        String baseUrl = request.getScheme() + "://" + request.getServerName()
-                + ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : ":" + request.getServerPort());
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.TOO_MANY_REQUESTS,
@@ -86,18 +99,5 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return xForwardedFor.split(",")[0].trim();
         }
         return request.getRemoteAddr();
-    }
-
-    private static class RateLimitBucket {
-        private final AtomicInteger count = new AtomicInteger(0);
-        private final long windowStart = System.currentTimeMillis();
-
-        boolean isExpired() {
-            return System.currentTimeMillis() - windowStart > WINDOW_MS;
-        }
-
-        boolean tryConsume() {
-            return count.incrementAndGet() <= MAX_REQUESTS;
-        }
     }
 }
