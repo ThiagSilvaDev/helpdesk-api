@@ -2,8 +2,11 @@ name: helpdesk-dev
 
 services:
   api:
+    profiles:
+      - "api"
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
+      SPRING_PROFILES_ACTIVE: dev
+
   postgres:
     extends:
       file: compose.yaml
