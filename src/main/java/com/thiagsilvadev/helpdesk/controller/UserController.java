@@ -13,9 +13,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +42,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "409", ref = "Conflict")
     })
-    public ResponseEntity<UserDto.UserResponse> create(@RequestBody @Valid UserDto.CreateUserRequest request) {
+    public ResponseEntity<UserDto.UserResponse> createUser(@RequestBody @Valid UserDto.CreateUserRequest request) {
         UserDto.UserResponse createdUser = userService.create(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -75,8 +75,8 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<Page<UserDto.UserResponse>> findAll(
-            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+    public ResponseEntity<Page<UserDto.UserResponse>> listUsers(
+            @ParameterObject Pageable pageable) {
         Page<UserDto.UserResponse> users = userService.findAll(pageable);
         return ResponseEntity.ok(users);
     }
@@ -91,7 +91,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "409", ref = "Conflict")
     })
-    public ResponseEntity<UserDto.UserResponse> update(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDto.UpdateUserRequest request) {
+    public ResponseEntity<UserDto.UserResponse> updateUser(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDto.UpdateUserRequest request) {
         UserDto.UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
@@ -103,7 +103,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
         userService.deactivate(id);
         return ResponseEntity.noContent().build();
     }

@@ -37,7 +37,7 @@ public class AuthController {
 			@ApiResponse(responseCode = "401", ref = "Unauthorized"),
 			@ApiResponse(responseCode = "400", ref = "BadRequest")
 	})
-	public ResponseEntity<AuthDto.AuthResponse> login(@RequestBody @Valid AuthDto.LoginRequest request) {
+	public ResponseEntity<AuthDto.AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthDto.LoginRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
 }

@@ -30,11 +30,11 @@ public class Ticket {
     @Column(nullable = false)
     private TicketPriority priority;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false, updatable = false)
     private User client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "technician_id")
     private User technician;
 

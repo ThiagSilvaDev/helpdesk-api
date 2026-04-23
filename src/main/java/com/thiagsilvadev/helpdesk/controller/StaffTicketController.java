@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -47,7 +46,7 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.StaffCreateTicketRequest request) {
+    public ResponseEntity<TicketDto.TicketResponse> createTicketAsStaff(@RequestBody @Valid TicketDto.StaffCreateTicketRequest request) {
         TicketDto.TicketResponse newTicket = ticketCommandService.createByStaff(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -68,7 +67,7 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDto.TicketResponse> getTicketById(@PathVariable Long ticketId) {
+    public ResponseEntity<TicketDto.TicketResponse> getTicketByIdForStaff(@PathVariable Long ticketId) {
         TicketDto.TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
         return ResponseEntity.ok(ticket);
     }
@@ -79,8 +78,8 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "200", description = "Tickets retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     })
-    public ResponseEntity<Page<TicketDto.TicketResponse>> findAll(@ParameterObject TicketDto.TicketSearchCriteria criteria,
-                                                        @ParameterObject @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+    public ResponseEntity<Page<TicketDto.TicketResponse>> listTicketsForStaff(@ParameterObject TicketDto.TicketSearchCriteria criteria,
+                                                                               @ParameterObject Pageable pageable) {
         Page<TicketDto.TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
         return ResponseEntity.ok(tickets);
     }
@@ -94,7 +93,7 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDto.TicketResponse> updatePriority(@PathVariable Long ticketId, @RequestBody @Valid TicketDto.UpdatePriorityRequest request) {
+    public ResponseEntity<TicketDto.TicketResponse> updateTicketPriorityAsStaff(@PathVariable Long ticketId, @RequestBody @Valid TicketDto.UpdatePriorityRequest request) {
         TicketDto.TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
         return ResponseEntity.ok(updatedTicket);
     }
@@ -108,9 +107,9 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDto.TicketResponse> assignTechnician(@PathVariable Long ticketId,
-                                                           @RequestBody @Valid TicketDto.AssignTechnicianRequest request,
-                                                           @AuthenticationPrincipal UserPrincipal principal
+    public ResponseEntity<TicketDto.TicketResponse> assignTechnicianToTicket(@PathVariable Long ticketId,
+                                                                              @RequestBody @Valid TicketDto.AssignTechnicianRequest request,
+                                                                              @AuthenticationPrincipal UserPrincipal principal
     ) {
         TicketDto.TicketResponse updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
         return ResponseEntity.ok(updatedTicket);
@@ -124,7 +123,7 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<Void> close(@PathVariable Long ticketId) {
+    public ResponseEntity<Void> closeTicketAsStaff(@PathVariable Long ticketId) {
         ticketCommandService.close(ticketId);
         return ResponseEntity.noContent().build();
     }
@@ -137,7 +136,7 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<Void> cancel(@PathVariable Long ticketId) {
+    public ResponseEntity<Void> cancelTicketAsStaff(@PathVariable Long ticketId) {
         ticketCommandService.cancel(ticketId);
         return ResponseEntity.noContent().build();
     }

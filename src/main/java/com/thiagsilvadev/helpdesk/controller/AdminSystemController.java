@@ -39,7 +39,7 @@ public class AdminSystemController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemHealthResponse.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemHealthResponse> getHealth() {
+    public ResponseEntity<AdminSystemDto.AdminSystemHealthResponse> getAdminSystemHealth() {
         return ResponseEntity.ok(adminSystemService.getHealth());
     }
 
@@ -54,7 +54,7 @@ public class AdminSystemController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricNamesResponse.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemMetricNamesResponse> listMetricNames() {
+    public ResponseEntity<AdminSystemDto.AdminSystemMetricNamesResponse> listAdminSystemMetricNames() {
         return ResponseEntity.ok(adminSystemService.listMetricNames());
     }
 
@@ -70,7 +70,7 @@ public class AdminSystemController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemMetricResponse> getMetric(
+    public ResponseEntity<AdminSystemDto.AdminSystemMetricResponse> getAdminSystemMetricByName(
             @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
             @PathVariable String metricName
     ) {

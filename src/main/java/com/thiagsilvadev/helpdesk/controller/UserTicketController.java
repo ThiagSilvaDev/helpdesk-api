@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +45,8 @@ public class UserTicketController {
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<TicketDto.TicketResponse> create(@RequestBody @Valid TicketDto.UserCreateTicketRequest request,
-                                                  @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<TicketDto.TicketResponse> createTicketAsUser(@RequestBody @Valid TicketDto.UserCreateTicketRequest request,
+                                                                       @AuthenticationPrincipal UserPrincipal principal) {
         TicketDto.TicketResponse newTicket = ticketCommandService.createByUser(request, principal.getId());
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -64,8 +64,8 @@ public class UserTicketController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDto.TicketResponse> getOwnTicketById(@PathVariable Long ticketId,
-                                                            @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<TicketDto.TicketResponse> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
+                                                                                       @AuthenticationPrincipal UserPrincipal principal) {
         TicketDto.TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, principal.getId());
         return ResponseEntity.ok(ticket);
     }
@@ -76,8 +76,8 @@ public class UserTicketController {
             @ApiResponse(responseCode = "200", description = "Own tickets retrieved",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
     })
-    public ResponseEntity<Page<TicketDto.TicketResponse>> getUserTickets(@AuthenticationPrincipal UserPrincipal principal,
-                                                                @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+    public ResponseEntity<Page<TicketDto.TicketResponse>> listAuthenticatedUserTickets(@AuthenticationPrincipal UserPrincipal principal,
+                                                                                        @ParameterObject Pageable pageable) {
         Page<TicketDto.TicketResponse> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);
         return ResponseEntity.ok(tickets);
     }
@@ -92,7 +92,7 @@ public class UserTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDto.TicketResponse> update(@PathVariable Long id, @RequestBody @Valid TicketDto.UpdateTicketRequest request) {
+    public ResponseEntity<TicketDto.TicketResponse> updateTicketAsUser(@PathVariable Long id, @RequestBody @Valid TicketDto.UpdateTicketRequest request) {
         TicketDto.TicketResponse updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
