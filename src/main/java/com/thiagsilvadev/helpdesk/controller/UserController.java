@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -68,11 +69,10 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "List all users", description = "Returns a paginated list of all users (admin only)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Users retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "200", description = "Users retrieved"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<Page<UserDto.UserResponse>> listUsers(

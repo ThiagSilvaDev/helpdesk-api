@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springdoc.core.annotations.ParameterObject;
@@ -70,12 +71,10 @@ public class UserTicketController {
         return ResponseEntity.ok(ticket);
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Own tickets retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
-    })
+            @ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
     public ResponseEntity<Page<TicketDto.TicketResponse>> listAuthenticatedUserTickets(@AuthenticationPrincipal UserPrincipal principal,
                                                                                         @ParameterObject Pageable pageable) {
         Page<TicketDto.TicketResponse> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);

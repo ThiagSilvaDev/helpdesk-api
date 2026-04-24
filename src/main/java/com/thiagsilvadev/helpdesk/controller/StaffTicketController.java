@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -72,12 +73,10 @@ public class StaffTicketController {
         return ResponseEntity.ok(ticket);
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "List all tickets", description = "Returns a paginated, filterable list of all tickets (admin/technician)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Tickets retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class)))
-    })
+            @ApiResponse(responseCode = "200", description = "Tickets retrieved")})
     public ResponseEntity<Page<TicketDto.TicketResponse>> listTicketsForStaff(@ParameterObject TicketDto.TicketSearchCriteria criteria,
                                                                                @ParameterObject Pageable pageable) {
         Page<TicketDto.TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
