@@ -30,7 +30,6 @@ public class WebGlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFound(NoResourceFoundException ex) {
-        String message = "Resource not found: " + ex.getMessage();
-        return problemDetails.create(HttpStatus.NOT_FOUND, message);
+        return problemDetails.create(HttpStatus.NOT_FOUND, "Resource not found");
     }
 }

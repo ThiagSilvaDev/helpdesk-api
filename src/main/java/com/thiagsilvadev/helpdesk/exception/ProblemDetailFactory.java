@@ -24,18 +24,18 @@ public class ProblemDetailFactory {
         int statusCode = problemDetail.getStatus();
         HttpStatus status = HttpStatus.resolve(statusCode);
 
-        URI typeUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/errors/{slug}")
-                .buildAndExpand(resolveStatusSlug(statusCode, status))
-                .toUri();
-
-        problemDetail.setType(typeUri);
-
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
+            URI typeUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/errors/{slug}")
+                    .buildAndExpand(resolveStatusSlug(statusCode, status))
+                    .toUri();
             URI instanceUri = URI.create(attributes.getRequest().getRequestURI());
+
+            problemDetail.setType(typeUri);
             problemDetail.setInstance(instanceUri);
         } else {
+            problemDetail.setType(URI.create("urn:helpdesk:error:" + resolveStatusSlug(statusCode, status)));
             problemDetail.setInstance(URI.create("urn:helpdesk:background-process"));
         }
 
