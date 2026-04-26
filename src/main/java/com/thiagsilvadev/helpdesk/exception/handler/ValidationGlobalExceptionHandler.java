@@ -2,6 +2,7 @@ package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory.InvalidParam;
+import jakarta.validation.ConstraintViolationException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSourceResolvable;
@@ -95,8 +96,8 @@ public class ValidationGlobalExceptionHandler {
         return problemDetails.create(HttpStatus.BAD_REQUEST, "Malformed request body");
     }
 
-    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
         List<InvalidParam> invalidParams = ex.getConstraintViolations().stream()
                 .map(error -> new InvalidParam(error.getPropertyPath().toString(), error.getMessage()))
                 .toList();
