@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.AdminSystemDto;
+import com.thiagsilvadev.helpdesk.dto.AdminSystemDTO;
 import com.thiagsilvadev.helpdesk.service.AdminSystemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,10 +36,10 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Health retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemHealthResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Health.Response.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemHealthResponse> getAdminSystemHealth() {
+    public ResponseEntity<AdminSystemDTO.Health.Response> getAdminSystemHealth() {
         return ResponseEntity.ok(adminSystemService.getHealth());
     }
 
@@ -51,10 +51,10 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric names retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricNamesResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Metric.NamesResponse.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemMetricNamesResponse> listAdminSystemMetricNames() {
+    public ResponseEntity<AdminSystemDTO.Metric.NamesResponse> listAdminSystemMetricNames() {
         return ResponseEntity.ok(adminSystemService.listMetricNames());
     }
 
@@ -66,11 +66,11 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDto.AdminSystemMetricResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Metric.DetailResponse.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<AdminSystemDto.AdminSystemMetricResponse> getAdminSystemMetricByName(
+    public ResponseEntity<AdminSystemDTO.Metric.DetailResponse> getAdminSystemMetricByName(
             @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
             @PathVariable String metricName
     ) {

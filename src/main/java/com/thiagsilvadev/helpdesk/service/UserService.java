@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.UserDto;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.dto.UserDTO;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
@@ -32,37 +31,37 @@ public class UserService {
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
     @Transactional
-    public UserDto.UserResponse create(UserDto.CreateUserRequest request) {
+    public UserDTO.Response create(UserDTO.Create.Request request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        User user = userMapper.toEntity(request);
+        com.thiagsilvadev.helpdesk.entity.User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
 
         return userMapper.toResponse(userRepository.save(user));
     }
 
-    public User getUserById(Long id) {
+    public com.thiagsilvadev.helpdesk.entity.User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
     @PreAuthorize("@userAuthorization.canRead(authentication)")
-    public UserDto.UserResponse getUserResponseById(Long id) {
+    public UserDTO.Response getUserResponseById(Long id) {
         return userMapper.toResponse(getUserById(id));
     }
 
     @PreAuthorize("@userAuthorization.canReadAll(authentication)")
-    public Page<UserDto.UserResponse> findAll(Pageable pageable) {
+    public Page<UserDTO.Response> findAll(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(userMapper::toResponse);
     }
 
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
     @Transactional
-    public UserDto.UserResponse update(Long id, UserDto.UpdateUserRequest request) {
-        User existingUser = getUserById(id);
+    public UserDTO.Response update(Long id, UserDTO.Update.Request request) {
+        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
 
         if (userRepository.existsByEmailAndIdNot(request.email(), id)) {
             throw new EmailAlreadyExistsException(request.email());
@@ -75,7 +74,7 @@ public class UserService {
     @PreAuthorize("@userAuthorization.canDeactivate(authentication)")
     @Transactional
     public void deactivate(Long id) {
-        User existingUser = getUserById(id);
+        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
         existingUser.setActive(false);
         userRepository.save(existingUser);
     }

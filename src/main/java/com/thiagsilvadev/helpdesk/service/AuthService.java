@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.AuthDto;
+import com.thiagsilvadev.helpdesk.dto.AuthDTO;
 import com.thiagsilvadev.helpdesk.security.JwtService;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public AuthDto.AuthResponse authenticate(AuthDto.LoginRequest request) {
+    public AuthDTO.Response authenticate(AuthDTO.Login.Request request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -34,6 +34,6 @@ public class AuthService {
         log.info("User authenticated successfully with id={}", Objects.requireNonNull(userPrincipal).getId());
         String token = jwtService.generateToken(Objects.requireNonNull(userPrincipal));
 
-        return new AuthDto.AuthResponse(token);
+        return new AuthDTO.Response(token);
     }
 }

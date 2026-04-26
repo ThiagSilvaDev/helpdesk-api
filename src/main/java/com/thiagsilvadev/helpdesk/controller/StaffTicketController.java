@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDto;
+import com.thiagsilvadev.helpdesk.dto.TicketDTO;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
@@ -42,13 +42,13 @@ public class StaffTicketController {
     @Operation(summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDto.TicketResponse> createTicketAsStaff(@RequestBody @Valid TicketDto.StaffCreateTicketRequest request) {
-        TicketDto.TicketResponse newTicket = ticketCommandService.createByStaff(request);
+    public ResponseEntity<TicketDTO.Response> createTicketAsStaff(@RequestBody @Valid TicketDTO.Create.StaffRequest request) {
+        TicketDTO.Response newTicket = ticketCommandService.createByStaff(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -64,12 +64,12 @@ public class StaffTicketController {
     @Operation(summary = "Get ticket by ID", description = "Returns a single ticket (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDto.TicketResponse> getTicketByIdForStaff(@PathVariable Long ticketId) {
-        TicketDto.TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
+    public ResponseEntity<TicketDTO.Response> getTicketByIdForStaff(@PathVariable Long ticketId) {
+        TicketDTO.Response ticket = ticketQueryService.getTicketResponseById(ticketId);
         return ResponseEntity.ok(ticket);
     }
 
@@ -77,9 +77,9 @@ public class StaffTicketController {
     @Operation(summary = "List all tickets", description = "Returns a paginated, filterable list of all tickets (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tickets retrieved")})
-    public ResponseEntity<Page<TicketDto.TicketResponse>> listTicketsForStaff(@ParameterObject TicketDto.TicketSearchCriteria criteria,
+    public ResponseEntity<Page<TicketDTO.Response>> listTicketsForStaff(@ParameterObject TicketDTO.Search.Criteria criteria,
                                                                                @ParameterObject Pageable pageable) {
-        Page<TicketDto.TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
+        Page<TicketDTO.Response> tickets = ticketQueryService.findAll(criteria, pageable);
         return ResponseEntity.ok(tickets);
     }
 
@@ -87,13 +87,13 @@ public class StaffTicketController {
     @Operation(summary = "Update ticket priority", description = "Changes the priority of a ticket (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Priority updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDto.TicketResponse> updateTicketPriorityAsStaff(@PathVariable Long ticketId, @RequestBody @Valid TicketDto.UpdatePriorityRequest request) {
-        TicketDto.TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
+    public ResponseEntity<TicketDTO.Response> updateTicketPriorityAsStaff(@PathVariable Long ticketId, @RequestBody @Valid TicketDTO.UpdatePriority.Request request) {
+        TicketDTO.Response updatedTicket = ticketCommandService.updatePriority(ticketId, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
@@ -101,16 +101,16 @@ public class StaffTicketController {
     @Operation(summary = "Assign technician", description = "Assigns a technician to a ticket and sets status to IN_PROGRESS")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Technician assigned",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDto.TicketResponse.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDto.TicketResponse> assignTechnicianToTicket(@PathVariable Long ticketId,
-                                                                              @RequestBody @Valid TicketDto.AssignTechnicianRequest request,
+    public ResponseEntity<TicketDTO.Response> assignTechnicianToTicket(@PathVariable Long ticketId,
+                                                                              @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
                                                                               @AuthenticationPrincipal UserPrincipal principal
     ) {
-        TicketDto.TicketResponse updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
+        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
         return ResponseEntity.ok(updatedTicket);
     }
 

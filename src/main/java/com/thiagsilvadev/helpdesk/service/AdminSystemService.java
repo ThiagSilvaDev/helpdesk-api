@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.AdminSystemDto;
+import com.thiagsilvadev.helpdesk.dto.AdminSystemDTO;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
@@ -27,22 +27,22 @@ public class AdminSystemService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public AdminSystemDto.AdminSystemHealthResponse getHealth() {
+    public AdminSystemDTO.Health.Response getHealth() {
         return mapHealthDescriptor(healthEndpoint.health());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public AdminSystemDto.AdminSystemMetricNamesResponse listMetricNames() {
+    public AdminSystemDTO.Metric.NamesResponse listMetricNames() {
         MetricsEndpoint.MetricNamesDescriptor descriptor = metricsEndpoint.listNames();
         List<String> names = descriptor.getNames().stream()
                 .sorted()
                 .toList();
 
-        return new AdminSystemDto.AdminSystemMetricNamesResponse(names);
+        return new AdminSystemDTO.Metric.NamesResponse(names);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public AdminSystemDto.AdminSystemMetricResponse getMetric(String metricName) {
+    public AdminSystemDTO.Metric.DetailResponse getMetric(String metricName) {
         MetricsEndpoint.MetricDescriptor descriptor = metricsEndpoint.metric(metricName, List.of());
         if (descriptor == null) {
             throw new NotFoundException("Metric not found with name: " + metricName);
@@ -51,46 +51,46 @@ public class AdminSystemService {
         return mapMetricDescriptor(descriptor);
     }
 
-    private AdminSystemDto.AdminSystemHealthResponse mapHealthDescriptor(HealthDescriptor descriptor) {
-        return new AdminSystemDto.AdminSystemHealthResponse(
+    private AdminSystemDTO.Health.Response mapHealthDescriptor(HealthDescriptor descriptor) {
+        return new AdminSystemDTO.Health.Response(
                 getStatusCode(descriptor),
                 mapHealthComponents(descriptor)
         );
     }
 
-    private List<AdminSystemDto.AdminSystemHealthComponentResponse> mapHealthComponents(HealthDescriptor descriptor) {
+    private List<AdminSystemDTO.Health.ComponentResponse> mapHealthComponents(HealthDescriptor descriptor) {
         if (!(descriptor instanceof CompositeHealthDescriptor compositeHealthDescriptor)) {
             return List.of();
         }
 
         return Objects.requireNonNull(compositeHealthDescriptor.getComponents()).entrySet().stream()
-                .map(entry -> new AdminSystemDto.AdminSystemHealthComponentResponse(
+                .map(entry -> new AdminSystemDTO.Health.ComponentResponse(
                         entry.getKey(),
                         getStatusCode(entry.getValue())
                 ))
-                .sorted(Comparator.comparing(AdminSystemDto.AdminSystemHealthComponentResponse::name))
+                .sorted(Comparator.comparing(AdminSystemDTO.Health.ComponentResponse::name))
                 .toList();
     }
 
-    private AdminSystemDto.AdminSystemMetricResponse mapMetricDescriptor(MetricsEndpoint.MetricDescriptor descriptor) {
+    private AdminSystemDTO.Metric.DetailResponse mapMetricDescriptor(MetricsEndpoint.MetricDescriptor descriptor) {
         String description = descriptor.getDescription() != null ? descriptor.getDescription() : "";
         String baseUnit = descriptor.getBaseUnit() != null ? descriptor.getBaseUnit() : "";
 
-        List<AdminSystemDto.AdminSystemMetricMeasurementResponse> measurements = descriptor.getMeasurements().stream()
-                .map(sample -> new AdminSystemDto.AdminSystemMetricMeasurementResponse(
+        List<AdminSystemDTO.Metric.MeasurementResponse> measurements = descriptor.getMeasurements().stream()
+                .map(sample -> new AdminSystemDTO.Metric.MeasurementResponse(
                         sample.getStatistic().name(),
                         sample.getValue()
                 ))
                 .toList();
 
-        List<AdminSystemDto.AdminSystemMetricTagResponse> availableTags = descriptor.getAvailableTags().stream()
-                .map(tag -> new AdminSystemDto.AdminSystemMetricTagResponse(
+        List<AdminSystemDTO.Metric.TagResponse> availableTags = descriptor.getAvailableTags().stream()
+                .map(tag -> new AdminSystemDTO.Metric.TagResponse(
                         tag.getTag(),
                         tag.getValues().stream().sorted().toList()
                 ))
                 .toList();
 
-        return new AdminSystemDto.AdminSystemMetricResponse(
+        return new AdminSystemDTO.Metric.DetailResponse(
                 descriptor.getName(),
                 description,
                 baseUnit,
