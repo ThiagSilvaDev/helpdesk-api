@@ -1,11 +1,7 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
 import com.thiagsilvadev.helpdesk.dto.TicketDTO;
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.TicketStatus;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.*;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;

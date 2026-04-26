@@ -1,10 +1,10 @@
 package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.AuthDTO;
-import com.thiagsilvadev.helpdesk.security.JwtService;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.security.JwtService;
+import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
