@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.config;
+package com.thiagsilvadev.helpdesk.seeder;
 
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.Ticket;

@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.config;
+package com.thiagsilvadev.helpdesk.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

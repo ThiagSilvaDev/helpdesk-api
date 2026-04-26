@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.config;
+package com.thiagsilvadev.helpdesk.filter;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

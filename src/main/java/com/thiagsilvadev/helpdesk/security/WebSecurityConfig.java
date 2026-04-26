@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.config.RateLimitFilter;
-import com.thiagsilvadev.helpdesk.config.RequestLoggingFilter;
+import com.thiagsilvadev.helpdesk.filter.RateLimitFilter;
+import com.thiagsilvadev.helpdesk.filter.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
