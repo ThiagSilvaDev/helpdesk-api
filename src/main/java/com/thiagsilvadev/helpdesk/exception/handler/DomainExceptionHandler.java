@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order(2)
-public class DomainGlobalExceptionHandler {
+public class DomainExceptionHandler {
 
     private final ProblemDetailFactory problemDetails;
 
-    public DomainGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+    public DomainExceptionHandler(ProblemDetailFactory problemDetails) {
         this.problemDetails = problemDetails;
     }
 

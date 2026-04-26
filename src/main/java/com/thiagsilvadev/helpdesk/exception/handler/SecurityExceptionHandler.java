@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class SecurityGlobalExceptionHandler {
+public class SecurityExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityGlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecurityExceptionHandler.class);
 
     private final ProblemDetailFactory problemDetails;
 
-    public SecurityGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+    public SecurityExceptionHandler(ProblemDetailFactory problemDetails) {
         this.problemDetails = problemDetails;
     }
 

@@ -34,11 +34,11 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Order(1)
-public class ValidationGlobalExceptionHandler {
+public class ValidationExceptionHandler {
 
     private final ProblemDetailFactory problemDetails;
 
-    public ValidationGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+    public ValidationExceptionHandler(ProblemDetailFactory problemDetails) {
         this.problemDetails = problemDetails;
     }
 

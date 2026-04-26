@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order()
-public class FallbackGlobalExceptionHandler {
+public class FallbackExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(FallbackGlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(FallbackExceptionHandler.class);
 
     private final ProblemDetailFactory problemDetails;
 
-    public FallbackGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+    public FallbackExceptionHandler(ProblemDetailFactory problemDetails) {
         this.problemDetails = problemDetails;
     }
 

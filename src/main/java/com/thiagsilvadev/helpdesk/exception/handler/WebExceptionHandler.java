@@ -11,11 +11,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 @Order(0)
-public class WebGlobalExceptionHandler {
+public class WebExceptionHandler {
 
     private final ProblemDetailFactory problemDetails;
 
-    public WebGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+    public WebExceptionHandler(ProblemDetailFactory problemDetails) {
         this.problemDetails = problemDetails;
     }
 
