@@ -12,10 +12,13 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingMatrixVariableException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -104,23 +107,43 @@ public class ValidationGlobalExceptionHandler {
 
     @ExceptionHandler(ServletRequestBindingException.class)
     public ProblemDetail handleServletRequestBinding(ServletRequestBindingException ex) {
-        String name = "unknown";
-        String reason = ex.getMessage();
-
-        if (ex instanceof MissingServletRequestParameterException e) {
-            name = e.getParameterName();
-            reason = String.format("Parameter '%s' is mandatory", name);
-        } else if (ex instanceof MissingRequestHeaderException e) {
-            name = e.getHeaderName();
-            reason = String.format("Header '%s' is mandatory", name);
-        } else if (ex instanceof MissingRequestCookieException e) {
-            name = e.getCookieName();
-            reason = String.format("Cookie '%s' is mandatory", name);
-        }
-
-        List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
+        RequestBindingError error = resolveRequestBindingError(ex);
+        List<InvalidParam> invalidParams = List.of(new InvalidParam(error.name(), error.reason()));
         ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Missing required request component");
         return problemDetails.enrich(problemDetail, invalidParams);
+    }
+
+    private RequestBindingError resolveRequestBindingError(ServletRequestBindingException ex) {
+        return switch (ex) {
+            case MissingServletRequestParameterException e -> new RequestBindingError(
+                    e.getParameterName(),
+                    String.format("Required query parameter '%s' is missing", e.getParameterName())
+            );
+            case MissingRequestHeaderException e -> new RequestBindingError(
+                    e.getHeaderName(),
+                    String.format("Required request header '%s' is missing", e.getHeaderName())
+            );
+            case MissingRequestCookieException e -> new RequestBindingError(
+                    e.getCookieName(),
+                    String.format("Required cookie '%s' is missing", e.getCookieName())
+            );
+            case MissingPathVariableException e -> new RequestBindingError(
+                    e.getVariableName(),
+                    String.format("Required path variable '%s' is missing", e.getVariableName())
+            );
+            case MissingMatrixVariableException e -> new RequestBindingError(
+                    e.getVariableName(),
+                    String.format("Required matrix variable '%s' is missing", e.getVariableName())
+            );
+            case UnsatisfiedServletRequestParameterException e -> new RequestBindingError(
+                    "request parameters",
+                    e.getMessage()
+            );
+            default -> new RequestBindingError("request", ex.getMessage());
+        };
+    }
+
+    private record RequestBindingError(String name, String reason) {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
