@@ -23,8 +23,7 @@ public class TicketComment {
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private User author;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String content;
 
     @CreationTimestamp
