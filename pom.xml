@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.thiagsilvadev</groupId>
-    <artifactId>helpdesk</artifactId>
+    <artifactId>helpdesk-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>helpdesk</name>
-    <description>helpdesk</description>
+    <name>helpdesk-api</name>
+    <description>helpdesk-api</description>
     <url/>
     <licenses>
         <license/>

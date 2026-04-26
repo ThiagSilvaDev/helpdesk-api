@@ -1,4 +1,4 @@
-name: helpdesk-prod
+name: helpdesk-api-prod
 
 services:
   api:
