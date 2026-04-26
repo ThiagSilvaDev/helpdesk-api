@@ -1,7 +1,9 @@
 package com.thiagsilvadev.helpdesk.exception;
 
-public class EmailAlreadyExistsException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class EmailAlreadyExistsException extends BusinessRuleException {
     public EmailAlreadyExistsException(String email) {
-        super("Email already exists: " + email);
+        super(HttpStatus.CONFLICT, "Email already exists: " + email);
     }
 }

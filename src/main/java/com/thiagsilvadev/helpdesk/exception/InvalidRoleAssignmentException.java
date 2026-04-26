@@ -1,7 +1,9 @@
 package com.thiagsilvadev.helpdesk.exception;
 
-public class InvalidRoleAssignmentException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidRoleAssignmentException extends BusinessRuleException {
     public InvalidRoleAssignmentException(String message) {
-        super(message);
+        super(HttpStatus.UNPROCESSABLE_CONTENT, message);
     }
 }

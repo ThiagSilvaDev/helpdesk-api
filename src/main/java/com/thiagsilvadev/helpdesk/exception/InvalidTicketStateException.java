@@ -1,7 +1,9 @@
 package com.thiagsilvadev.helpdesk.exception;
 
-public class InvalidTicketStateException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidTicketStateException extends BusinessRuleException {
     public InvalidTicketStateException(String message) {
-        super(message);
+        super(HttpStatus.UNPROCESSABLE_CONTENT, message);
     }
 }
