@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.security;
+package com.thiagsilvadev.helpdesk.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.slf4j.Logger;
