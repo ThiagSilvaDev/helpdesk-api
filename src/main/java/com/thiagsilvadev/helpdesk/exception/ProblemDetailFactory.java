@@ -3,6 +3,7 @@ package com.thiagsilvadev.helpdesk.exception;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -11,9 +12,15 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
-public abstract class GlobalExceptionHandler {
+@Component
+public class ProblemDetailFactory {
 
-    protected ProblemDetail enrichProblemDetail(ProblemDetail problemDetail, @Nullable List<InvalidParam> invalidParam) {
+    public ProblemDetail create(HttpStatus status, String message) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(status, message);
+        return enrich(detail, null);
+    }
+
+    public ProblemDetail enrich(ProblemDetail problemDetail, @Nullable List<InvalidParam> invalidParams) {
         int statusCode = problemDetail.getStatus();
         HttpStatus status = HttpStatus.resolve(statusCode);
 
@@ -25,26 +32,20 @@ public abstract class GlobalExceptionHandler {
         problemDetail.setType(typeUri);
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
         if (attributes != null) {
             URI instanceUri = URI.create(attributes.getRequest().getRequestURI());
             problemDetail.setInstance(instanceUri);
         } else {
             problemDetail.setInstance(URI.create("urn:helpdesk:background-process"));
         }
-        
+
         problemDetail.setProperty("timestamp", Instant.now());
 
-        if (invalidParam != null) {
-            problemDetail.setProperty("invalid_params", invalidParam);
+        if (invalidParams != null) {
+            problemDetail.setProperty("invalid_params", invalidParams);
         }
 
         return problemDetail;
-    }
-    
-    protected ProblemDetail createProblemDetail(HttpStatus status, String message) {
-        ProblemDetail detail = ProblemDetail.forStatusAndDetail(status, message);
-        return enrichProblemDetail(detail, null);
     }
 
     private String resolveStatusSlug(int statusCode, HttpStatus status) {
@@ -52,5 +53,8 @@ public abstract class GlobalExceptionHandler {
             return "status-" + statusCode;
         }
         return status.name().toLowerCase().replace('_', '-');
+    }
+
+    public record InvalidParam(String name, String reason) {
     }
 }

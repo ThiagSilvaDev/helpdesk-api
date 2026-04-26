@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
-import com.thiagsilvadev.helpdesk.exception.GlobalExceptionHandler;
-import com.thiagsilvadev.helpdesk.exception.InvalidParam;
+import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
+import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory.InvalidParam;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSourceResolvable;
@@ -30,7 +30,13 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Order(1)
-public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
+public class ValidationGlobalExceptionHandler {
+
+    private final ProblemDetailFactory problemDetails;
+
+    public ValidationGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+        this.problemDetails = problemDetails;
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
@@ -38,7 +44,7 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
                 .map(error -> new InvalidParam(error.getField(), error.getDefaultMessage()))
                 .toList();
 
-        return enrichProblemDetail(ex.getBody(), invalidParams);
+        return problemDetails.enrich(ex.getBody(), invalidParams);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -53,9 +59,9 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
 
         List<InvalidParam> invalidParams = List.of(new InvalidParam(paramName, errorMessage));
 
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Type mismatch for parameter.");
+        ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Type mismatch for parameter.");
 
-        return enrichProblemDetail(problemDetail, invalidParams);
+        return problemDetails.enrich(problemDetail, invalidParams);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -79,11 +85,11 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
             }
 
             List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
-            ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
-            return enrichProblemDetail(problemDetail, invalidParams);
+            ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Malformed request body");
+            return problemDetails.enrich(problemDetail, invalidParams);
         }
 
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
+        return problemDetails.create(HttpStatus.BAD_REQUEST, "Malformed request body");
     }
 
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
@@ -92,8 +98,8 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
                 .map(error -> new InvalidParam(error.getPropertyPath().toString(), error.getMessage()))
                 .toList();
 
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Constraint violation");
-        return enrichProblemDetail(problemDetail, invalidParams);
+        ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Constraint violation");
+        return problemDetails.enrich(problemDetail, invalidParams);
     }
 
     @ExceptionHandler(ServletRequestBindingException.class)
@@ -113,8 +119,8 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
         }
 
         List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Missing required request component");
-        return enrichProblemDetail(problemDetail, invalidParams);
+        ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Missing required request component");
+        return problemDetails.enrich(problemDetail, invalidParams);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -196,6 +202,6 @@ public class ValidationGlobalExceptionHandler extends GlobalExceptionHandler {
                 extractSimpleErrors(result);
             }
         });
-        return enrichProblemDetail(ex.getBody(), invalidParams);
+        return problemDetails.enrich(ex.getBody(), invalidParams);
     }
 }

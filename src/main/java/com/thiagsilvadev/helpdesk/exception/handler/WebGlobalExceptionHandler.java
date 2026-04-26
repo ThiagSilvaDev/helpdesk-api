@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
-import com.thiagsilvadev.helpdesk.exception.GlobalExceptionHandler;
+import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -11,7 +11,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 @Order(0)
-public class WebGlobalExceptionHandler extends GlobalExceptionHandler {
+public class WebGlobalExceptionHandler {
+
+    private final ProblemDetailFactory problemDetails;
+
+    public WebGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+        this.problemDetails = problemDetails;
+    }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
@@ -19,12 +25,12 @@ public class WebGlobalExceptionHandler extends GlobalExceptionHandler {
         String message = methods == null || methods.length == 0
                 ? "Supported methods information is unavailable"
                 : "Supported methods: " + String.join(", ", methods);
-        return createProblemDetail(HttpStatus.METHOD_NOT_ALLOWED, message);
+        return problemDetails.create(HttpStatus.METHOD_NOT_ALLOWED, message);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFound(NoResourceFoundException ex) {
         String message = "Resource not found: " + ex.getMessage();
-        return createProblemDetail(HttpStatus.NOT_FOUND, message);
+        return problemDetails.create(HttpStatus.NOT_FOUND, message);
     }
 }

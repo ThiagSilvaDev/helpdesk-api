@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
-import com.thiagsilvadev.helpdesk.exception.GlobalExceptionHandler;
+import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -20,9 +20,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
+public class SecurityGlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityGlobalExceptionHandler.class);
+
+    private final ProblemDetailFactory problemDetails;
+
+    public SecurityGlobalExceptionHandler(ProblemDetailFactory problemDetails) {
+        this.problemDetails = problemDetails;
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
@@ -30,14 +36,14 @@ public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
         logger.warn("Access denied for {} on {}",
                 describePrincipal(auth), request.getRequestURI());
 
-        return createProblemDetail(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
+        return problemDetails.create(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentialsException(HttpServletRequest request) {
         logger.warn("Bad credentials attempt on URI: {}", request.getRequestURI());
 
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid username or password.");
+        return problemDetails.create(HttpStatus.UNAUTHORIZED, "Invalid username or password.");
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -45,7 +51,7 @@ public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
         logger.warn("Authentication failed on {} with {}",
                 request.getRequestURI(), ex.getClass().getSimpleName());
 
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
+        return problemDetails.create(HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
     }
 
     private String describePrincipal(Authentication auth) {
