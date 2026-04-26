@@ -24,7 +24,7 @@ public class User extends AuditableEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private Roles role;
 
     @Column(nullable = false)
