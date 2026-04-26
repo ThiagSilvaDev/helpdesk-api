@@ -27,18 +27,15 @@ public class WebSecurityConfig {
 
     private final RequestLoggingFilter requestLoggingFilter;
     private final RateLimitFilter rateLimitFilter;
-    private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CorsConfigurationSource corsConfigurationSource;
 
     public WebSecurityConfig(RequestLoggingFilter requestLoggingFilter,
                              RateLimitFilter rateLimitFilter,
-                             CustomUserDetailsService userDetailsService,
                              CustomAuthenticationEntryPoint authenticationEntryPoint,
                              CorsConfigurationSource corsConfigurationSource) {
         this.requestLoggingFilter = requestLoggingFilter;
         this.rateLimitFilter = rateLimitFilter;
-        this.userDetailsService = userDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.corsConfigurationSource = corsConfigurationSource;
     }
@@ -65,18 +62,10 @@ public class WebSecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(requestLoggingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
     }
 
     @Bean
