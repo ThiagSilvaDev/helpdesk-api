@@ -34,6 +34,13 @@ jobs:
       - name: Run tests
         run: ./mvnw --batch-mode verify
 
+      - name: Upload application jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-jar
+          path: target/*.jar
+          if-no-files-found: error
+
   publish-image:
     name: Publish Docker image
     runs-on: ubuntu-latest
@@ -43,6 +50,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download application jar
+        uses: actions/download-artifact@v4
+        with:
+          name: application-jar
+          path: target
 
       - name: Set image name
         run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"

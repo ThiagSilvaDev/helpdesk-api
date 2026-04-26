@@ -1,0 +1,7 @@
+*
+!Dockerfile
+!.dockerignore
+!target/
+!target/**
+target/*
+!target/*.jar
