@@ -23,7 +23,7 @@ body:json {
   }
 }
 
-script:pre-request {
+script:pre-userRequest {
   const randomStr = Math.random().toString(36).substring(7);
   bru.setEnvVar("randomEmail", `user_${randomStr}@email.com`);
 }
