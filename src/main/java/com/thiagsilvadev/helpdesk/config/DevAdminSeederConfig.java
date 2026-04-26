@@ -99,7 +99,9 @@ public class DevAdminSeederConfig {
                                 passwordEncoder.encode(spec.password()),
                                 spec.role()
                         );
-                        newUser.setActive(spec.active());
+                        if (!spec.active()) {
+                            newUser.deactivate();
+                        }
                         return userRepository.save(newUser);
                     });
             usersByEmail.put(user.getEmail(), user);

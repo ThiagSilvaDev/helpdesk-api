@@ -41,13 +41,14 @@ public interface UserDTO {
         record Request(
                 @NotBlank
                 @Size(min = 3, max = 50)
-                String name,
+                String name
+        ) {
+        }
+    }
 
-                @NotBlank
-                @Email
-                String email,
-
-                @NotNull
+    interface ChangeRole {
+        record Request(
+                @NotNull(message = "Role is required")
                 Roles role
         ) {
         }

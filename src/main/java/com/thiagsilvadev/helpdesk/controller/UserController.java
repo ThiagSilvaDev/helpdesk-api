@@ -81,18 +81,31 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update user", description = "Updates user data (admin or self)")
+    @PatchMapping("/{id}/name")
+    @Operation(summary = "Update user name", description = "Updates the user's name (admin or self)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
-            @ApiResponse(responseCode = "409", ref = "Conflict")
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<UserDTO.Response> updateUser(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDTO.Update.Request request) {
         UserDTO.Response updatedUser = userService.update(id, request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PatchMapping("/{id}/role")
+    @Operation(summary = "Change user role", description = "Changes a user's role (admin only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User role changed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
+            @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
+    })
+    public ResponseEntity<UserDTO.Response> changeUserRole(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDTO.ChangeRole.Request request) {
+        UserDTO.Response updatedUser = userService.changeRole(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 

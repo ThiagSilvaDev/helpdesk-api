@@ -34,8 +34,6 @@ public class UserMapper {
             return;
         }
 
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setRole(request.role());
+        user.rename(request.name());
     }
 }

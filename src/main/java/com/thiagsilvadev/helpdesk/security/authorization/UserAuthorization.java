@@ -29,6 +29,10 @@ public class UserAuthorization {
                 || authorizationSupport.isPrincipalOwner(id, authentication);
     }
 
+    public boolean canChangeRole(Authentication authentication) {
+        return authorizationSupport.isAdmin(authentication);
+    }
+
     public boolean canReadUserTickets(Long id, Authentication authentication) {
         if (!authorizationSupport.isAuthenticated(authentication)) {
             return false;
@@ -45,4 +49,3 @@ public class UserAuthorization {
         return authorizationSupport.isAdmin(authentication);
     }
 }
-

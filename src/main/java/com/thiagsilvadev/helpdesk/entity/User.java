@@ -3,6 +3,8 @@ package com.thiagsilvadev.helpdesk.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "users")
 public class User extends AuditableEntity {
@@ -32,16 +34,44 @@ public class User extends AuditableEntity {
     }
 
     public User(String name, String email, Roles role) {
-        this.name = name;
-        this.email = email;
-        this.role = role;
+        this.name = requireText(name, "Name");
+        this.email = requireText(email, "Email");
+        changeRole(role);
     }
 
     public User(String name, String email, String password, Roles role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
+        this.name = requireText(name, "Name");
+        this.email = requireText(email, "Email");
+        changeRole(role);
+        changePassword(password);
+    }
+
+    public void rename(String name) {
+        this.name = requireText(name, "Name");
+    }
+
+    public void changeRole(Roles role) {
+        this.role = Objects.requireNonNull(role, "Role must not be null");
+    }
+
+    public void changePassword(String password) {
+        this.password = requireText(password, "Password");
+    }
+
+    public void activate() {
+        this.active = true;
+    }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
+    private String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " must not be null or blank");
+        }
+
+        return value;
     }
 
     public Long getId() {
@@ -52,39 +82,19 @@ public class User extends AuditableEntity {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public Roles getRole() {
         return role;
     }
 
-    public void setRole(Roles role) {
-        this.role = role;
-    }
-
     public boolean isActive() {
         return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 }

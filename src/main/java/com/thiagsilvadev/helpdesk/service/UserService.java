@@ -37,7 +37,7 @@ public class UserService {
         }
 
         com.thiagsilvadev.helpdesk.entity.User user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.changePassword(passwordEncoder.encode(request.password()));
 
         return userMapper.toResponse(userRepository.save(user));
     }
@@ -62,12 +62,15 @@ public class UserService {
     @Transactional
     public UserDTO.Response update(Long id, UserDTO.Update.Request request) {
         com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
-
-        if (userRepository.existsByEmailAndIdNot(request.email(), id)) {
-            throw new EmailAlreadyExistsException(request.email());
-        }
-
         userMapper.applyUpdate(request, existingUser);
+        return userMapper.toResponse(userRepository.save(existingUser));
+    }
+
+    @PreAuthorize("@userAuthorization.canChangeRole(authentication)")
+    @Transactional
+    public UserDTO.Response changeRole(Long id, UserDTO.ChangeRole.Request request) {
+        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
+        existingUser.changeRole(request.role());
         return userMapper.toResponse(userRepository.save(existingUser));
     }
 
@@ -75,7 +78,7 @@ public class UserService {
     @Transactional
     public void deactivate(Long id) {
         com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
-        existingUser.setActive(false);
+        existingUser.deactivate();
         userRepository.save(existingUser);
     }
 }
