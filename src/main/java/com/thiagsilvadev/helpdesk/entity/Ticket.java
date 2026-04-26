@@ -3,14 +3,12 @@ package com.thiagsilvadev.helpdesk.entity;
 import com.thiagsilvadev.helpdesk.exception.InvalidRoleAssignmentException;
 import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "tickets")
-public class Ticket {
+public class Ticket extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,14 +35,6 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "technician_id")
     private User technician;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Instant updatedAt;
 
     private Instant closedAt;
 
@@ -150,14 +140,6 @@ public class Ticket {
 
     public User getTechnician() {
         return technician;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     public Instant getClosedAt() {
