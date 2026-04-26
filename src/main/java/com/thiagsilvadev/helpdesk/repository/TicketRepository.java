@@ -12,7 +12,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
 
 	boolean existsByIdAndClientId(Long id, Long clientId);
 
-	boolean existsByIdAndTechnicianEmail(Long id, String email);
+	boolean existsByIdAndTechnicianId(Long id, Long technicianId);
 
 	Optional<Ticket> findByIdAndClientId(Long ticketId, Long userId);
 

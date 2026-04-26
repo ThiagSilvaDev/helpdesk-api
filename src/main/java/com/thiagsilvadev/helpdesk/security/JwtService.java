@@ -1,97 +1,57 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.DecodingException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Map;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
-    private static final String CLAIM_USER_ROLE = "role";
+    private static final String CLAIM_USER_EMAIL = "email";
+    private static final String CLAIM_USER_ROLES = "roles";
 
-    private final String secret;
+    private final JwtEncoder jwtEncoder;
     private final long expirationMs;
+    private final String issuer;
 
-    public JwtService(@Value("${security.jwt.secret}") String secret,
-                      @Value("${security.jwt.expiration-ms}") long expirationMs) {
-        this.secret = secret;
+    public JwtService(JwtEncoder jwtEncoder,
+                      @Value("${security.jwt.expiration-ms}") long expirationMs,
+                      @Value("${security.jwt.issuer}") String issuer) {
+        this.jwtEncoder = jwtEncoder;
         this.expirationMs = expirationMs;
+        this.issuer = issuer;
     }
 
     public String generateToken(UserPrincipal userPrincipal) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMs);
+        Instant now = Instant.now();
+        Instant expiryDate = now.plusMillis(expirationMs);
         Long userId = Objects.requireNonNull(userPrincipal.getId(), "user id must not be null");
-        String role = userPrincipal.getAuthorities().stream()
-                .findFirst()
-                .map(Object::toString)
-                .orElseThrow(() -> new IllegalArgumentException("user must have at least one authority"));
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        if (roles.isEmpty()) {
+            throw new IllegalArgumentException("user must have at least one authority");
+        }
 
-        return Jwts.builder()
-                .claims(Map.of(
-                        CLAIM_USER_ROLE, role
-                ))
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer(issuer)
                 .subject(userId.toString())
                 .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSignInKey())
-                .compact();
-    }
+                .expiresAt(expiryDate)
+                .claim(CLAIM_USER_EMAIL, userPrincipal.getUsername())
+                .claim(CLAIM_USER_ROLES, roles)
+                .build();
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public Long extractUserId(String token) {
-        String subject = extractUsername(token);
-        return subject == null ? null : Long.valueOf(subject);
-    }
-
-    public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get(CLAIM_USER_ROLE, String.class));
-    }
-
-    public boolean isTokenValid(String token, UserPrincipal userPrincipal) {
-        Long userId = extractUserId(token);
-        return userId != null && userId.equals(userPrincipal.getId()) && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claimsResolver.apply(claims);
-    }
-
-    private SecretKey getSignInKey() {
-        try {
-            byte[] keyBytes = Decoders.BASE64.decode(secret);
-            return Keys.hmacShaKeyFor(keyBytes);
-        } catch (DecodingException | IllegalArgumentException ignored) {
-            logger.warn("JWT secret is not valid Base64 — falling back to plain text encoding. "
-                    + "Use a Base64-encoded secret in production environments.");
-            return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        }
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 }

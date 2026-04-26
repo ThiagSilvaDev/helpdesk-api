@@ -2,22 +2,18 @@ package com.thiagsilvadev.helpdesk.security.authorization;
 
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
-import com.thiagsilvadev.helpdesk.repository.UserRepository;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 @Component
 class AuthorizationSupport {
 
     private final TicketRepository ticketRepository;
-    private final UserRepository userRepository;
 
-    AuthorizationSupport(TicketRepository ticketRepository,
-                         UserRepository userRepository) {
+    AuthorizationSupport(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
-        this.userRepository = userRepository;
     }
 
     boolean isAuthenticated(Authentication authentication) {
@@ -49,61 +45,43 @@ class AuthorizationSupport {
     }
 
     boolean isPrincipalOwner(Long id, Authentication authentication) {
-        if (!isAuthenticated(authentication) || id == null) {
-            return false;
-        }
-
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof UserPrincipal userPrincipal)) {
-            return false;
-        }
-
-        return id.equals(userPrincipal.getId());
-    }
-
-    boolean isAuthenticatedUserByIdAndEmail(Long id, Authentication authentication) {
-        String email = getAuthenticatedEmail(authentication);
-        if (id == null || email == null) {
-            return false;
-        }
-
-        return userRepository.existsByIdAndEmail(id, email);
+        Long userId = getAuthenticatedUserId(authentication);
+        return id != null && id.equals(userId);
     }
 
     boolean isAuthenticatedTicketOwner(Long ticketId, Authentication authentication) {
-        if (ticketId == null || !isAuthenticated(authentication)) {
+        Long userId = getAuthenticatedUserId(authentication);
+        if (ticketId == null || userId == null) {
             return false;
         }
 
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof UserPrincipal userPrincipal)) {
-            return false;
-        }
-
-        return ticketRepository.existsByIdAndClientId(ticketId, userPrincipal.getId());
+        return ticketRepository.existsByIdAndClientId(ticketId, userId);
     }
 
     boolean isAuthenticatedTechnicianAssignedToTicket(Long ticketId, Authentication authentication) {
-        String email = getAuthenticatedEmail(authentication);
-        if (ticketId == null || email == null) {
+        Long userId = getAuthenticatedUserId(authentication);
+        if (ticketId == null || userId == null) {
             return false;
         }
 
-        return ticketRepository.existsByIdAndTechnicianEmail(ticketId, email);
+        return ticketRepository.existsByIdAndTechnicianId(ticketId, userId);
     }
 
-    private String getAuthenticatedEmail(Authentication authentication) {
+    private Long getAuthenticatedUserId(Authentication authentication) {
         if (!isAuthenticated(authentication)) {
             return null;
         }
 
-        String email = authentication.getName();
-        if (email == null || email.isBlank()) {
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof Jwt jwt)) {
             return null;
         }
 
-        return email;
+        try {
+            return Long.valueOf(jwt.getSubject());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 }
-
 

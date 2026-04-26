@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.TicketDTO;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +47,8 @@ public class UserTicketController {
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<TicketDTO.Response> createTicketAsUser(@RequestBody @Valid TicketDTO.Create.UserRequest userRequest,
-                                                                       @AuthenticationPrincipal UserPrincipal principal) {
-        TicketDTO.Response newTicket = ticketCommandService.createByUser(userRequest, principal.getId());
+                                                                 @AuthenticationPrincipal Jwt jwt) {
+        TicketDTO.Response newTicket = ticketCommandService.createByUser(userRequest, authenticatedUserId(jwt));
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -66,8 +66,8 @@ public class UserTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketDTO.Response> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
-                                                                                       @AuthenticationPrincipal UserPrincipal principal) {
-        TicketDTO.Response ticket = ticketQueryService.getOwnTicketById(ticketId, principal.getId());
+                                                                                @AuthenticationPrincipal Jwt jwt) {
+        TicketDTO.Response ticket = ticketQueryService.getOwnTicketById(ticketId, authenticatedUserId(jwt));
         return ResponseEntity.ok(ticket);
     }
 
@@ -75,9 +75,9 @@ public class UserTicketController {
     @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
-    public ResponseEntity<Page<TicketDTO.Response>> listAuthenticatedUserTickets(@AuthenticationPrincipal UserPrincipal principal,
-                                                                                        @ParameterObject Pageable pageable) {
-        Page<TicketDTO.Response> tickets = ticketQueryService.findTicketsByClientId(principal.getId(), pageable);
+    public ResponseEntity<Page<TicketDTO.Response>> listAuthenticatedUserTickets(@AuthenticationPrincipal Jwt jwt,
+                                                                                @ParameterObject Pageable pageable) {
+        Page<TicketDTO.Response> tickets = ticketQueryService.findTicketsByClientId(authenticatedUserId(jwt), pageable);
         return ResponseEntity.ok(tickets);
     }
 
@@ -94,5 +94,9 @@ public class UserTicketController {
     public ResponseEntity<TicketDTO.Response> updateTicketAsUser(@PathVariable Long id, @RequestBody @Valid TicketDTO.Update.Request request) {
         TicketDTO.Response updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
+    }
+
+    private Long authenticatedUserId(Jwt jwt) {
+        return Long.valueOf(jwt.getSubject());
     }
 }

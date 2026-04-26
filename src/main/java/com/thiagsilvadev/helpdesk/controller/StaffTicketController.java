@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.TicketDTO;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springdoc.core.annotations.ParameterObject;
@@ -108,9 +108,9 @@ public class StaffTicketController {
     })
     public ResponseEntity<TicketDTO.Response> assignTechnicianToTicket(@PathVariable Long ticketId,
                                                                               @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
-                                                                              @AuthenticationPrincipal UserPrincipal principal
+                                                                              @AuthenticationPrincipal Jwt jwt
     ) {
-        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), principal.getId());
+        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), authenticatedUserId(jwt));
         return ResponseEntity.ok(updatedTicket);
     }
 
@@ -138,5 +138,9 @@ public class StaffTicketController {
     public ResponseEntity<Void> cancelTicketAsStaff(@PathVariable Long ticketId) {
         ticketCommandService.cancel(ticketId);
         return ResponseEntity.noContent().build();
+    }
+
+    private Long authenticatedUserId(Jwt jwt) {
+        return Long.valueOf(jwt.getSubject());
     }
 }

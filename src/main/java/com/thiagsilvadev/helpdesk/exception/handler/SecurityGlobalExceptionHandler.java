@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -54,6 +55,10 @@ public class SecurityGlobalExceptionHandler extends GlobalExceptionHandler {
 
         if (auth.getPrincipal() instanceof UserPrincipal userPrincipal && userPrincipal.getId() != null) {
             return "userId=" + userPrincipal.getId();
+        }
+
+        if (auth.getPrincipal() instanceof Jwt jwt && jwt.getSubject() != null) {
+            return "userId=" + jwt.getSubject();
         }
 
         return "authenticated-user";
