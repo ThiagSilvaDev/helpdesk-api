@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.UserDTO;
+import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
@@ -35,13 +36,13 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        com.thiagsilvadev.helpdesk.entity.User user = userMapper.toEntity(request);
+        User user = userMapper.toEntity(request);
         user.changePassword(passwordEncoder.encode(request.password()));
 
         return userMapper.toResponse(userRepository.save(user));
     }
 
-    public com.thiagsilvadev.helpdesk.entity.User getUserById(Long id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
@@ -60,7 +61,7 @@ public class UserService {
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
     @Transactional
     public UserDTO.Response update(Long id, UserDTO.Update.Request request) {
-        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
+        User existingUser = getUserById(id);
         userMapper.applyUpdate(request, existingUser);
         return userMapper.toResponse(userRepository.save(existingUser));
     }
@@ -68,7 +69,7 @@ public class UserService {
     @PreAuthorize("@userAuthorization.canChangeRole(authentication)")
     @Transactional
     public UserDTO.Response changeRole(Long id, UserDTO.ChangeRole.Request request) {
-        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
+        User existingUser = getUserById(id);
         existingUser.changeRole(request.role());
         return userMapper.toResponse(userRepository.save(existingUser));
     }
@@ -76,7 +77,7 @@ public class UserService {
     @PreAuthorize("@userAuthorization.canDeactivate(authentication)")
     @Transactional
     public void deactivate(Long id) {
-        com.thiagsilvadev.helpdesk.entity.User existingUser = getUserById(id);
+        User existingUser = getUserById(id);
         existingUser.deactivate();
         userRepository.save(existingUser);
     }

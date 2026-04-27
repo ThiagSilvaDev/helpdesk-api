@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public UserDTO.Response toResponse(com.thiagsilvadev.helpdesk.entity.User user) {
+    public UserDTO.Response toResponse(User user) {
         if (user == null) {
             return null;
         }
@@ -26,10 +26,10 @@ public class UserMapper {
             return null;
         }
 
-        return new com.thiagsilvadev.helpdesk.entity.User(request.name(), request.email(), request.password(), request.role());
+        return new User(request.name(), request.email(), request.password(), request.role());
     }
 
-    public void applyUpdate(UserDTO.Update.Request request, com.thiagsilvadev.helpdesk.entity.User user) {
+    public void applyUpdate(UserDTO.Update.Request request, User user) {
         if (request == null || user == null) {
             return;
         }
