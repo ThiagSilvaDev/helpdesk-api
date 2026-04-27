@@ -36,8 +36,8 @@ public class UserService {
             throw new EmailAlreadyExistsException(request.email());
         }
 
-        User user = userMapper.toEntity(request);
-        user.changePassword(passwordEncoder.encode(request.password()));
+        String encodedPassword = passwordEncoder.encode(request.password());
+        User user = userMapper.toEntity(request, encodedPassword);
 
         return userMapper.toResponse(userRepository.save(user));
     }

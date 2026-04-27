@@ -21,12 +21,16 @@ public class UserMapper {
         );
     }
 
-    public User toEntity(UserDTO.Create.Request request) {
+    public User toEntity(UserDTO.Create.Request request, String encodedPassword) {
         if (request == null) {
             return null;
         }
 
-        return new User(request.name(), request.email(), request.password(), request.role());
+        return new User(
+                request.name(),
+                request.email(),
+                encodedPassword,
+                request.role());
     }
 
     public void applyUpdate(UserDTO.Update.Request request, User user) {
