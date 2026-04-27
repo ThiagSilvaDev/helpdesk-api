@@ -33,12 +33,6 @@ public class User extends AuditableEntity {
     public User() {
     }
 
-    public User(String name, String email, Roles role) {
-        this.name = requireText(name, "Name");
-        this.email = requireText(email, "Email");
-        changeRole(role);
-    }
-
     public User(String name, String email, String password, Roles role) {
         this.name = requireText(name, "Name");
         this.email = requireText(email, "Email");
