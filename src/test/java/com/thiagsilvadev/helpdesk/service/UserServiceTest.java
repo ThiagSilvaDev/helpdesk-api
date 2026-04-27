@@ -66,21 +66,23 @@ class UserServiceTest {
 
             UserDTO.Response response = userService.create(request);
 
-            assertThat(response.id()).isEqualTo(USER_ID);
-            assertThat(response.name()).isEqualTo(request.name());
-            assertThat(response.email()).isEqualTo(request.email());
-            assertThat(response.role()).isEqualTo(request.role());
-            assertThat(response.active()).isTrue();
+            assertThat(response)
+                    .returns(USER_ID, UserDTO.Response::id)
+                    .returns(request.name(), UserDTO.Response::name)
+                    .returns(request.email(), UserDTO.Response::email)
+                    .returns(request.role(), UserDTO.Response::role)
+                    .returns(true, UserDTO.Response::active);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             then(userRepository).should().save(userCaptor.capture());
 
             User savedUser = userCaptor.getValue();
-            assertThat(savedUser.getName()).isEqualTo(request.name());
-            assertThat(savedUser.getEmail()).isEqualTo(request.email());
-            assertThat(savedUser.getPassword()).isEqualTo(ENCODED_PASSWORD);
-            assertThat(savedUser.getRole()).isEqualTo(request.role());
-            assertThat(savedUser.isActive()).isTrue();
+            assertThat(savedUser)
+                    .returns(request.name(), User::getName)
+                    .returns(request.email(), User::getEmail)
+                    .returns(ENCODED_PASSWORD, User::getPassword)
+                    .returns(request.role(), User::getRole)
+                    .returns(true, User::isActive);
         }
 
         @Test
@@ -131,11 +133,12 @@ class UserServiceTest {
 
             UserDTO.Response response = userService.getUserResponseById(USER_ID);
 
-            assertThat(response.id()).isEqualTo(USER_ID);
-            assertThat(response.name()).isEqualTo(user.getName());
-            assertThat(response.email()).isEqualTo(user.getEmail());
-            assertThat(response.role()).isEqualTo(user.getRole());
-            assertThat(response.active()).isTrue();
+            assertThat(response)
+                    .returns(USER_ID, UserDTO.Response::id)
+                    .returns(user.getName(), UserDTO.Response::name)
+                    .returns(user.getEmail(), UserDTO.Response::email)
+                    .returns(user.getRole(), UserDTO.Response::role)
+                    .returns(true, UserDTO.Response::active);
         }
     }
 
@@ -173,9 +176,10 @@ class UserServiceTest {
 
             UserDTO.Response response = userService.update(USER_ID, request);
 
-            assertThat(response.name()).isEqualTo("New Name");
-            assertThat(response.email()).isEqualTo("old@helpdesk.local");
-            assertThat(response.role()).isEqualTo(Roles.ROLE_USER);
+            assertThat(response)
+                    .returns("New Name", UserDTO.Response::name)
+                    .returns("old@helpdesk.local", UserDTO.Response::email)
+                    .returns(Roles.ROLE_USER, UserDTO.Response::role);
             then(userRepository).should().save(existingUser);
         }
 
@@ -205,9 +209,10 @@ class UserServiceTest {
 
             UserDTO.Response response = userService.changeRole(USER_ID, request);
 
-            assertThat(response.name()).isEqualTo("Jane User");
-            assertThat(response.email()).isEqualTo("jane@helpdesk.local");
-            assertThat(response.role()).isEqualTo(Roles.ROLE_TECHNICIAN);
+            assertThat(response)
+                    .returns("Jane User", UserDTO.Response::name)
+                    .returns("jane@helpdesk.local", UserDTO.Response::email)
+                    .returns(Roles.ROLE_TECHNICIAN, UserDTO.Response::role);
             then(userRepository).should().save(existingUser);
         }
 
@@ -236,7 +241,8 @@ class UserServiceTest {
 
             userService.deactivate(USER_ID);
 
-            assertThat(existingUser.isActive()).isFalse();
+            assertThat(existingUser)
+                    .returns(false, User::isActive);
             then(userRepository).should().save(existingUser);
         }
 
