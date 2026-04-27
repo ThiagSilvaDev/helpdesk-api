@@ -36,8 +36,8 @@ public class User extends AuditableEntity {
     public User(String name, String email, String password, Roles role) {
         this.name = requireText(name, "Name");
         this.email = requireText(email, "Email");
-        changeRole(role);
-        changePassword(password);
+        this.password = requireText(password, "Password");
+        this.role = Objects.requireNonNull(role, "Role");
     }
 
     public void rename(String name) {
