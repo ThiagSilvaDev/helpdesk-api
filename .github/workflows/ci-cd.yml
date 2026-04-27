@@ -34,11 +34,17 @@ jobs:
       - name: Run tests
         run: ./mvnw --batch-mode verify
 
+      - name: Prepare Docker artifact
+        run: |
+          mapfile -t jars < <(find target -maxdepth 1 -type f -name '*.jar' ! -name '*.original' ! -name 'app.jar' | sort)
+          test "${#jars[@]}" -eq 1
+          cp "${jars[0]}" target/app.jar
+
       - name: Upload application jar
         uses: actions/upload-artifact@v4
         with:
           name: application-jar
-          path: target/*.jar
+          path: target/app.jar
           if-no-files-found: error
 
   publish-image:
@@ -83,6 +89,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          target: ci-runtime
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

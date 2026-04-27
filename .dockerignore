@@ -1,7 +1,12 @@
 *
 !Dockerfile
 !.dockerignore
+!.mvn/
+!.mvn/**
+!mvnw
+!pom.xml
+!src/
+!src/**
 !target/
-!target/**
 target/*
-!target/*.jar
+!target/app.jar
