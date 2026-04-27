@@ -16,6 +16,12 @@ public class TicketAuthorization {
         return authorizationSupport.isAuthenticatedTicketOwner(ticketId, authentication);
     }
 
+    public boolean canReadAsParticipant(Long ticketId, Authentication authentication) {
+        if (authorizationSupport.isAdminOrTechnician(authentication)) return true;
+
+        return authorizationSupport.isAuthenticatedTicketOwner(ticketId, authentication);
+    }
+
     public boolean canUpdate(Long ticketId, Authentication authentication) {
         return canReadUpdateOrCancel(ticketId, authentication);
     }

@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import com.thiagsilvadev.helpdesk.security.JwtService;
@@ -32,6 +33,9 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
     private TicketRepository ticketRepository;
 
     @Autowired
+    private TicketCommentRepository ticketCommentRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -42,6 +46,7 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        ticketCommentRepository.deleteAll();
         ticketRepository.deleteAll();
         userRepository.deleteAll();
         client = saveUser("Jane User", "jane@helpdesk.local", Roles.ROLE_USER);
@@ -112,6 +117,86 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
 
         mockMvc.perform(get("/api/users/tickets/{ticketId}", ticketId.longValue())
                         .header(HttpHeaders.AUTHORIZATION, bearer(otherClient)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void ticketParticipantsCanCreateListUpdateAndDeleteComments() throws Exception {
+        String createTicketResponse = mockMvc.perform(post("/api/users/tickets")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Printer issue",
+                                  "description": "Office printer is not working"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number ticketId = JsonPath.read(createTicketResponse, "$.id");
+
+        String createCommentResponse = mockMvc.perform(post("/api/tickets/{ticketId}/comments", ticketId.longValue())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"I already restarted the printer.\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(jsonPath("$.ticketId").value(ticketId.intValue()))
+                .andExpect(jsonPath("$.author.id").value(client.getId()))
+                .andExpect(jsonPath("$.content").value("I already restarted the printer."))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number commentId = JsonPath.read(createCommentResponse, "$.id");
+
+        mockMvc.perform(get("/api/tickets/{ticketId}/comments", ticketId.longValue())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(technician)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(commentId.intValue()))
+                .andExpect(jsonPath("$.content[0].author.id").value(client.getId()));
+
+        mockMvc.perform(put("/api/tickets/{ticketId}/comments/{commentId}", ticketId.longValue(), commentId.longValue())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"I also checked the paper tray.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("I also checked the paper tray."));
+
+        mockMvc.perform(delete("/api/tickets/{ticketId}/comments/{commentId}", ticketId.longValue(), commentId.longValue())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(client)))
+                .andExpect(status().isNoContent());
+
+        assertThat(ticketCommentRepository.existsById(commentId.longValue())).isFalse();
+    }
+
+    @Test
+    void userShouldNotCommentOnAnotherUsersTicket() throws Exception {
+        User otherClient = saveUser("Other User", "other-comments@helpdesk.local", Roles.ROLE_USER);
+
+        String createTicketResponse = mockMvc.perform(post("/api/users/tickets")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Laptop issue",
+                                  "description": "Laptop does not turn on"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number ticketId = JsonPath.read(createTicketResponse, "$.id");
+
+        mockMvc.perform(post("/api/tickets/{ticketId}/comments", ticketId.longValue())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(otherClient))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"Trying to access another ticket.\"}"))
                 .andExpect(status().isForbidden());
     }
 

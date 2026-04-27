@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.security.authorization;
 
 import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Component;
 class AuthorizationSupport {
 
     private final TicketRepository ticketRepository;
+    private final TicketCommentRepository ticketCommentRepository;
 
-    AuthorizationSupport(TicketRepository ticketRepository) {
+    AuthorizationSupport(TicketRepository ticketRepository, TicketCommentRepository ticketCommentRepository) {
         this.ticketRepository = ticketRepository;
+        this.ticketCommentRepository = ticketCommentRepository;
     }
 
     boolean isAuthenticated(Authentication authentication) {
@@ -67,7 +70,16 @@ class AuthorizationSupport {
         return ticketRepository.existsByIdAndTechnicianId(ticketId, userId);
     }
 
-    private Long getAuthenticatedUserId(Authentication authentication) {
+    boolean isAuthenticatedCommentAuthor(Long commentId, Authentication authentication) {
+        Long userId = getAuthenticatedUserId(authentication);
+        if (commentId == null || userId == null) {
+            return false;
+        }
+
+        return ticketCommentRepository.existsByIdAndAuthorId(commentId, userId);
+    }
+
+    Long getAuthenticatedUserId(Authentication authentication) {
         if (!isAuthenticated(authentication)) {
             return null;
         }
@@ -84,4 +96,3 @@ class AuthorizationSupport {
         }
     }
 }
-

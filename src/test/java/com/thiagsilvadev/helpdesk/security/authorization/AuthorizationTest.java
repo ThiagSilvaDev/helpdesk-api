@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.security.authorization;
 
 import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,15 +20,19 @@ import static org.mockito.Mockito.mock;
 class AuthorizationTest {
 
     private TicketRepository ticketRepository;
+    private TicketCommentRepository ticketCommentRepository;
     private UserAuthorization userAuthorization;
     private TicketAuthorization ticketAuthorization;
+    private TicketCommentAuthorization ticketCommentAuthorization;
 
     @BeforeEach
     void setUp() {
         ticketRepository = mock(TicketRepository.class);
-        AuthorizationSupport support = new AuthorizationSupport(ticketRepository);
+        ticketCommentRepository = mock(TicketCommentRepository.class);
+        AuthorizationSupport support = new AuthorizationSupport(ticketRepository, ticketCommentRepository);
         userAuthorization = new UserAuthorization(support);
         ticketAuthorization = new TicketAuthorization(support);
+        ticketCommentAuthorization = new TicketCommentAuthorization(support);
     }
 
     @Test
@@ -72,6 +77,15 @@ class AuthorizationTest {
     void shouldDenyOwnershipChecksWhenPrincipalSubjectIsInvalid() {
         assertThat(userAuthorization.canUpdate(42L, authentication("not-a-number", Roles.ROLE_USER))).isFalse();
         assertThat(ticketAuthorization.canRead(100L, authentication("not-a-number", Roles.ROLE_USER))).isFalse();
+    }
+
+    @Test
+    void shouldAllowAdminOrCommentAuthorToModifyComment() {
+        given(ticketCommentRepository.existsByIdAndAuthorId(50L, 42L)).willReturn(true);
+
+        assertThat(ticketCommentAuthorization.canModify(50L, authentication("1", Roles.ROLE_ADMIN))).isTrue();
+        assertThat(ticketCommentAuthorization.canModify(50L, authentication("42", Roles.ROLE_USER))).isTrue();
+        assertThat(ticketCommentAuthorization.canModify(50L, authentication("99", Roles.ROLE_USER))).isFalse();
     }
 
     private Authentication authentication(String subject, Roles role) {
