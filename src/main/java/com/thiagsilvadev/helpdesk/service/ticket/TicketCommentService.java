@@ -34,12 +34,6 @@ public class TicketCommentService {
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
-    public Page<TicketCommentDTO.Response> findByTicketId(Long ticketId, Pageable pageable) {
-        return ticketCommentRepository.findByTicketId(ticketId, pageable)
-                .map(ticketCommentMapper::toResponse);
-    }
-
-    @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
     @Transactional
     public TicketCommentDTO.Response create(Long ticketId, TicketCommentDTO.Create.Request request, Long authorId) {
         Ticket ticket = ticketQueryService.getTicketEntityById(ticketId);
@@ -47,6 +41,12 @@ public class TicketCommentService {
         TicketComment comment = ticketCommentMapper.toEntity(ticket, author, request.content());
 
         return ticketCommentMapper.toResponse(ticketCommentRepository.save(comment));
+    }
+
+    @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
+    public Page<TicketCommentDTO.Response> findByTicketId(Long ticketId, Pageable pageable) {
+        return ticketCommentRepository.findByTicketId(ticketId, pageable)
+                .map(ticketCommentMapper::toResponse);
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication) "

@@ -35,18 +35,6 @@ public class TicketCommentController {
         this.ticketCommentService = ticketCommentService;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "List ticket comments", description = "Returns a paginated list of comments for a ticket")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Comments retrieved"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
-    })
-    public ResponseEntity<Page<TicketCommentDTO.Response>> listTicketComments(@PathVariable Long ticketId,
-                                                                              @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(ticketCommentService.findByTicketId(ticketId, pageable));
-    }
-
     @PostMapping
     @Operation(summary = "Create ticket comment", description = "Adds a comment to a ticket")
     @ApiResponses({
@@ -67,6 +55,18 @@ public class TicketCommentController {
                 .toUri();
 
         return ResponseEntity.status(HttpStatus.CREATED).location(location).body(comment);
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "List ticket comments", description = "Returns a paginated list of comments for a ticket")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Comments retrieved"),
+            @ApiResponse(responseCode = "403", ref = "Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "NotFound")
+    })
+    public ResponseEntity<Page<TicketCommentDTO.Response>> listTicketComments(@PathVariable Long ticketId,
+                                                                              @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(ticketCommentService.findByTicketId(ticketId, pageable));
     }
 
     @PutMapping("/{commentId}")
