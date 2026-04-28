@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.AuthDTO;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,8 @@ class AuthControllerTest {
 
     @Test
     void shouldAuthenticateAndReturnToken() throws Exception {
-        given(authService.authenticate(any(AuthDTO.Login.Request.class)))
-                .willReturn(new AuthDTO.Response("jwt-token"));
+        given(authService.authenticate(any(AuthLoginRequest.class)))
+                .willReturn(new AuthResponse("jwt-token"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -43,6 +44,6 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("jwt-token"));
 
-        then(authService).should().authenticate(any(AuthDTO.Login.Request.class));
+        then(authService).should().authenticate(any(AuthLoginRequest.class));
     }
 }

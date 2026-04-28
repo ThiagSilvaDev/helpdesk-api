@@ -1,10 +1,11 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.UserDTO;
+import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,14 +38,13 @@ public class UserController {
     @PostMapping
     @Operation(summary = "Create user", description = "Creates a new user (admin only)")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "User created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
+            @ApiResponse(responseCode = "201", description = "User created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "409", ref = "Conflict")
     })
-    public ResponseEntity<UserDTO.Response> createUser(@RequestBody @Valid UserDTO.Create.Request request) {
-        UserDTO.Response createdUser = userService.create(request);
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
+        UserResponse createdUser = userService.create(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -59,13 +59,12 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<UserDTO.Response> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
-        UserDTO.Response user = userService.getUserResponseById(id);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
+        UserResponse user = userService.getUserResponseById(id);
         return ResponseEntity.ok(user);
     }
 
@@ -75,37 +74,35 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Users retrieved"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<Page<UserDTO.Response>> listUsers(
+    public ResponseEntity<Page<UserResponse>> listUsers(
             @ParameterObject Pageable pageable) {
-        Page<UserDTO.Response> users = userService.findAll(pageable);
+        Page<UserResponse> users = userService.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
     @PatchMapping("/{id}/name")
     @Operation(summary = "Update user name", description = "Updates the user's name (admin or self)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "User updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<UserDTO.Response> updateUser(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDTO.Update.Request request) {
-        UserDTO.Response updatedUser = userService.update(id, request);
+    public ResponseEntity<UserResponse> updateUser(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserNameRequest request) {
+        UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/{id}/role")
     @Operation(summary = "Change user role", description = "Changes a user's role (admin only)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User role changed",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "User role changed"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<UserDTO.Response> changeUserRole(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UserDTO.ChangeRole.Request request) {
-        UserDTO.Response updatedUser = userService.changeRole(id, request);
+    public ResponseEntity<UserResponse> changeUserRole(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid ChangeUserRoleRequest request) {
+        UserResponse updatedUser = userService.changeRole(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 

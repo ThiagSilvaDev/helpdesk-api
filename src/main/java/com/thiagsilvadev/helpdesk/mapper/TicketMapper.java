@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.mapper;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.User;
 import org.springframework.stereotype.Component;
@@ -8,12 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketMapper {
 
-    public TicketDTO.Response toResponse(com.thiagsilvadev.helpdesk.entity.Ticket ticket) {
+    public TicketResponse toResponse(com.thiagsilvadev.helpdesk.entity.Ticket ticket) {
         if (ticket == null) {
             return null;
         }
 
-        return new TicketDTO.Response(
+        return new TicketResponse(
                 ticket.getId(),
                 ticket.getTitle(),
                 ticket.getDescription(),
@@ -27,7 +30,7 @@ public class TicketMapper {
         );
     }
 
-    public com.thiagsilvadev.helpdesk.entity.Ticket toEntityFromUserRequest(TicketDTO.Create.UserRequest userRequest, User client) {
+    public com.thiagsilvadev.helpdesk.entity.Ticket toEntityFromUserRequest(CreateUserTicketRequest userRequest, User client) {
         if (userRequest == null || client == null) {
             return null;
         }
@@ -35,7 +38,7 @@ public class TicketMapper {
         return toEntity(userRequest.title(), userRequest.description(), client, null);
     }
 
-    public com.thiagsilvadev.helpdesk.entity.Ticket toEntityFromStaffRequest(TicketDTO.Create.StaffRequest request, User client) {
+    public com.thiagsilvadev.helpdesk.entity.Ticket toEntityFromStaffRequest(CreateStaffTicketRequest request, User client) {
         if (request == null || client == null) {
             return null;
         }
@@ -47,12 +50,12 @@ public class TicketMapper {
         return new com.thiagsilvadev.helpdesk.entity.Ticket(title, description, client, priority);
     }
 
-    private TicketDTO.Response.UserInfo toUserInfo(User user) {
+    private TicketUserInfo toUserInfo(User user) {
         if (user == null) {
             return null;
         }
 
-        return new TicketDTO.Response.UserInfo(
+        return new TicketUserInfo(
                 user.getId(),
                 user.getName()
         );

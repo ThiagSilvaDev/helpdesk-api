@@ -1,13 +1,15 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,14 +43,13 @@ public class StaffTicketController {
     @PostMapping
     @Operation(summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Ticket created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "201", description = "Ticket created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDTO.Response> createTicketAsStaff(@RequestBody @Valid TicketDTO.Create.StaffRequest request) {
-        TicketDTO.Response newTicket = ticketCommandService.createByStaff(request);
+    public ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request) {
+        TicketResponse newTicket = ticketCommandService.createByStaff(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -63,13 +64,12 @@ public class StaffTicketController {
     @GetMapping("/{ticketId}")
     @Operation(summary = "Get ticket by ID", description = "Returns a single ticket (admin/technician)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Ticket found"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDTO.Response> getTicketByIdForStaff(@PathVariable Long ticketId) {
-        TicketDTO.Response ticket = ticketQueryService.getTicketResponseById(ticketId);
+    public ResponseEntity<TicketResponse> getTicketByIdForStaff(@PathVariable Long ticketId) {
+        TicketResponse ticket = ticketQueryService.getTicketResponseById(ticketId);
         return ResponseEntity.ok(ticket);
     }
 
@@ -77,40 +77,38 @@ public class StaffTicketController {
     @Operation(summary = "List all tickets", description = "Returns a paginated, filterable list of all tickets (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tickets retrieved")})
-    public ResponseEntity<Page<TicketDTO.Response>> listTicketsForStaff(@ParameterObject TicketDTO.Search.Criteria criteria,
+    public ResponseEntity<Page<TicketResponse>> listTicketsForStaff(@ParameterObject TicketSearchCriteria criteria,
                                                                                @ParameterObject Pageable pageable) {
-        Page<TicketDTO.Response> tickets = ticketQueryService.findAll(criteria, pageable);
+        Page<TicketResponse> tickets = ticketQueryService.findAll(criteria, pageable);
         return ResponseEntity.ok(tickets);
     }
 
     @PatchMapping("/{ticketId}/priority")
     @Operation(summary = "Update ticket priority", description = "Changes the priority of a ticket (admin/technician)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Priority updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Priority updated"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDTO.Response> updateTicketPriorityAsStaff(@PathVariable Long ticketId, @RequestBody @Valid TicketDTO.UpdatePriority.Request request) {
-        TicketDTO.Response updatedTicket = ticketCommandService.updatePriority(ticketId, request);
+    public ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(@PathVariable Long ticketId, @RequestBody @Valid UpdateTicketPriorityRequest request) {
+        TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
         return ResponseEntity.ok(updatedTicket);
     }
 
     @PatchMapping("/{ticketId}/technician")
     @Operation(summary = "Assign technician", description = "Assigns a technician to a ticket and sets status to IN_PROGRESS")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Technician assigned",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Technician assigned"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDTO.Response> assignTechnicianToTicket(@PathVariable Long ticketId,
-                                                                        @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
+    public ResponseEntity<TicketResponse> assignTechnicianToTicket(@PathVariable Long ticketId,
+                                                                        @RequestBody @Valid AssignTechnicianRequest request,
                                                                         @Parameter(hidden = true) @CurrentUserId Long userId
     ) {
-        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), userId);
+        TicketResponse updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), userId);
         return ResponseEntity.ok(updatedTicket);
     }
 

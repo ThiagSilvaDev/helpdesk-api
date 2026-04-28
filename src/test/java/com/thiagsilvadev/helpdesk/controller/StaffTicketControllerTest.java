@@ -1,6 +1,10 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
@@ -52,7 +56,7 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldCreateTicketAsStaff() throws Exception {
-        given(ticketCommandService.createByStaff(any(TicketDTO.Create.StaffRequest.class)))
+        given(ticketCommandService.createByStaff(any(CreateStaffTicketRequest.class)))
                 .willReturn(ticketResponse(100L, TicketPriority.HIGH, null));
 
         mockMvc.perform(post("/api/staff/tickets")
@@ -73,7 +77,7 @@ class StaffTicketControllerTest {
     @Test
     void shouldListTicketsForStaffWithCriteria() throws Exception {
         given(ticketQueryService.findAll(
-                new TicketDTO.Search.Criteria(TicketStatus.OPEN, TicketPriority.TRIAGE),
+                new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.TRIAGE),
                 PageRequest.of(0, 10)
         )).willReturn(new PageImpl<>(List.of(ticketResponse(100L, TicketPriority.TRIAGE, null)), PageRequest.of(0, 10), 1));
 
@@ -88,7 +92,7 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldUpdateTicketPriority() throws Exception {
-        given(ticketCommandService.updatePriority(eq(100L), any(TicketDTO.UpdatePriority.Request.class)))
+        given(ticketCommandService.updatePriority(eq(100L), any(UpdateTicketPriorityRequest.class)))
                 .willReturn(ticketResponse(100L, TicketPriority.URGENT, null));
 
         mockMvc.perform(patch("/api/staff/tickets/100/priority")
@@ -100,7 +104,7 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldAssignAuthenticatedTechnicianWhenRequestTechnicianIsNull() throws Exception {
-        TicketDTO.Response.UserInfo technician = new TicketDTO.Response.UserInfo(77L, "Tech User");
+        TicketUserInfo technician = new TicketUserInfo(77L, "Tech User");
         given(ticketCommandService.assignTechnician(100L, null, 77L))
                 .willReturn(ticketResponse(100L, TicketPriority.TRIAGE, technician));
 
@@ -128,14 +132,14 @@ class StaffTicketControllerTest {
         then(ticketCommandService).should().cancel(100L);
     }
 
-    private TicketDTO.Response ticketResponse(Long id, TicketPriority priority, TicketDTO.Response.UserInfo technician) {
-        return new TicketDTO.Response(
+    private TicketResponse ticketResponse(Long id, TicketPriority priority, TicketUserInfo technician) {
+        return new TicketResponse(
                 id,
                 "VPN issue",
                 "Cannot connect to corporate VPN",
                 technician == null ? TicketStatus.OPEN : TicketStatus.IN_PROGRESS,
                 priority,
-                new TicketDTO.Response.UserInfo(42L, "Jane User"),
+                new TicketUserInfo(42L, "Jane User"),
                 technician,
                 Instant.now(),
                 Instant.now(),

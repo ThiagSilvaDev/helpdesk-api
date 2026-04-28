@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
@@ -52,7 +55,7 @@ class UserTicketControllerTest {
 
     @Test
     void shouldCreateTicketForAuthenticatedUser() throws Exception {
-        given(ticketCommandService.createByUser(any(TicketDTO.Create.UserRequest.class), eq(42L)))
+        given(ticketCommandService.createByUser(any(CreateUserTicketRequest.class), eq(42L)))
                 .willReturn(ticketResponse(100L));
 
         mockMvc.perform(post("/api/users/tickets")
@@ -93,14 +96,14 @@ class UserTicketControllerTest {
 
     @Test
     void shouldUpdateTicket() throws Exception {
-        given(ticketCommandService.update(eq(100L), any(TicketDTO.Update.Request.class)))
-                .willReturn(new TicketDTO.Response(
+        given(ticketCommandService.update(eq(100L), any(UpdateTicketRequest.class)))
+                .willReturn(new TicketResponse(
                         100L,
                         "Updated ticket",
                         "Updated description for ticket",
                         TicketStatus.OPEN,
                         TicketPriority.TRIAGE,
-                        new TicketDTO.Response.UserInfo(42L, "Jane User"),
+                        new TicketUserInfo(42L, "Jane User"),
                         null,
                         Instant.now(),
                         Instant.now(),
@@ -118,17 +121,17 @@ class UserTicketControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated ticket"));
 
-        then(ticketCommandService).should().update(eq(100L), any(TicketDTO.Update.Request.class));
+        then(ticketCommandService).should().update(eq(100L), any(UpdateTicketRequest.class));
     }
 
-    private TicketDTO.Response ticketResponse(Long id) {
-        return new TicketDTO.Response(
+    private TicketResponse ticketResponse(Long id) {
+        return new TicketResponse(
                 id,
                 "Printer issue",
                 "Office printer is not working",
                 TicketStatus.OPEN,
                 TicketPriority.TRIAGE,
-                new TicketDTO.Response.UserInfo(42L, "Jane User"),
+                new TicketUserInfo(42L, "Jane User"),
                 null,
                 Instant.now(),
                 Instant.now(),

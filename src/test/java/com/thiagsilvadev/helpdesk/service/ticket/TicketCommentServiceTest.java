@@ -1,6 +1,8 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
-import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.entity.*;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
@@ -54,7 +56,7 @@ class TicketCommentServiceTest {
         given(ticketCommentRepository.findByTicketId(TICKET_ID, pageable))
                 .willReturn(new PageImpl<>(List.of(comment("Existing comment")), pageable, 1));
 
-        Page<TicketCommentDTO.Response> response = ticketCommentService.findByTicketId(TICKET_ID, pageable);
+        Page<TicketCommentResponse> response = ticketCommentService.findByTicketId(TICKET_ID, pageable);
 
         assertThat(response.getTotalElements()).isEqualTo(1);
         assertThat(response.getContent().getFirst().ticketId()).isEqualTo(TICKET_ID);
@@ -64,14 +66,14 @@ class TicketCommentServiceTest {
     void shouldCreateComment() {
         Ticket ticket = ticket();
         User author = user(AUTHOR_ID, Roles.ROLE_USER);
-        TicketCommentDTO.Create.Request request = new TicketCommentDTO.Create.Request("Need help with this ticket");
+        CreateTicketCommentRequest request = new CreateTicketCommentRequest("Need help with this ticket");
 
         given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
         given(userService.getUserById(AUTHOR_ID)).willReturn(author);
         given(ticketCommentRepository.save(any(TicketComment.class)))
                 .willAnswer(invocation -> persistComment(invocation.getArgument(0), COMMENT_ID));
 
-        TicketCommentDTO.Response response = ticketCommentService.create(TICKET_ID, request, AUTHOR_ID);
+        TicketCommentResponse response = ticketCommentService.create(TICKET_ID, request, AUTHOR_ID);
 
         assertThat(response.id()).isEqualTo(COMMENT_ID);
         assertThat(response.content()).isEqualTo("Need help with this ticket");
@@ -81,11 +83,11 @@ class TicketCommentServiceTest {
     @Test
     void shouldUpdateComment() {
         TicketComment comment = comment("Old content");
-        TicketCommentDTO.Update.Request request = new TicketCommentDTO.Update.Request("Updated content");
+        UpdateTicketCommentRequest request = new UpdateTicketCommentRequest("Updated content");
         given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID)).willReturn(Optional.of(comment));
         given(ticketCommentRepository.save(comment)).willReturn(comment);
 
-        TicketCommentDTO.Response response = ticketCommentService.update(TICKET_ID, COMMENT_ID, request);
+        TicketCommentResponse response = ticketCommentService.update(TICKET_ID, COMMENT_ID, request);
 
         assertThat(response.content()).isEqualTo("Updated content");
     }
@@ -108,7 +110,7 @@ class TicketCommentServiceTest {
                 .isThrownBy(() -> ticketCommentService.update(
                         TICKET_ID,
                         COMMENT_ID,
-                        new TicketCommentDTO.Update.Request("Updated content")
+                        new UpdateTicketCommentRequest("Updated content")
                 ))
                 .withMessage("Comment not found with id: " + COMMENT_ID);
     }

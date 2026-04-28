@@ -1,13 +1,13 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,14 +41,13 @@ public class UserTicketController {
     @PostMapping
     @Operation(summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Ticket created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "201", description = "Ticket created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<TicketDTO.Response> createTicketAsUser(@RequestBody @Valid TicketDTO.Create.UserRequest userRequest,
+    public ResponseEntity<TicketResponse> createTicketAsUser(@RequestBody @Valid CreateUserTicketRequest userRequest,
                                                                  @Parameter(hidden = true) @CurrentUserId Long userId) {
-        TicketDTO.Response newTicket = ticketCommandService.createByUser(userRequest, userId);
+        TicketResponse newTicket = ticketCommandService.createByUser(userRequest, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -61,13 +60,12 @@ public class UserTicketController {
     @GetMapping("/{ticketId}")
     @Operation(summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Ticket found"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketDTO.Response> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
+    public ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
                                                                                  @Parameter(hidden = true) @CurrentUserId Long userId) {
-        TicketDTO.Response ticket = ticketQueryService.getOwnTicketById(ticketId, userId);
+        TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, userId);
         return ResponseEntity.ok(ticket);
     }
 
@@ -75,24 +73,23 @@ public class UserTicketController {
     @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
-    public ResponseEntity<Page<TicketDTO.Response>> listAuthenticatedUserTickets(@Parameter(hidden = true) @CurrentUserId Long userId,
+    public ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(@Parameter(hidden = true) @CurrentUserId Long userId,
                                                                                  @ParameterObject Pageable pageable) {
-        Page<TicketDTO.Response> tickets = ticketQueryService.findTicketsByClientId(userId, pageable);
+        Page<TicketResponse> tickets = ticketQueryService.findTicketsByClientId(userId, pageable);
         return ResponseEntity.ok(tickets);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update ticket", description = "Updates title and description of an existing ticket")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ticket updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Ticket updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketDTO.Response> updateTicketAsUser(@PathVariable Long id, @RequestBody @Valid TicketDTO.Update.Request request) {
-        TicketDTO.Response updatedTicket = ticketCommandService.update(id, request);
+    public ResponseEntity<TicketResponse> updateTicketAsUser(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
+        TicketResponse updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 }

@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.mapper;
 
-import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentAuthorInfo;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketComment;
 import com.thiagsilvadev.helpdesk.entity.User;
@@ -9,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketCommentMapper {
 
-    public TicketCommentDTO.Response toResponse(TicketComment comment) {
+    public TicketCommentResponse toResponse(TicketComment comment) {
         if (comment == null) {
             return null;
         }
 
-        return new TicketCommentDTO.Response(
+        return new TicketCommentResponse(
                 comment.getId(),
                 comment.getTicket().getId(),
                 toAuthorInfo(comment.getAuthor()),
@@ -32,12 +33,12 @@ public class TicketCommentMapper {
         return new TicketComment(ticket, author, content);
     }
 
-    private TicketCommentDTO.Response.AuthorInfo toAuthorInfo(User author) {
+    private TicketCommentAuthorInfo toAuthorInfo(User author) {
         if (author == null) {
             return null;
         }
 
-        return new TicketCommentDTO.Response.AuthorInfo(
+        return new TicketCommentAuthorInfo(
                 author.getId(),
                 author.getName()
         );

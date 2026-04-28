@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.UserDTO;
+import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,14 +40,14 @@ class UserControllerTest {
 
     @Test
     void shouldCreateUserAndReturnLocationHeader() throws Exception {
-        UserDTO.Create.Request request = new UserDTO.Create.Request(
+        CreateUserRequest request = new CreateUserRequest(
                 "Jane User",
                 "jane@helpdesk.local",
                 "StrongPass@123",
                 Roles.ROLE_USER
         );
-        given(userService.create(any(UserDTO.Create.Request.class)))
-                .willReturn(new UserDTO.Response(42L, request.name(), request.email(), request.role(), true));
+        given(userService.create(any(CreateUserRequest.class)))
+                .willReturn(new UserResponse(42L, request.name(), request.email(), request.role(), true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +69,7 @@ class UserControllerTest {
     @Test
     void shouldGetUserById() throws Exception {
         given(userService.getUserResponseById(7L))
-                .willReturn(new UserDTO.Response(7L, "Tech User", "tech@helpdesk.local", Roles.ROLE_TECHNICIAN, true));
+                .willReturn(new UserResponse(7L, "Tech User", "tech@helpdesk.local", Roles.ROLE_TECHNICIAN, true));
 
         mockMvc.perform(get("/api/users/7"))
                 .andExpect(status().isOk())
@@ -78,7 +81,7 @@ class UserControllerTest {
     void shouldListUsersWithPageable() throws Exception {
         given(userService.findAll(PageRequest.of(1, 2)))
                 .willReturn(new PageImpl<>(
-                        List.of(new UserDTO.Response(1L, "Admin", "admin@helpdesk.local", Roles.ROLE_ADMIN, true)),
+                        List.of(new UserResponse(1L, "Admin", "admin@helpdesk.local", Roles.ROLE_ADMIN, true)),
                         PageRequest.of(1, 2),
                         3
                 ));
@@ -91,8 +94,8 @@ class UserControllerTest {
 
     @Test
     void shouldUpdateUserName() throws Exception {
-        given(userService.update(any(Long.class), any(UserDTO.Update.Request.class)))
-                .willReturn(new UserDTO.Response(5L, "New Name", "user@helpdesk.local", Roles.ROLE_USER, true));
+        given(userService.update(any(Long.class), any(UpdateUserNameRequest.class)))
+                .willReturn(new UserResponse(5L, "New Name", "user@helpdesk.local", Roles.ROLE_USER, true));
 
         mockMvc.perform(patch("/api/users/5/name")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,13 +103,13 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("New Name"));
 
-        then(userService).should().update(any(Long.class), any(UserDTO.Update.Request.class));
+        then(userService).should().update(any(Long.class), any(UpdateUserNameRequest.class));
     }
 
     @Test
     void shouldChangeUserRole() throws Exception {
-        given(userService.changeRole(any(Long.class), any(UserDTO.ChangeRole.Request.class)))
-                .willReturn(new UserDTO.Response(5L, "Jane User", "jane@helpdesk.local", Roles.ROLE_ADMIN, true));
+        given(userService.changeRole(any(Long.class), any(ChangeUserRoleRequest.class)))
+                .willReturn(new UserResponse(5L, "Jane User", "jane@helpdesk.local", Roles.ROLE_ADMIN, true));
 
         mockMvc.perform(patch("/api/users/5/role")
                         .contentType(MediaType.APPLICATION_JSON)

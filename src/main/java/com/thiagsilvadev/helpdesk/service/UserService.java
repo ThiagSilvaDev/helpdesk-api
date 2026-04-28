@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.UserDTO;
+import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
@@ -31,7 +34,7 @@ public class UserService {
 
     @PreAuthorize("@userAuthorization.canCreate(authentication)")
     @Transactional
-    public UserDTO.Response create(UserDTO.Create.Request request) {
+    public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
@@ -48,19 +51,19 @@ public class UserService {
     }
 
     @PreAuthorize("@userAuthorization.canRead(authentication)")
-    public UserDTO.Response getUserResponseById(Long id) {
+    public UserResponse getUserResponseById(Long id) {
         return userMapper.toResponse(getUserById(id));
     }
 
     @PreAuthorize("@userAuthorization.canReadAll(authentication)")
-    public Page<UserDTO.Response> findAll(Pageable pageable) {
+    public Page<UserResponse> findAll(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(userMapper::toResponse);
     }
 
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")
     @Transactional
-    public UserDTO.Response update(Long id, UserDTO.Update.Request request) {
+    public UserResponse update(Long id, UpdateUserNameRequest request) {
         User existingUser = getUserById(id);
         userMapper.applyUpdate(request, existingUser);
         return userMapper.toResponse(userRepository.save(existingUser));
@@ -68,7 +71,7 @@ public class UserService {
 
     @PreAuthorize("@userAuthorization.canChangeRole(authentication)")
     @Transactional
-    public UserDTO.Response changeRole(Long id, UserDTO.ChangeRole.Request request) {
+    public UserResponse changeRole(Long id, ChangeUserRoleRequest request) {
         User existingUser = getUserById(id);
         existingUser.changeRole(request.role());
         return userMapper.toResponse(userRepository.save(existingUser));

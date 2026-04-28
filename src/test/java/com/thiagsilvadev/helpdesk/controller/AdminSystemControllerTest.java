@@ -1,6 +1,11 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.AdminSystemDTO;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthComponentResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricMeasurementResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricTagResponse;
 import com.thiagsilvadev.helpdesk.service.AdminSystemService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +34,9 @@ class AdminSystemControllerTest {
 
     @Test
     void shouldReturnHealth() throws Exception {
-        given(adminSystemService.getHealth()).willReturn(new AdminSystemDTO.Health.Response(
+        given(adminSystemService.getHealth()).willReturn(new AdminSystemHealthResponse(
                 "UP",
-                List.of(new AdminSystemDTO.Health.ComponentResponse("db", "UP"))
+                List.of(new AdminSystemHealthComponentResponse("db", "UP"))
         ));
 
         mockMvc.perform(get("/api/admin/system/health"))
@@ -43,7 +48,7 @@ class AdminSystemControllerTest {
     @Test
     void shouldListMetricNames() throws Exception {
         given(adminSystemService.listMetricNames())
-                .willReturn(new AdminSystemDTO.Metric.NamesResponse(List.of("jvm.memory.used", "http.server.requests")));
+                .willReturn(new AdminSystemMetricNamesResponse(List.of("jvm.memory.used", "http.server.requests")));
 
         mockMvc.perform(get("/api/admin/system/metrics"))
                 .andExpect(status().isOk())
@@ -53,12 +58,12 @@ class AdminSystemControllerTest {
     @Test
     void shouldGetMetricByName() throws Exception {
         given(adminSystemService.getMetric("jvm.memory.used"))
-                .willReturn(new AdminSystemDTO.Metric.DetailResponse(
+                .willReturn(new AdminSystemMetricDetailResponse(
                         "jvm.memory.used",
                         "Used memory",
                         "bytes",
-                        List.of(new AdminSystemDTO.Metric.MeasurementResponse("VALUE", 42.0)),
-                        List.of(new AdminSystemDTO.Metric.TagResponse("area", List.of("heap")))
+                        List.of(new AdminSystemMetricMeasurementResponse("VALUE", 42.0)),
+                        List.of(new AdminSystemMetricTagResponse("area", List.of("heap")))
                 ));
 
         mockMvc.perform(get("/api/admin/system/metrics/jvm.memory.used"))

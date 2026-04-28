@@ -1,6 +1,8 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
-import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketComment;
 import com.thiagsilvadev.helpdesk.entity.User;
@@ -35,7 +37,7 @@ public class TicketCommentService {
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
     @Transactional
-    public TicketCommentDTO.Response create(Long ticketId, TicketCommentDTO.Create.Request request, Long authorId) {
+    public TicketCommentResponse create(Long ticketId, CreateTicketCommentRequest request, Long authorId) {
         Ticket ticket = ticketQueryService.getTicketEntityById(ticketId);
         User author = userService.getUserById(authorId);
         TicketComment comment = ticketCommentMapper.toEntity(ticket, author, request.content());
@@ -44,7 +46,7 @@ public class TicketCommentService {
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
-    public Page<TicketCommentDTO.Response> findByTicketId(Long ticketId, Pageable pageable) {
+    public Page<TicketCommentResponse> findByTicketId(Long ticketId, Pageable pageable) {
         return ticketCommentRepository.findByTicketId(ticketId, pageable)
                 .map(ticketCommentMapper::toResponse);
     }
@@ -52,7 +54,7 @@ public class TicketCommentService {
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication) "
             + "and @ticketCommentAuthorization.canModify(#commentId, authentication)")
     @Transactional
-    public TicketCommentDTO.Response update(Long ticketId, Long commentId, TicketCommentDTO.Update.Request request) {
+    public TicketCommentResponse update(Long ticketId, Long commentId, UpdateTicketCommentRequest request) {
         TicketComment comment = getCommentEntityByIdAndTicketId(commentId, ticketId);
         comment.updateContent(request.content());
 

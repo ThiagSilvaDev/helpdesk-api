@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.repository.specification;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
@@ -45,7 +45,7 @@ class TicketSpecificationTest {
         given(criteriaBuilder.and(statusPredicate, priorityPredicate)).willReturn(combinedPredicate);
 
         Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketDTO.Search.Criteria(TicketStatus.OPEN, TicketPriority.URGENT)
+                new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.URGENT)
         );
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
@@ -65,7 +65,7 @@ class TicketSpecificationTest {
         given(criteriaBuilder.equal(statusPath, TicketStatus.CLOSED)).willReturn(statusPredicate);
 
         Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketDTO.Search.Criteria(TicketStatus.CLOSED, null)
+                new TicketSearchCriteria(TicketStatus.CLOSED, null)
         );
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
@@ -86,7 +86,7 @@ class TicketSpecificationTest {
         given(criteriaBuilder.equal(priorityPath, TicketPriority.HIGH)).willReturn(priorityPredicate);
 
         Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketDTO.Search.Criteria(null, TicketPriority.HIGH)
+                new TicketSearchCriteria(null, TicketPriority.HIGH)
         );
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);

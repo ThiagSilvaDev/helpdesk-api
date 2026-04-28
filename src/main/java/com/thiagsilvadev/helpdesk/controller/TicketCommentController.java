@@ -1,12 +1,12 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,16 +38,15 @@ public class TicketCommentController {
     @PostMapping
     @Operation(summary = "Create ticket comment", description = "Adds a comment to a ticket")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Comment created",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketCommentDTO.Response.class))),
+            @ApiResponse(responseCode = "201", description = "Comment created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketCommentDTO.Response> createTicketComment(@PathVariable Long ticketId,
-                                                                          @RequestBody @Valid TicketCommentDTO.Create.Request request,
+    public ResponseEntity<TicketCommentResponse> createTicketComment(@PathVariable Long ticketId,
+                                                                          @RequestBody @Valid CreateTicketCommentRequest request,
                                                                           @Parameter(hidden = true) @CurrentUserId Long userId) {
-        TicketCommentDTO.Response comment = ticketCommentService.create(ticketId, request, userId);
+        TicketCommentResponse comment = ticketCommentService.create(ticketId, request, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{commentId}")
@@ -64,7 +63,7 @@ public class TicketCommentController {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<Page<TicketCommentDTO.Response>> listTicketComments(@PathVariable Long ticketId,
+    public ResponseEntity<Page<TicketCommentResponse>> listTicketComments(@PathVariable Long ticketId,
                                                                               @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(ticketCommentService.findByTicketId(ticketId, pageable));
     }
@@ -72,15 +71,14 @@ public class TicketCommentController {
     @PutMapping("/{commentId}")
     @Operation(summary = "Update ticket comment", description = "Updates an existing ticket comment")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Comment updated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketCommentDTO.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Comment updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketCommentDTO.Response> updateTicketComment(@PathVariable Long ticketId,
+    public ResponseEntity<TicketCommentResponse> updateTicketComment(@PathVariable Long ticketId,
                                                                          @PathVariable Long commentId,
-                                                                         @RequestBody @Valid TicketCommentDTO.Update.Request request) {
+                                                                         @RequestBody @Valid UpdateTicketCommentRequest request) {
         return ResponseEntity.ok(ticketCommentService.update(ticketId, commentId, request));
     }
 

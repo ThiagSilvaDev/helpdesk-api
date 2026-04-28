@@ -1,6 +1,10 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.entity.*;
 import com.thiagsilvadev.helpdesk.exception.InvalidRoleAssignmentException;
 import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
@@ -51,7 +55,7 @@ class TicketCommandServiceTest {
 
         @Test
         void shouldCreateByUserWithTriagePriority() {
-            TicketDTO.Create.UserRequest request = new TicketDTO.Create.UserRequest(
+            CreateUserTicketRequest request = new CreateUserTicketRequest(
                     "Printer issue",
                     "Office printer is not working"
             );
@@ -60,7 +64,7 @@ class TicketCommandServiceTest {
             given(userService.getUserById(CLIENT_ID)).willReturn(client);
             given(ticketRepository.save(any(Ticket.class))).willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
 
-            TicketDTO.Response response = ticketCommandService.createByUser(request, CLIENT_ID);
+            TicketResponse response = ticketCommandService.createByUser(request, CLIENT_ID);
 
             assertThat(response.id()).isEqualTo(TICKET_ID);
             assertThat(response.title()).isEqualTo("Printer issue");
@@ -71,7 +75,7 @@ class TicketCommandServiceTest {
 
         @Test
         void shouldCreateByStaffWithRequestedPriority() {
-            TicketDTO.Create.StaffRequest request = new TicketDTO.Create.StaffRequest(
+            CreateStaffTicketRequest request = new CreateStaffTicketRequest(
                     "VPN issue",
                     "Cannot connect to corporate VPN",
                     CLIENT_ID,
@@ -82,7 +86,7 @@ class TicketCommandServiceTest {
             given(userService.getUserById(CLIENT_ID)).willReturn(client);
             given(ticketRepository.save(any(Ticket.class))).willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
 
-            TicketDTO.Response response = ticketCommandService.createByStaff(request);
+            TicketResponse response = ticketCommandService.createByStaff(request);
 
             assertThat(response.priority()).isEqualTo(TicketPriority.HIGH);
             assertThat(response.client().id()).isEqualTo(CLIENT_ID);
@@ -90,7 +94,7 @@ class TicketCommandServiceTest {
 
         @Test
         void shouldThrowWhenRequesterIsNotRoleUser() {
-            TicketDTO.Create.UserRequest request = new TicketDTO.Create.UserRequest(
+            CreateUserTicketRequest request = new CreateUserTicketRequest(
                     "Printer issue",
                     "Office printer is not working"
             );
@@ -110,12 +114,12 @@ class TicketCommandServiceTest {
         @Test
         void shouldUpdateTitleAndDescription() {
             Ticket ticket = ticket("Old title", "Old description for ticket", TicketPriority.TRIAGE);
-            TicketDTO.Update.Request request = new TicketDTO.Update.Request("New title", "New description for ticket");
+            UpdateTicketRequest request = new UpdateTicketRequest("New title", "New description for ticket");
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            TicketDTO.Response response = ticketCommandService.update(TICKET_ID, request);
+            TicketResponse response = ticketCommandService.update(TICKET_ID, request);
 
             assertThat(response.title()).isEqualTo("New title");
             assertThat(response.description()).isEqualTo("New description for ticket");
@@ -125,7 +129,7 @@ class TicketCommandServiceTest {
         void shouldRejectUpdatesToClosedTickets() {
             Ticket ticket = ticket("Closed ticket", "Closed description", TicketPriority.TRIAGE);
             ticket.closeTicket();
-            TicketDTO.Update.Request request = new TicketDTO.Update.Request("New title", "New description for ticket");
+            UpdateTicketRequest request = new UpdateTicketRequest("New title", "New description for ticket");
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 
@@ -143,12 +147,12 @@ class TicketCommandServiceTest {
         @Test
         void shouldUpdatePriority() {
             Ticket ticket = ticket("Priority issue", "Need urgent change now", TicketPriority.TRIAGE);
-            TicketDTO.UpdatePriority.Request request = new TicketDTO.UpdatePriority.Request(TicketPriority.URGENT);
+            UpdateTicketPriorityRequest request = new UpdateTicketPriorityRequest(TicketPriority.URGENT);
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            TicketDTO.Response response = ticketCommandService.updatePriority(TICKET_ID, request);
+            TicketResponse response = ticketCommandService.updatePriority(TICKET_ID, request);
 
             assertThat(response.priority()).isEqualTo(TicketPriority.URGENT);
         }
@@ -157,7 +161,7 @@ class TicketCommandServiceTest {
         void shouldRejectPriorityChangesForClosedTickets() {
             Ticket ticket = ticket("Closed ticket", "Ticket already closed state", TicketPriority.TRIAGE);
             ticket.closeTicket();
-            TicketDTO.UpdatePriority.Request request = new TicketDTO.UpdatePriority.Request(TicketPriority.HIGH);
+            UpdateTicketPriorityRequest request = new UpdateTicketPriorityRequest(TicketPriority.HIGH);
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 
@@ -181,7 +185,7 @@ class TicketCommandServiceTest {
             given(userService.getUserById(TECHNICIAN_ID)).willReturn(technician);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            TicketDTO.Response response = ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID);
+            TicketResponse response = ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID);
 
             assertThat(response.technician().id()).isEqualTo(TECHNICIAN_ID);
             assertThat(response.status()).isEqualTo(TicketStatus.IN_PROGRESS);

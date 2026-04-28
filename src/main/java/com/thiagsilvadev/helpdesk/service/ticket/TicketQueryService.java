@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
@@ -30,24 +31,24 @@ public class TicketQueryService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
-    public TicketDTO.Response getTicketResponseById(Long ticketId) {
+    public TicketResponse getTicketResponseById(Long ticketId) {
         return ticketMapper.toResponse(getTicketEntityById(ticketId));
     }
 
     @PreAuthorize("@ticketAuthorization.canRead(#ticketId, authentication)")
-    public TicketDTO.Response getOwnTicketById(Long ticketId, Long userId) {
+    public TicketResponse getOwnTicketById(Long ticketId, Long userId) {
         return ticketRepository.findByIdAndClientId(ticketId, userId)
                 .map(ticketMapper::toResponse)
                 .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + ticketId));
     }
 
-    public Page<TicketDTO.Response> findTicketsByClientId(Long clientId, Pageable pageable) {
+    public Page<TicketResponse> findTicketsByClientId(Long clientId, Pageable pageable) {
         return ticketRepository.findByClientId(clientId, pageable)
                 .map(ticketMapper::toResponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
-    public Page<TicketDTO.Response> findAll(TicketDTO.Search.Criteria criteria, Pageable pageable) {
+    public Page<TicketResponse> findAll(TicketSearchCriteria criteria, Pageable pageable) {
         Specification<com.thiagsilvadev.helpdesk.entity.Ticket> spec = TicketSpecification.withCriteria(criteria);
         return ticketRepository.findAll(spec, pageable)
                 .map(ticketMapper::toResponse);

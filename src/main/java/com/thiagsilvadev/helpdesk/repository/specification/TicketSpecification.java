@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.repository.specification;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,7 +13,7 @@ public final class TicketSpecification {
     private TicketSpecification() {
     }
 
-    public static Specification<com.thiagsilvadev.helpdesk.entity.Ticket> withCriteria(TicketDTO.Search.Criteria criteria) {
+    public static Specification<com.thiagsilvadev.helpdesk.entity.Ticket> withCriteria(TicketSearchCriteria criteria) {
         if (criteria == null) {
             return Specification.unrestricted();
         }

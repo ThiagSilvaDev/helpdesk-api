@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentAuthorInfo;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
+import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +62,7 @@ class TicketCommentControllerTest {
 
     @Test
     void shouldCreateTicketComment() throws Exception {
-        given(ticketCommentService.create(eq(100L), any(TicketCommentDTO.Create.Request.class), eq(42L)))
+        given(ticketCommentService.create(eq(100L), any(CreateTicketCommentRequest.class), eq(42L)))
                 .willReturn(commentResponse());
 
         mockMvc.perform(post("/api/tickets/100/comments")
@@ -73,11 +76,11 @@ class TicketCommentControllerTest {
 
     @Test
     void shouldUpdateTicketComment() throws Exception {
-        given(ticketCommentService.update(eq(100L), eq(200L), any(TicketCommentDTO.Update.Request.class)))
-                .willReturn(new TicketCommentDTO.Response(
+        given(ticketCommentService.update(eq(100L), eq(200L), any(UpdateTicketCommentRequest.class)))
+                .willReturn(new TicketCommentResponse(
                         200L,
                         100L,
-                        new TicketCommentDTO.Response.AuthorInfo(42L, "Jane User"),
+                        new TicketCommentAuthorInfo(42L, "Jane User"),
                         "Updated comment",
                         Instant.now(),
                         Instant.now()
@@ -98,11 +101,11 @@ class TicketCommentControllerTest {
         then(ticketCommentService).should().delete(100L, 200L);
     }
 
-    private TicketCommentDTO.Response commentResponse() {
-        return new TicketCommentDTO.Response(
+    private TicketCommentResponse commentResponse() {
+        return new TicketCommentResponse(
                 200L,
                 100L,
-                new TicketCommentDTO.Response.AuthorInfo(42L, "Jane User"),
+                new TicketCommentAuthorInfo(42L, "Jane User"),
                 "Need help with this ticket",
                 Instant.now(),
                 Instant.now()

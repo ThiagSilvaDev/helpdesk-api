@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.AdminSystemDTO;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class AdminSystemServiceTest {
             given(descriptor.getNames()).willReturn(Set.of("jvm.memory.max", "jvm.memory.used", "http.requests"));
             given(metricsEndpoint.listNames()).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.NamesResponse response = adminSystemService.listMetricNames();
+            AdminSystemMetricNamesResponse response = adminSystemService.listMetricNames();
 
             assertThat(response.names())
                     .containsExactly("http.requests", "jvm.memory.max", "jvm.memory.used");
@@ -55,7 +56,7 @@ class AdminSystemServiceTest {
             given(descriptor.getNames()).willReturn(Set.of());
             given(metricsEndpoint.listNames()).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.NamesResponse response = adminSystemService.listMetricNames();
+            AdminSystemMetricNamesResponse response = adminSystemService.listMetricNames();
 
             assertThat(response.names()).isEmpty();
         }
@@ -66,7 +67,7 @@ class AdminSystemServiceTest {
             given(descriptor.getNames()).willReturn(Set.of("single.metric"));
             given(metricsEndpoint.listNames()).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.NamesResponse response = adminSystemService.listMetricNames();
+            AdminSystemMetricNamesResponse response = adminSystemService.listMetricNames();
 
             assertThat(response.names()).containsExactly("single.metric");
         }
@@ -85,7 +86,7 @@ class AdminSystemServiceTest {
             given(descriptor.getAvailableTags()).willReturn(List.of());
             given(metricsEndpoint.metric(METRIC_NAME, List.of())).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.DetailResponse response = adminSystemService.getMetric(METRIC_NAME);
+            AdminSystemMetricDetailResponse response = adminSystemService.getMetric(METRIC_NAME);
 
             assertThat(response.name()).isEqualTo(METRIC_NAME);
             assertThat(response.description()).isEqualTo("Memory usage of JVM");
@@ -111,7 +112,7 @@ class AdminSystemServiceTest {
             given(descriptor.getAvailableTags()).willReturn(List.of());
             given(metricsEndpoint.metric(METRIC_NAME, List.of())).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.DetailResponse response = adminSystemService.getMetric(METRIC_NAME);
+            AdminSystemMetricDetailResponse response = adminSystemService.getMetric(METRIC_NAME);
 
             assertThat(response.description()).isEmpty();
             assertThat(response.baseUnit()).isEmpty();
@@ -127,7 +128,7 @@ class AdminSystemServiceTest {
             given(descriptor.getAvailableTags()).willReturn(List.of());
             given(metricsEndpoint.metric(METRIC_NAME, List.of())).willReturn(descriptor);
 
-            AdminSystemDTO.Metric.DetailResponse response = adminSystemService.getMetric(METRIC_NAME);
+            AdminSystemMetricDetailResponse response = adminSystemService.getMetric(METRIC_NAME);
 
             assertThat(response.measurements()).isEmpty();
         }

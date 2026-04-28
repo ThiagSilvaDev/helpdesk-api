@@ -1,11 +1,11 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.AdminSystemDTO;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
 import com.thiagsilvadev.helpdesk.service.AdminSystemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,11 +35,10 @@ public class AdminSystemController {
             description = "Returns the Spring Boot health endpoint adapted to a stable response DTO for Angular API generation"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Health retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Health.Response.class))),
+            @ApiResponse(responseCode = "200", description = "Health retrieved"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDTO.Health.Response> getAdminSystemHealth() {
+    public ResponseEntity<AdminSystemHealthResponse> getAdminSystemHealth() {
         return ResponseEntity.ok(adminSystemService.getHealth());
     }
 
@@ -50,11 +49,10 @@ public class AdminSystemController {
             description = "Returns the metric names exposed by Spring Boot actuator using a dedicated DTO for Angular API generation"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Metric names retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Metric.NamesResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Metric names retrieved"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<AdminSystemDTO.Metric.NamesResponse> listAdminSystemMetricNames() {
+    public ResponseEntity<AdminSystemMetricNamesResponse> listAdminSystemMetricNames() {
         return ResponseEntity.ok(adminSystemService.listMetricNames());
     }
 
@@ -65,12 +63,11 @@ public class AdminSystemController {
             description = "Returns a single actuator metric with explicit DTOs so Angular API generation produces stable models"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Metric retrieved",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AdminSystemDTO.Metric.DetailResponse.class))),
+            @ApiResponse(responseCode = "200", description = "Metric retrieved"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<AdminSystemDTO.Metric.DetailResponse> getAdminSystemMetricByName(
+    public ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(
             @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
             @PathVariable String metricName
     ) {

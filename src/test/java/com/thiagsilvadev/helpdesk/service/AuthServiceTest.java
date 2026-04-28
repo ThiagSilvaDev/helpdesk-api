@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.AuthDTO;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.security.JwtService;
@@ -42,7 +43,7 @@ class AuthServiceTest {
 
         @Test
         void shouldAuthenticateUserAndReturnToken() {
-            AuthDTO.Login.Request request = new AuthDTO.Login.Request(EMAIL, PASSWORD);
+            AuthLoginRequest request = new AuthLoginRequest(EMAIL, PASSWORD);
             User user = persistedUser(USER_ID, "John User", EMAIL, Roles.ROLE_USER);
             UserPrincipal principal = new UserPrincipal(user);
 
@@ -50,7 +51,7 @@ class AuthServiceTest {
             given(authenticationManager.authenticate(any())).willReturn(authentication);
             given(jwtService.generateToken(principal)).willReturn(JWT_TOKEN);
 
-            AuthDTO.Response response = authService.authenticate(request);
+            AuthResponse response = authService.authenticate(request);
 
             assertThat(response.token()).isEqualTo(JWT_TOKEN);
             then(authenticationManager).should().authenticate(any());
@@ -59,7 +60,7 @@ class AuthServiceTest {
 
         @Test
         void shouldGenerateTokenWithUserRole() {
-            AuthDTO.Login.Request request = new AuthDTO.Login.Request(EMAIL, PASSWORD);
+            AuthLoginRequest request = new AuthLoginRequest(EMAIL, PASSWORD);
             User user = persistedUser(USER_ID, "Tech User", EMAIL, Roles.ROLE_TECHNICIAN);
             UserPrincipal principal = new UserPrincipal(user);
 
@@ -67,7 +68,7 @@ class AuthServiceTest {
             given(authenticationManager.authenticate(any())).willReturn(authentication);
             given(jwtService.generateToken(principal)).willReturn(JWT_TOKEN);
 
-            AuthDTO.Response response = authService.authenticate(request);
+            AuthResponse response = authService.authenticate(request);
 
             assertThat(response.token()).isEqualTo(JWT_TOKEN);
             then(jwtService).should().generateToken(principal);

@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.service;
 
-import com.thiagsilvadev.helpdesk.dto.UserDTO;
+import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
@@ -58,20 +61,20 @@ class UserServiceTest {
 
         @Test
         void shouldCreateUserWithEncodedPassword() {
-            UserDTO.Create.Request request = createUserRequest();
+            CreateUserRequest request = createUserRequest();
 
             given(userRepository.existsByEmail(request.email())).willReturn(false);
             given(passwordEncoder.encode(request.password())).willReturn(ENCODED_PASSWORD);
             given(userRepository.save(any(User.class))).willAnswer(invocation -> persist(invocation.getArgument(0), USER_ID));
 
-            UserDTO.Response response = userService.create(request);
+            UserResponse response = userService.create(request);
 
             assertThat(response)
-                    .returns(USER_ID, UserDTO.Response::id)
-                    .returns(request.name(), UserDTO.Response::name)
-                    .returns(request.email(), UserDTO.Response::email)
-                    .returns(request.role(), UserDTO.Response::role)
-                    .returns(true, UserDTO.Response::active);
+                    .returns(USER_ID, UserResponse::id)
+                    .returns(request.name(), UserResponse::name)
+                    .returns(request.email(), UserResponse::email)
+                    .returns(request.role(), UserResponse::role)
+                    .returns(true, UserResponse::active);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             then(userRepository).should().save(userCaptor.capture());
@@ -87,7 +90,7 @@ class UserServiceTest {
 
         @Test
         void shouldThrowWhenEmailAlreadyExists() {
-            UserDTO.Create.Request request = createUserRequest();
+            CreateUserRequest request = createUserRequest();
             given(userRepository.existsByEmail(request.email())).willReturn(true);
 
             assertThatExceptionOfType(EmailAlreadyExistsException.class)
@@ -131,14 +134,14 @@ class UserServiceTest {
             User user = persistedUser(USER_ID, "Jane User", "jane@helpdesk.local", Roles.ROLE_USER);
             given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
 
-            UserDTO.Response response = userService.getUserResponseById(USER_ID);
+            UserResponse response = userService.getUserResponseById(USER_ID);
 
             assertThat(response)
-                    .returns(USER_ID, UserDTO.Response::id)
-                    .returns(user.getName(), UserDTO.Response::name)
-                    .returns(user.getEmail(), UserDTO.Response::email)
-                    .returns(user.getRole(), UserDTO.Response::role)
-                    .returns(true, UserDTO.Response::active);
+                    .returns(USER_ID, UserResponse::id)
+                    .returns(user.getName(), UserResponse::name)
+                    .returns(user.getEmail(), UserResponse::email)
+                    .returns(user.getRole(), UserResponse::role)
+                    .returns(true, UserResponse::active);
         }
     }
 
@@ -154,11 +157,11 @@ class UserServiceTest {
 
             given(userRepository.findAll(pageable)).willReturn(users);
 
-            Page<UserDTO.Response> response = userService.findAll(pageable);
+            Page<UserResponse> response = userService.findAll(pageable);
 
             assertThat(response.getTotalElements()).isEqualTo(2);
             assertThat(response.getContent())
-                    .extracting(UserDTO.Response::email)
+                    .extracting(UserResponse::email)
                     .containsExactly("jane@helpdesk.local", "tech@helpdesk.local");
         }
     }
@@ -169,23 +172,23 @@ class UserServiceTest {
         @Test
         void shouldRenameUserWithoutChangingEmailOrRole() {
             User existingUser = persistedUser(USER_ID, "Old Name", "old@helpdesk.local", Roles.ROLE_USER);
-            UserDTO.Update.Request request = new UserDTO.Update.Request("New Name");
+            UpdateUserNameRequest request = new UpdateUserNameRequest("New Name");
 
             given(userRepository.findById(USER_ID)).willReturn(Optional.of(existingUser));
             given(userRepository.save(existingUser)).willReturn(existingUser);
 
-            UserDTO.Response response = userService.update(USER_ID, request);
+            UserResponse response = userService.update(USER_ID, request);
 
             assertThat(response)
-                    .returns("New Name", UserDTO.Response::name)
-                    .returns("old@helpdesk.local", UserDTO.Response::email)
-                    .returns(Roles.ROLE_USER, UserDTO.Response::role);
+                    .returns("New Name", UserResponse::name)
+                    .returns("old@helpdesk.local", UserResponse::email)
+                    .returns(Roles.ROLE_USER, UserResponse::role);
             then(userRepository).should().save(existingUser);
         }
 
         @Test
         void shouldThrowWhenUserDoesNotExist() {
-            UserDTO.Update.Request request = new UserDTO.Update.Request("New Name");
+            UpdateUserNameRequest request = new UpdateUserNameRequest("New Name");
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
             assertThatExceptionOfType(NotFoundException.class)
@@ -202,23 +205,23 @@ class UserServiceTest {
         @Test
         void shouldChangeUserRoleWithoutChangingIdentity() {
             User existingUser = persistedUser(USER_ID, "Jane User", "jane@helpdesk.local", Roles.ROLE_USER);
-            UserDTO.ChangeRole.Request request = new UserDTO.ChangeRole.Request(Roles.ROLE_TECHNICIAN);
+            ChangeUserRoleRequest request = new ChangeUserRoleRequest(Roles.ROLE_TECHNICIAN);
 
             given(userRepository.findById(USER_ID)).willReturn(Optional.of(existingUser));
             given(userRepository.save(existingUser)).willReturn(existingUser);
 
-            UserDTO.Response response = userService.changeRole(USER_ID, request);
+            UserResponse response = userService.changeRole(USER_ID, request);
 
             assertThat(response)
-                    .returns("Jane User", UserDTO.Response::name)
-                    .returns("jane@helpdesk.local", UserDTO.Response::email)
-                    .returns(Roles.ROLE_TECHNICIAN, UserDTO.Response::role);
+                    .returns("Jane User", UserResponse::name)
+                    .returns("jane@helpdesk.local", UserResponse::email)
+                    .returns(Roles.ROLE_TECHNICIAN, UserResponse::role);
             then(userRepository).should().save(existingUser);
         }
 
         @Test
         void shouldThrowWhenUserDoesNotExist() {
-            UserDTO.ChangeRole.Request request = new UserDTO.ChangeRole.Request(Roles.ROLE_ADMIN);
+            ChangeUserRoleRequest request = new ChangeUserRoleRequest(Roles.ROLE_ADMIN);
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
             assertThatExceptionOfType(NotFoundException.class)
@@ -258,8 +261,8 @@ class UserServiceTest {
         }
     }
 
-    private UserDTO.Create.Request createUserRequest() {
-        return new UserDTO.Create.Request(
+    private CreateUserRequest createUserRequest() {
+        return new CreateUserRequest(
                 "Jane User",
                 "jane@helpdesk.local",
                 RAW_PASSWORD,

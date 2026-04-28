@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
-import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.entity.*;
 import com.thiagsilvadev.helpdesk.exception.NotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
@@ -69,7 +70,7 @@ class TicketQueryServiceTest {
     void shouldReturnTicketResponseById() {
         given(ticketRepository.findById(TICKET_ID)).willReturn(Optional.of(ticket(TICKET_ID, TicketPriority.HIGH)));
 
-        TicketDTO.Response response = ticketQueryService.getTicketResponseById(TICKET_ID);
+        TicketResponse response = ticketQueryService.getTicketResponseById(TICKET_ID);
 
         assertThat(response.id()).isEqualTo(TICKET_ID);
         assertThat(response.priority()).isEqualTo(TicketPriority.HIGH);
@@ -80,7 +81,7 @@ class TicketQueryServiceTest {
         given(ticketRepository.findByIdAndClientId(TICKET_ID, CLIENT_ID))
                 .willReturn(Optional.of(ticket(TICKET_ID, TicketPriority.TRIAGE)));
 
-        TicketDTO.Response response = ticketQueryService.getOwnTicketById(TICKET_ID, CLIENT_ID);
+        TicketResponse response = ticketQueryService.getOwnTicketById(TICKET_ID, CLIENT_ID);
 
         assertThat(response.id()).isEqualTo(TICKET_ID);
         assertThat(response.client().id()).isEqualTo(CLIENT_ID);
@@ -101,7 +102,7 @@ class TicketQueryServiceTest {
         given(ticketRepository.findByClientId(CLIENT_ID, pageable))
                 .willReturn(new PageImpl<>(List.of(ticket(TICKET_ID, TicketPriority.TRIAGE)), pageable, 1));
 
-        Page<TicketDTO.Response> response = ticketQueryService.findTicketsByClientId(CLIENT_ID, pageable);
+        Page<TicketResponse> response = ticketQueryService.findTicketsByClientId(CLIENT_ID, pageable);
 
         assertThat(response.getTotalElements()).isEqualTo(1);
         assertThat(response.getContent().getFirst().client().id()).isEqualTo(CLIENT_ID);
@@ -110,11 +111,11 @@ class TicketQueryServiceTest {
     @Test
     void shouldFindAllWithCriteriaSpecification() {
         PageRequest pageable = PageRequest.of(0, 10);
-        TicketDTO.Search.Criteria criteria = new TicketDTO.Search.Criteria(TicketStatus.OPEN, TicketPriority.URGENT);
+        TicketSearchCriteria criteria = new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.URGENT);
         given(ticketRepository.findAll(anyTicketSpecification(), eq(pageable)))
                 .willReturn(new PageImpl<>(List.of(ticket(TICKET_ID, TicketPriority.URGENT)), pageable, 1));
 
-        Page<TicketDTO.Response> response = ticketQueryService.findAll(criteria, pageable);
+        Page<TicketResponse> response = ticketQueryService.findAll(criteria, pageable);
 
         assertThat(response.getContent().getFirst().priority()).isEqualTo(TicketPriority.URGENT);
     }
