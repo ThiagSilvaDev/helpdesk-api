@@ -4,6 +4,7 @@ import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,7 +46,7 @@ public class TicketCommentController {
     })
     public ResponseEntity<TicketCommentDTO.Response> createTicketComment(@PathVariable Long ticketId,
                                                                           @RequestBody @Valid TicketCommentDTO.Create.Request request,
-                                                                          @CurrentUserId Long userId) {
+                                                                          @Parameter(hidden = true) @CurrentUserId Long userId) {
         TicketCommentDTO.Response comment = ticketCommentService.create(ticketId, request, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

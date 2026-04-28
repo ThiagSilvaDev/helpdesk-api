@@ -5,6 +5,7 @@ import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +47,7 @@ public class UserTicketController {
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<TicketDTO.Response> createTicketAsUser(@RequestBody @Valid TicketDTO.Create.UserRequest userRequest,
-                                                                 @CurrentUserId Long userId) {
+                                                                 @Parameter(hidden = true) @CurrentUserId Long userId) {
         TicketDTO.Response newTicket = ticketCommandService.createByUser(userRequest, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -65,7 +66,7 @@ public class UserTicketController {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketDTO.Response> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
-                                                                                 @CurrentUserId Long userId) {
+                                                                                 @Parameter(hidden = true) @CurrentUserId Long userId) {
         TicketDTO.Response ticket = ticketQueryService.getOwnTicketById(ticketId, userId);
         return ResponseEntity.ok(ticket);
     }
@@ -74,7 +75,7 @@ public class UserTicketController {
     @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
-    public ResponseEntity<Page<TicketDTO.Response>> listAuthenticatedUserTickets(@CurrentUserId Long userId,
+    public ResponseEntity<Page<TicketDTO.Response>> listAuthenticatedUserTickets(@Parameter(hidden = true) @CurrentUserId Long userId,
                                                                                  @ParameterObject Pageable pageable) {
         Page<TicketDTO.Response> tickets = ticketQueryService.findTicketsByClientId(userId, pageable);
         return ResponseEntity.ok(tickets);

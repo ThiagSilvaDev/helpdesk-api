@@ -2,6 +2,7 @@ package com.thiagsilvadev.helpdesk.dto;
 
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,6 +11,7 @@ import java.time.Instant;
 
 public interface TicketDTO {
 
+    @Schema(name = "TicketResponse")
     record Response(
             Long id,
             String title,

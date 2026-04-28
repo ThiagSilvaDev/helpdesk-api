@@ -5,6 +5,7 @@ import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -107,7 +108,7 @@ public class StaffTicketController {
     })
     public ResponseEntity<TicketDTO.Response> assignTechnicianToTicket(@PathVariable Long ticketId,
                                                                         @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
-                                                                        @CurrentUserId Long userId
+                                                                        @Parameter(hidden = true) @CurrentUserId Long userId
     ) {
         TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), userId);
         return ResponseEntity.ok(updatedTicket);
