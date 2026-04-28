@@ -6,6 +6,7 @@ services:
       - "api"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
 
   postgres:
     extends:
