@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "ticket_comments")
-public class TicketComment {
+public class TicketComment extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,14 +25,6 @@ public class TicketComment {
 
     @Column(nullable = false, columnDefinition = "text")
     private String content;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private Instant updatedAt;
 
     public TicketComment() {
     }
@@ -61,14 +53,6 @@ public class TicketComment {
 
     public String getContent() {
         return content;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     private String requireContent(String content) {
