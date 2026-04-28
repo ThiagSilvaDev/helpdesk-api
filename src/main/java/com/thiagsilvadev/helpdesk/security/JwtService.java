@@ -16,7 +16,6 @@ import java.util.Objects;
 @Service
 public class JwtService {
 
-    private static final String CLAIM_USER_EMAIL = "email";
     private static final String CLAIM_USER_ROLES = "roles";
 
     private final JwtEncoder jwtEncoder;
@@ -47,7 +46,6 @@ public class JwtService {
                 .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(expiryDate)
-                .claim(CLAIM_USER_EMAIL, userPrincipal.getUsername())
                 .claim(CLAIM_USER_ROLES, roles)
                 .build();
 

@@ -27,7 +27,7 @@ class JwtServiceTest {
     private final JwtService jwtService = new JwtService(jwtEncoder, EXPIRATION_MS, ISSUER);
 
     @Test
-    void shouldGenerateTokenWithSubjectEmailRoleAndIssuer() {
+    void shouldGenerateTokenWithSubjectRoleAndIssuer() {
         UserPrincipal userPrincipal = new UserPrincipal(user(USER_ID, Roles.ROLE_TECHNICIAN));
 
         String token = jwtService.generateToken(userPrincipal);
@@ -35,7 +35,7 @@ class JwtServiceTest {
 
         assertThat(decoded.getSubject()).isEqualTo(USER_ID.toString());
         assertThat(decoded.getClaimAsString("iss")).isEqualTo(ISSUER);
-        assertThat(decoded.getClaimAsString("email")).isEqualTo("tech@helpdesk.local");
+        assertThat(decoded.hasClaim("email")).isFalse();
         assertThat(decoded.getClaimAsStringList("roles")).containsExactly(Roles.ROLE_TECHNICIAN.name());
         assertThat(decoded.getExpiresAt()).isAfter(decoded.getIssuedAt());
     }
