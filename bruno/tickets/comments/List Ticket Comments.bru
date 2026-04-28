@@ -1,0 +1,21 @@
+meta {
+  name: List Ticket Comments
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 0
+  size: 20
+  sort: createdAt,desc
+}
+
+headers {
+  Authorization: Bearer {{technicianAccessToken}}
+}

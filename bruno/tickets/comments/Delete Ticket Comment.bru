@@ -1,0 +1,16 @@
+meta {
+  name: Delete Ticket Comment
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments/{{createdCommentId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{userAccessToken}}
+}
+

@@ -1,0 +1,22 @@
+meta {
+  name: Update Ticket Comment
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments/{{createdCommentId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{userAccessToken}}
+}
+
+body:json {
+  {
+    "content": "I also checked the paper tray."
+  }
+}
+

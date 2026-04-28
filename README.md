@@ -218,6 +218,7 @@ Suggested order:
 3. Use ticket requests by audience:
    - `bruno/tickets/user/`
    - `bruno/tickets/staff/`
+   - `bruno/tickets/comments/`
 4. Use `bruno/exceptions/` to validate error scenarios
 
 Environment file: `bruno/environments/local.bru`
