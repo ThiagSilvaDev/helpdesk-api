@@ -3,6 +3,7 @@ package com.thiagsilvadev.helpdesk.controller;
 import com.thiagsilvadev.helpdesk.dto.TicketDTO;
 import com.thiagsilvadev.helpdesk.entity.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.TicketStatus;
+import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -45,7 +44,7 @@ class UserTicketControllerTest {
         ticketQueryService = mock(TicketQueryService.class);
         mockMvc = standaloneSetup(new UserTicketController(ticketCommandService, ticketQueryService))
                 .setCustomArgumentResolvers(
-                        new TestJwtArgumentResolver(),
+                        new TestCurrentUserIdArgumentResolver(),
                         new PageableHandlerMethodArgumentResolver()
                 )
                 .build();
@@ -137,11 +136,11 @@ class UserTicketControllerTest {
         );
     }
 
-    private static class TestJwtArgumentResolver implements HandlerMethodArgumentResolver {
+    private static class TestCurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
         @Override
         public boolean supportsParameter(MethodParameter parameter) {
-            return parameter.hasParameterAnnotation(AuthenticationPrincipal.class)
-                    && Jwt.class.isAssignableFrom(parameter.getParameterType());
+            return parameter.hasParameterAnnotation(CurrentUserId.class)
+                    && Long.class.equals(parameter.getParameterType());
         }
 
         @Override
@@ -149,11 +148,7 @@ class UserTicketControllerTest {
                                       ModelAndViewContainer mavContainer,
                                       NativeWebRequest webRequest,
                                       WebDataBinderFactory binderFactory) {
-            String subject = webRequest.getHeader("X-Test-User-Id");
-            return Jwt.withTokenValue("test-token")
-                    .header("alg", "none")
-                    .subject(subject)
-                    .build();
+            return Long.valueOf(webRequest.getHeader("X-Test-User-Id"));
         }
     }
 }

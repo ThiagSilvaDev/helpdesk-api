@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.TicketDTO;
+import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -107,10 +106,10 @@ public class StaffTicketController {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     public ResponseEntity<TicketDTO.Response> assignTechnicianToTicket(@PathVariable Long ticketId,
-                                                                              @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
-                                                                              @AuthenticationPrincipal Jwt jwt
+                                                                        @RequestBody @Valid TicketDTO.AssignTechnician.Request request,
+                                                                        @CurrentUserId Long userId
     ) {
-        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), authenticatedUserId(jwt));
+        TicketDTO.Response updatedTicket = ticketCommandService.assignTechnician(ticketId, request.technicianId(), userId);
         return ResponseEntity.ok(updatedTicket);
     }
 
@@ -138,9 +137,5 @@ public class StaffTicketController {
     public ResponseEntity<Void> cancelTicketAsStaff(@PathVariable Long ticketId) {
         ticketCommandService.cancel(ticketId);
         return ResponseEntity.noContent().build();
-    }
-
-    private Long authenticatedUserId(Jwt jwt) {
-        return Long.valueOf(jwt.getSubject());
     }
 }

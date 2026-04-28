@@ -5,15 +5,9 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments
+  url: {{baseUrl}}/api/tickets/1/comments
   body: none
   auth: none
-}
-
-params:query {
-  page: 0
-  size: 20
-  sort: createdAt,desc
 }
 
 headers {

@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -45,9 +44,9 @@ public class TicketCommentController {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     public ResponseEntity<TicketCommentDTO.Response> createTicketComment(@PathVariable Long ticketId,
-                                                                         @RequestBody @Valid TicketCommentDTO.Create.Request request,
-                                                                         @AuthenticationPrincipal Jwt jwt) {
-        TicketCommentDTO.Response comment = ticketCommentService.create(ticketId, request, authenticatedUserId(jwt));
+                                                                          @RequestBody @Valid TicketCommentDTO.Create.Request request,
+                                                                          @CurrentUserId Long userId) {
+        TicketCommentDTO.Response comment = ticketCommentService.create(ticketId, request, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{commentId}")
@@ -94,9 +93,5 @@ public class TicketCommentController {
     public ResponseEntity<Void> deleteTicketComment(@PathVariable Long ticketId, @PathVariable Long commentId) {
         ticketCommentService.delete(ticketId, commentId);
         return ResponseEntity.noContent().build();
-    }
-
-    private Long authenticatedUserId(Jwt jwt) {
-        return Long.valueOf(jwt.getSubject());
     }
 }

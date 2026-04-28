@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.TicketCommentDTO;
+import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -40,7 +39,7 @@ class TicketCommentControllerTest {
         ticketCommentService = mock(TicketCommentService.class);
         mockMvc = standaloneSetup(new TicketCommentController(ticketCommentService))
                 .setCustomArgumentResolvers(
-                        new TestJwtArgumentResolver(),
+                        new TestCurrentUserIdArgumentResolver(),
                         new PageableHandlerMethodArgumentResolver()
                 )
                 .build();
@@ -110,11 +109,11 @@ class TicketCommentControllerTest {
         );
     }
 
-    private static class TestJwtArgumentResolver implements HandlerMethodArgumentResolver {
+    private static class TestCurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
         @Override
         public boolean supportsParameter(MethodParameter parameter) {
-            return parameter.hasParameterAnnotation(AuthenticationPrincipal.class)
-                    && Jwt.class.isAssignableFrom(parameter.getParameterType());
+            return parameter.hasParameterAnnotation(CurrentUserId.class)
+                    && Long.class.equals(parameter.getParameterType());
         }
 
         @Override
@@ -122,11 +121,7 @@ class TicketCommentControllerTest {
                                       ModelAndViewContainer mavContainer,
                                       NativeWebRequest webRequest,
                                       WebDataBinderFactory binderFactory) {
-            String subject = webRequest.getHeader("X-Test-User-Id");
-            return Jwt.withTokenValue("test-token")
-                    .header("alg", "none")
-                    .subject(subject)
-                    .build();
+            return Long.valueOf(webRequest.getHeader("X-Test-User-Id"));
         }
     }
 }
