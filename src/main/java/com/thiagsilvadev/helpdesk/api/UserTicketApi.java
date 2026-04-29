@@ -41,7 +41,7 @@ public interface UserTicketApi {
     })
     ResponseEntity<TicketResponse> createTicketAsUser(
             @RequestBody @Valid CreateUserTicketRequest userRequest,
-            @Parameter(hidden = true) @CurrentUserId Long userId
+            @CurrentUserId Long userId
     );
 
     @GetMapping("/{ticketId}")
@@ -57,7 +57,7 @@ public interface UserTicketApi {
     ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
             @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
-            @Parameter(hidden = true) @CurrentUserId Long userId
+            @CurrentUserId Long userId
     );
 
     @GetMapping
@@ -70,7 +70,7 @@ public interface UserTicketApi {
             @ApiResponse(responseCode = "401", ref = "Unauthorized")
     })
     ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(
-            @Parameter(hidden = true) @CurrentUserId Long userId,
+            @CurrentUserId Long userId,
             @ParameterObject Pageable pageable
     );
 

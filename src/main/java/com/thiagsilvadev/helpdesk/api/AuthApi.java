@@ -5,7 +5,6 @@ import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
 import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -54,6 +53,6 @@ public interface AuthApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(
-            @Parameter(hidden = true) @CurrentUserId Long userId
+            @CurrentUserId Long userId
     );
 }

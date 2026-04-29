@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.config;
 
+import com.thiagsilvadev.helpdesk.security.CurrentUserId;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,6 +31,10 @@ import org.springframework.context.annotation.Configuration;
 )
 @Configuration
 public class OpenApiConfig {
+
+    static {
+        SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUserId.class);
+    }
 
     @Bean
     public OpenAPI helpdeskOpenApi() {

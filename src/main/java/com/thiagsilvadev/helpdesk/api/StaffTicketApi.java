@@ -109,7 +109,7 @@ public interface StaffTicketApi {
             @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @RequestBody @Valid AssignTechnicianRequest request,
-            @Parameter(hidden = true) @CurrentUserId Long userId
+            @CurrentUserId Long userId
     );
 
     @PatchMapping("/{ticketId}/close")

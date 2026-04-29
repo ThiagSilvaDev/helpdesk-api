@@ -45,7 +45,7 @@ public interface TicketCommentApi {
             @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @RequestBody @Valid CreateTicketCommentRequest request,
-            @Parameter(hidden = true) @CurrentUserId Long userId
+            @CurrentUserId Long userId
     );
 
     @GetMapping
