@@ -38,4 +38,22 @@ public class AuthController {
 	public ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));
 	}
+
+	@GetMapping("/me")
+	@SecurityRequirement(name = "bearerAuth")
+	@Operation(
+			operationId = "getAuthenticatedUser",
+			summary = "Get authenticated user",
+			description = "Returns the profile for the user identified by the current JWT subject"
+	)
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Authenticated user retrieved"),
+			@ApiResponse(responseCode = "401", ref = "Unauthorized"),
+			@ApiResponse(responseCode = "404", ref = "NotFound")
+	})
+	public ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(
+			@Parameter(hidden = true) @CurrentUserId Long userId
+	) {
+		return ResponseEntity.ok(authService.getAuthenticatedUser(userId));
+	}
 }

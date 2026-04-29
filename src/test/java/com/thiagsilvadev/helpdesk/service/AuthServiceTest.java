@@ -2,6 +2,7 @@ package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.security.JwtService;
@@ -34,6 +35,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private AuthService authService;
@@ -73,6 +77,21 @@ class AuthServiceTest {
             assertThat(response.token()).isEqualTo(JWT_TOKEN);
             then(jwtService).should().generateToken(principal);
         }
+    }
+
+    @Test
+    void shouldReturnAuthenticatedUserProfile() {
+        User user = persistedUser(USER_ID, "John User", EMAIL, Roles.ROLE_USER);
+        given(userService.getUserById(USER_ID)).willReturn(user);
+
+        AuthenticatedUserResponse response = authService.getAuthenticatedUser(USER_ID);
+
+        assertThat(response)
+                .returns(USER_ID, AuthenticatedUserResponse::id)
+                .returns("John User", AuthenticatedUserResponse::name)
+                .returns(EMAIL, AuthenticatedUserResponse::email)
+                .returns(Roles.ROLE_USER, AuthenticatedUserResponse::role)
+                .returns(true, AuthenticatedUserResponse::active);
     }
 
     private Authentication createAuthenticationMock(UserPrincipal principal) {

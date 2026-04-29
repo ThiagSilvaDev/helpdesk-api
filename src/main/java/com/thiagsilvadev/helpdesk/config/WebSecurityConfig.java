@@ -7,6 +7,7 @@ import com.thiagsilvadev.helpdesk.security.CustomAuthenticationEntryPoint;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -59,7 +60,7 @@ public class WebSecurityConfig {
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/system/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")

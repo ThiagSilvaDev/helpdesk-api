@@ -2,6 +2,8 @@ package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
+import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.security.JwtService;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
 import org.slf4j.Logger;
@@ -20,10 +22,12 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public AuthService(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthService(AuthenticationManager authenticationManager, JwtService jwtService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     public AuthResponse authenticate(AuthLoginRequest request) {
@@ -36,5 +40,16 @@ public class AuthService {
         String token = jwtService.generateToken(Objects.requireNonNull(userPrincipal));
 
         return new AuthResponse(token);
+    }
+
+    public AuthenticatedUserResponse getAuthenticatedUser(Long userId) {
+        User user = userService.getUserById(userId);
+        return new AuthenticatedUserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole(),
+                user.isActive()
+        );
     }
 }
