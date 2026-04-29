@@ -37,7 +37,7 @@ public class SecurityExceptionHandler {
         logger.warn("Access denied for {} on {}",
                 describePrincipal(auth), request.getRequestURI());
 
-        return problemDetails.create(HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
+        return problemDetails.create(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
