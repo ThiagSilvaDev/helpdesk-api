@@ -36,6 +36,7 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Health retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<AdminSystemHealthResponse> getAdminSystemHealth() {
@@ -50,6 +51,7 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric names retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<AdminSystemMetricNamesResponse> listAdminSystemMetricNames() {
@@ -64,6 +66,7 @@ public class AdminSystemController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Metric retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })

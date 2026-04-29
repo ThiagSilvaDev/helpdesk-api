@@ -36,14 +36,17 @@ public class TicketCommentController {
     }
 
     @PostMapping
-    @Operation(summary = "Create ticket comment", description = "Adds a comment to a ticket")
+    @Operation(operationId = "createTicketComment", summary = "Create ticket comment", description = "Adds a comment to a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Comment created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketCommentResponse> createTicketComment(@PathVariable Long ticketId,
+    public ResponseEntity<TicketCommentResponse> createTicketComment(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long ticketId,
                                                                           @RequestBody @Valid CreateTicketCommentRequest request,
                                                                           @Parameter(hidden = true) @CurrentUserId Long userId) {
         TicketCommentResponse comment = ticketCommentService.create(ticketId, request, userId);
@@ -57,39 +60,52 @@ public class TicketCommentController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "List ticket comments", description = "Returns a paginated list of comments for a ticket")
+    @Operation(operationId = "listTicketComments", summary = "List ticket comments", description = "Returns a paginated list of comments for a ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Comments retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<Page<TicketCommentResponse>> listTicketComments(@PathVariable Long ticketId,
+    public ResponseEntity<Page<TicketCommentResponse>> listTicketComments(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long ticketId,
                                                                               @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(ticketCommentService.findByTicketId(ticketId, pageable));
     }
 
     @PutMapping("/{commentId}")
-    @Operation(summary = "Update ticket comment", description = "Updates an existing ticket comment")
+    @Operation(operationId = "updateTicketComment", summary = "Update ticket comment", description = "Updates an existing ticket comment")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Comment updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketCommentResponse> updateTicketComment(@PathVariable Long ticketId,
-                                                                         @PathVariable Long commentId,
+    public ResponseEntity<TicketCommentResponse> updateTicketComment(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long ticketId,
+            @Parameter(description = "Comment id", example = "200")
+            @PathVariable Long commentId,
                                                                          @RequestBody @Valid UpdateTicketCommentRequest request) {
         return ResponseEntity.ok(ticketCommentService.update(ticketId, commentId, request));
     }
 
     @DeleteMapping("/{commentId}")
-    @Operation(summary = "Delete ticket comment", description = "Deletes an existing ticket comment")
+    @Operation(operationId = "deleteTicketComment", summary = "Delete ticket comment", description = "Deletes an existing ticket comment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Comment deleted"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<Void> deleteTicketComment(@PathVariable Long ticketId, @PathVariable Long commentId) {
+    public ResponseEntity<Void> deleteTicketComment(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long ticketId,
+            @Parameter(description = "Comment id", example = "200")
+            @PathVariable Long commentId
+    ) {
         ticketCommentService.delete(ticketId, commentId);
         return ResponseEntity.noContent().build();
     }

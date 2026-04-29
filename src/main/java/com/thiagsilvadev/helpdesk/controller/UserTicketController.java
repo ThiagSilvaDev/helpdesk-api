@@ -39,10 +39,11 @@ public class UserTicketController {
     }
 
     @PostMapping
-    @Operation(summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
+    @Operation(operationId = "createAuthenticatedUserTicket", summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<TicketResponse> createTicketAsUser(@RequestBody @Valid CreateUserTicketRequest userRequest,
@@ -58,21 +59,26 @@ public class UserTicketController {
     }
 
     @GetMapping("/{ticketId}")
-    @Operation(summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
+    @Operation(operationId = "getAuthenticatedUserTicketById", summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket found"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(@PathVariable Long ticketId,
+    public ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long ticketId,
                                                                                  @Parameter(hidden = true) @CurrentUserId Long userId) {
         TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, userId);
         return ResponseEntity.ok(ticket);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
+    @Operation(operationId = "listAuthenticatedUserTickets", summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
+            @ApiResponse(responseCode = "200", description = "Own tickets retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized")
+    })
     public ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(@Parameter(hidden = true) @CurrentUserId Long userId,
                                                                                  @ParameterObject Pageable pageable) {
         Page<TicketResponse> tickets = ticketQueryService.findTicketsByClientId(userId, pageable);
@@ -80,15 +86,20 @@ public class UserTicketController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update ticket", description = "Updates title and description of an existing ticket")
+    @Operation(operationId = "updateAuthenticatedUserTicket", summary = "Update ticket", description = "Updates title and description of an existing ticket")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    public ResponseEntity<TicketResponse> updateTicketAsUser(@PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
+    public ResponseEntity<TicketResponse> updateTicketAsUser(
+            @Parameter(description = "Ticket id", example = "100")
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateTicketRequest request
+    ) {
         TicketResponse updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }

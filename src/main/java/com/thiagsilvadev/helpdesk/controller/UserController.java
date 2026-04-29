@@ -6,6 +6,7 @@ import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -36,10 +37,11 @@ public class UserController {
     }
 
     @PostMapping
-    @Operation(summary = "Create user", description = "Creates a new user (admin only)")
+    @Operation(operationId = "createUser", summary = "Create user", description = "Creates a new user (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User created"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "409", ref = "Conflict")
     })
@@ -57,21 +59,26 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
+    @Operation(operationId = "getUserById", summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
-    public ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id) {
+    public ResponseEntity<UserResponse> getUserById(
+            @Parameter(description = "User id", example = "42")
+            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id
+    ) {
         UserResponse user = userService.getUserResponseById(id);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "List all users", description = "Returns a paginated list of all users (admin only)")
+    @Operation(operationId = "listUsers", summary = "List all users", description = "Returns a paginated list of all users (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users retrieved"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
     })
     public ResponseEntity<Page<UserResponse>> listUsers(
@@ -81,39 +88,53 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/name")
-    @Operation(summary = "Update user name", description = "Updates the user's name (admin or self)")
+    @Operation(operationId = "updateUserName", summary = "Update user name", description = "Updates the user's name (admin or self)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<UserResponse> updateUser(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid UpdateUserNameRequest request) {
+    public ResponseEntity<UserResponse> updateUser(
+            @Parameter(description = "User id", example = "42")
+            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @RequestBody @Valid UpdateUserNameRequest request
+    ) {
         UserResponse updatedUser = userService.update(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/{id}/role")
-    @Operation(summary = "Change user role", description = "Changes a user's role (admin only)")
+    @Operation(operationId = "changeUserRole", summary = "Change user role", description = "Changes a user's role (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User role changed"),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<UserResponse> changeUserRole(@PathVariable @Min(value = 1, message = "id must be greater than 0") Long id, @RequestBody @Valid ChangeUserRoleRequest request) {
+    public ResponseEntity<UserResponse> changeUserRole(
+            @Parameter(description = "User id", example = "42")
+            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @RequestBody @Valid ChangeUserRoleRequest request
+    ) {
         UserResponse updatedUser = userService.changeRole(id, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
+    @Operation(operationId = "deactivateUser", summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deactivateUser(
+            @Parameter(description = "User id", example = "42")
+            @PathVariable Long id
+    ) {
         userService.deactivate(id);
         return ResponseEntity.noContent().build();
     }
