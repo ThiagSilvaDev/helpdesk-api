@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +53,12 @@ public class SecurityExceptionHandler {
                 request.getRequestURI(), ex.getClass().getSimpleName());
 
         return problemDetails.create(HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ProblemDetail handleDisabledException(DisabledException ex, HttpServletRequest request) {
+        logger.warn("Inactive user attempt on URI: {}", request.getRequestURI());
+        return problemDetails.create(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     private String describePrincipal(Authentication auth) {
