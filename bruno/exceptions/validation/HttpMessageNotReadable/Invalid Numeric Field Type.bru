@@ -1,0 +1,21 @@
+meta {
+  name: Invalid Numeric Field Type
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/api/staff/tickets/1/technician
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
+
+body:json {
+  {
+    "technicianId": "not-a-number"
+  }
+}

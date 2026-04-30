@@ -1,0 +1,15 @@
+meta {
+  name: Invalid User Id Type
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/users/not-a-number
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminAccessToken}}
+}
