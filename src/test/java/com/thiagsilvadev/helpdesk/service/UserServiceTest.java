@@ -7,7 +7,7 @@ import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.Roles;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.junit.jupiter.api.Nested;
@@ -95,7 +95,9 @@ class UserServiceTest {
 
             assertThatExceptionOfType(EmailAlreadyExistsException.class)
                     .isThrownBy(() -> userService.create(request))
-                    .withMessage("Email already exists: " + request.email());
+                    .withMessage("The provided email address is already in use.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("email", request.email()));
 
             then(userRepository).should().existsByEmail(request.email());
             then(userRepository).should(never()).save(any());
@@ -120,9 +122,12 @@ class UserServiceTest {
         void shouldThrowWhenUserDoesNotExist() {
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> userService.getUserById(MISSING_USER_ID))
-                    .withMessage("User not found with id: " + MISSING_USER_ID);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "User")
+                            .containsEntry("identifier", MISSING_USER_ID));
         }
     }
 
@@ -191,9 +196,12 @@ class UserServiceTest {
             UpdateUserNameRequest request = new UpdateUserNameRequest("New Name");
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> userService.update(MISSING_USER_ID, request))
-                    .withMessage("User not found with id: " + MISSING_USER_ID);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "User")
+                            .containsEntry("identifier", MISSING_USER_ID));
 
             then(userRepository).should(never()).save(any());
         }
@@ -224,9 +232,12 @@ class UserServiceTest {
             ChangeUserRoleRequest request = new ChangeUserRoleRequest(Roles.ROLE_ADMIN);
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> userService.changeRole(MISSING_USER_ID, request))
-                    .withMessage("User not found with id: " + MISSING_USER_ID);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "User")
+                            .containsEntry("identifier", MISSING_USER_ID));
 
             then(userRepository).should(never()).save(any());
         }
@@ -253,9 +264,12 @@ class UserServiceTest {
         void shouldThrowWhenUserDoesNotExist() {
             given(userRepository.findById(MISSING_USER_ID)).willReturn(Optional.empty());
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> userService.deactivate(MISSING_USER_ID))
-                    .withMessage("User not found with id: " + MISSING_USER_ID);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "User")
+                            .containsEntry("identifier", MISSING_USER_ID));
 
             then(userRepository).should(never()).save(any());
         }

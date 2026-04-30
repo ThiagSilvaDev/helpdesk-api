@@ -6,7 +6,8 @@ import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -47,7 +48,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceType.USER, id));
     }
 
     @PreAuthorize("@userAuthorization.canRead(authentication)")

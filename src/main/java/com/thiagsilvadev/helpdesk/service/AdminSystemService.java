@@ -6,7 +6,8 @@ import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailRespons
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricMeasurementResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricTagResponse;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
@@ -50,7 +51,7 @@ public class AdminSystemService {
     public AdminSystemMetricDetailResponse getMetric(String metricName) {
         MetricsEndpoint.MetricDescriptor descriptor = metricsEndpoint.metric(metricName, List.of());
         if (descriptor == null) {
-            throw new NotFoundException("Metric not found with name: " + metricName);
+            throw new ResourceNotFoundException(ResourceType.METRIC, metricName);
         }
 
         return mapMetricDescriptor(descriptor);

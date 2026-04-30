@@ -3,7 +3,7 @@ package com.thiagsilvadev.helpdesk.service.ticket;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.entity.*;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.junit.jupiter.api.Nested;
@@ -60,9 +60,12 @@ class TicketQueryServiceTest {
         void shouldThrowWhenMissing() {
             given(ticketRepository.findById(TICKET_ID)).willReturn(Optional.empty());
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> ticketQueryService.getTicketEntityById(TICKET_ID))
-                    .withMessage("Ticket not found with id: " + TICKET_ID);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "Ticket")
+                            .containsEntry("identifier", TICKET_ID));
         }
     }
 
@@ -91,9 +94,12 @@ class TicketQueryServiceTest {
     void shouldThrowWhenOwnTicketIsMissing() {
         given(ticketRepository.findByIdAndClientId(TICKET_ID, CLIENT_ID)).willReturn(Optional.empty());
 
-        assertThatExceptionOfType(NotFoundException.class)
+        assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> ticketQueryService.getOwnTicketById(TICKET_ID, CLIENT_ID))
-                .withMessage("Ticket not found with id: " + TICKET_ID);
+                .withMessage("Resource not found.")
+                .satisfies(ex -> assertThat(ex.getProperty())
+                        .containsEntry("resourceName", "Ticket")
+                        .containsEntry("identifier", TICKET_ID));
     }
 
     @Test

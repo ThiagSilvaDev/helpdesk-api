@@ -2,7 +2,8 @@ package com.thiagsilvadev.helpdesk.service.ticket;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.specification.TicketSpecification;
@@ -27,7 +28,7 @@ public class TicketQueryService {
 
     protected com.thiagsilvadev.helpdesk.entity.Ticket getTicketEntityById(Long ticketId) {
         return ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
@@ -39,7 +40,7 @@ public class TicketQueryService {
     public TicketResponse getOwnTicketById(Long ticketId, Long userId) {
         return ticketRepository.findByIdAndClientId(ticketId, userId)
                 .map(ticketMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException("Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
 
     public Page<TicketResponse> findTicketsByClientId(Long clientId, Pageable pageable) {

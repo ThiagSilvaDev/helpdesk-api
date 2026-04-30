@@ -2,7 +2,7 @@ package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,9 +97,12 @@ class AdminSystemServiceTest {
         void shouldThrowWhenMetricNotFound() {
             given(metricsEndpoint.metric(MISSING_METRIC, List.of())).willReturn(null);
 
-            assertThatExceptionOfType(NotFoundException.class)
+            assertThatExceptionOfType(ResourceNotFoundException.class)
                     .isThrownBy(() -> adminSystemService.getMetric(MISSING_METRIC))
-                    .withMessage("Metric not found with name: " + MISSING_METRIC);
+                    .withMessage("Resource not found.")
+                    .satisfies(ex -> assertThat(ex.getProperty())
+                            .containsEntry("resourceName", "Metric")
+                            .containsEntry("identifier", MISSING_METRIC));
         }
 
         @Test

@@ -4,7 +4,7 @@ import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.entity.*;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
@@ -106,13 +106,16 @@ class TicketCommentServiceTest {
     void shouldThrowWhenCommentIsMissing() {
         given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID)).willReturn(Optional.empty());
 
-        assertThatExceptionOfType(NotFoundException.class)
+        assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> ticketCommentService.update(
                         TICKET_ID,
                         COMMENT_ID,
                         new UpdateTicketCommentRequest("Updated content")
                 ))
-                .withMessage("Comment not found with id: " + COMMENT_ID);
+                .withMessage("Resource not found.")
+                .satisfies(ex -> assertThat(ex.getProperty())
+                        .containsEntry("resourceName", "Comment")
+                        .containsEntry("identifier", COMMENT_ID));
     }
 
     private TicketComment comment(String content) {

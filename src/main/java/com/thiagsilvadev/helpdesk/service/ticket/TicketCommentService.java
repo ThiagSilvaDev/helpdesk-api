@@ -6,7 +6,8 @@ import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.entity.Ticket;
 import com.thiagsilvadev.helpdesk.entity.TicketComment;
 import com.thiagsilvadev.helpdesk.entity.User;
-import com.thiagsilvadev.helpdesk.exception.NotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
+import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
@@ -71,6 +72,6 @@ public class TicketCommentService {
 
     private TicketComment getCommentEntityByIdAndTicketId(Long commentId, Long ticketId) {
         return ticketCommentRepository.findByIdAndTicketId(commentId, ticketId)
-                .orElseThrow(() -> new NotFoundException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceType.COMMENT, commentId));
     }
 }
