@@ -24,6 +24,7 @@ public class FallbackExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpectedException(Exception ex) {
         logger.error("Unhandled exception reached fallback handler", ex);
-        return problemDetails.create(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected internal error occurred");
+        ProblemDetail problemDetail = problemDetails.create(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected internal error occurred");
+        return problemDetails.enrich(problemDetail);
     }
 }

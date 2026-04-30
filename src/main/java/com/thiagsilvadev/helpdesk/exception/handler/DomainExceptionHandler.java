@@ -19,6 +19,7 @@ public class DomainExceptionHandler {
 
     @ExceptionHandler(BusinessRuleException.class)
     public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
-        return problemDetails.create(ex.getStatus(), ex.getMessage());
+        ProblemDetail problemDetail = problemDetails.create(ex.getStatus(), ex.getMessage());
+        return problemDetails.enrich(problemDetail, ex.getProperty());
     }
 }

@@ -101,6 +101,18 @@ class ValidationExceptionHandlerTest {
         }
     }
 
+    @Nested
+    class HandlerMethodValidation {
+        @Test
+        void shouldHandleInvalidRequestParamValue() throws Exception {
+            mockMvc.perform(get("/test-validation/param")
+                            .param("val", "0"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.invalid_params[0].name").value("val"))
+                    .andExpect(jsonPath("$.invalid_params[0].reason").value("must be greater than or equal to 1"));
+        }
+    }
+
     @RestController
     @RequestMapping("/test-validation")
     static class DummyController {

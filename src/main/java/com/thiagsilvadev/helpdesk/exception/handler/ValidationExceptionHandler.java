@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
-import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory.InvalidParam;
 import jakarta.validation.ConstraintViolationException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +21,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -38,10 +38,10 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<InvalidParam> invalidParams = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> new InvalidParam(error.getField(), error.getDefaultMessage()))
+                .map(error -> new InvalidParam(error.getField(), getErrorMessage(error)))
                 .toList();
 
-        return problemDetails.enrich(ex.getBody(), invalidParams);
+        return problemDetails.enrich(ex.getBody(), invalidParamsProperty(invalidParams));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -58,7 +58,7 @@ public class ValidationExceptionHandler {
 
         ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Type mismatch for parameter.");
 
-        return problemDetails.enrich(problemDetail, invalidParams);
+        return problemDetails.enrich(problemDetail, invalidParamsProperty(invalidParams));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -83,7 +83,7 @@ public class ValidationExceptionHandler {
 
             List<InvalidParam> invalidParams = List.of(new InvalidParam(name, reason));
             ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Malformed request body");
-            return problemDetails.enrich(problemDetail, invalidParams);
+            return problemDetails.enrich(problemDetail, invalidParamsProperty(invalidParams));
         }
 
         return problemDetails.create(HttpStatus.BAD_REQUEST, "Malformed request body");
@@ -96,48 +96,45 @@ public class ValidationExceptionHandler {
                 .toList();
 
         ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Constraint violation");
-        return problemDetails.enrich(problemDetail, invalidParams);
+        return problemDetails.enrich(problemDetail, invalidParamsProperty(invalidParams));
     }
 
     @ExceptionHandler(ServletRequestBindingException.class)
     public ProblemDetail handleServletRequestBinding(ServletRequestBindingException ex) {
-        RequestBindingError error = resolveRequestBindingError(ex);
-        List<InvalidParam> invalidParams = List.of(new InvalidParam(error.name(), error.reason()));
+        InvalidParam invalidParam = resolveRequestBindingError(ex);
+        List<InvalidParam> invalidParams = List.of(invalidParam);
         ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Missing required request component");
-        return problemDetails.enrich(problemDetail, invalidParams);
+        return problemDetails.enrich(problemDetail, invalidParamsProperty(invalidParams));
     }
 
-    private RequestBindingError resolveRequestBindingError(ServletRequestBindingException ex) {
+    private InvalidParam resolveRequestBindingError(ServletRequestBindingException ex) {
         return switch (ex) {
-            case MissingServletRequestParameterException e -> new RequestBindingError(
+            case MissingServletRequestParameterException e -> new InvalidParam(
                     e.getParameterName(),
                     String.format("Required query parameter '%s' is missing", e.getParameterName())
             );
-            case MissingRequestHeaderException e -> new RequestBindingError(
+            case MissingRequestHeaderException e -> new InvalidParam(
                     e.getHeaderName(),
                     String.format("Required request header '%s' is missing", e.getHeaderName())
             );
-            case MissingRequestCookieException e -> new RequestBindingError(
+            case MissingRequestCookieException e -> new InvalidParam(
                     e.getCookieName(),
                     String.format("Required cookie '%s' is missing", e.getCookieName())
             );
-            case MissingPathVariableException e -> new RequestBindingError(
+            case MissingPathVariableException e -> new InvalidParam(
                     e.getVariableName(),
                     String.format("Required path variable '%s' is missing", e.getVariableName())
             );
-            case MissingMatrixVariableException e -> new RequestBindingError(
+            case MissingMatrixVariableException e -> new InvalidParam(
                     e.getVariableName(),
                     String.format("Required matrix variable '%s' is missing", e.getVariableName())
             );
-            case UnsatisfiedServletRequestParameterException e -> new RequestBindingError(
+            case UnsatisfiedServletRequestParameterException e -> new InvalidParam(
                     "request parameters",
                     e.getMessage()
             );
-            default -> new RequestBindingError("request", ex.getMessage());
+            default -> new InvalidParam("request", ex.getMessage());
         };
-    }
-
-    private record RequestBindingError(String name, String reason) {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -168,10 +165,6 @@ public class ValidationExceptionHandler {
                     );
                     invalidParams.add(new InvalidParam(paramName, getErrorMessage(globalError)));
                 });
-            }
-
-            private String getErrorMessage(MessageSourceResolvable error) {
-                return error.getDefaultMessage() != null ? error.getDefaultMessage() : "invalid value";
             }
 
             @Override
@@ -219,6 +212,17 @@ public class ValidationExceptionHandler {
                 extractSimpleErrors(result);
             }
         });
-        return problemDetails.enrich(ex.getBody(), invalidParams);
+        return problemDetails.enrich(ex.getBody(), invalidParamsProperty(invalidParams));
+    }
+
+    private Map<String, Object> invalidParamsProperty(List<InvalidParam> invalidParams) {
+        return Map.of("invalid_params", invalidParams);
+    }
+
+    private String getErrorMessage(MessageSourceResolvable error) {
+        return error.getDefaultMessage() != null ? error.getDefaultMessage() : "invalid value";
+    }
+
+    private record InvalidParam(String name, String reason) {
     }
 }

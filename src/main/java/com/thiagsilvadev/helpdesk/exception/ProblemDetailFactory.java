@@ -10,7 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.List;
+import java.util.Map;
 
 @Component
 public class ProblemDetailFactory {
@@ -19,8 +19,12 @@ public class ProblemDetailFactory {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(status, message);
         return enrich(detail, null);
     }
+    
+    public ProblemDetail enrich(ProblemDetail problemDetail) {
+        return enrich(problemDetail, null);
+    }
 
-    public ProblemDetail enrich(ProblemDetail problemDetail, @Nullable List<InvalidParam> invalidParams) {
+    public ProblemDetail enrich(ProblemDetail problemDetail, @Nullable Map<String, Object> customProperties) {
         int statusCode = problemDetail.getStatus();
         HttpStatus status = HttpStatus.resolve(statusCode);
 
@@ -41,8 +45,8 @@ public class ProblemDetailFactory {
 
         problemDetail.setProperty("timestamp", Instant.now());
 
-        if (invalidParams != null) {
-            problemDetail.setProperty("invalid_params", invalidParams);
+        if (customProperties != null) {
+            customProperties.forEach(problemDetail::setProperty);
         }
 
         return problemDetail;
@@ -53,8 +57,5 @@ public class ProblemDetailFactory {
             return "status-" + statusCode;
         }
         return status.name().toLowerCase().replace('_', '-');
-    }
-
-    public record InvalidParam(String name, String reason) {
     }
 }
