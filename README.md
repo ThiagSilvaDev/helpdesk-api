@@ -20,6 +20,7 @@ A Spring Boot 4 REST API for support ticket management, with JWT authentication,
 - PostgreSQL (runtime)
 - Springdoc OpenAPI UI
 - Spring Actuator
+- Grafana LGTM local observability stack
 - Bruno collection for API testing
 
 ## Architecture (Current)
@@ -171,8 +172,10 @@ Each response returns JSON in the format:
 
 - Spring Boot's built-in Logback setup is used; no separate logging framework is added
 - Every request gets an `X-Request-Id` header and the same value is added to the logging MDC as `requestId`
+- OpenTelemetry tracing adds `traceId` and `spanId` to the logging MDC when tracing is enabled
 - Local and non-`prod` profiles keep the default human-readable console output
 - `prod` emits structured JSON logs to stdout, which fits container log collectors better than local file rotation
+- The `observability` profile also emits structured JSON logs to stdout for Loki collection
 
 ## Running Locally
 
@@ -206,6 +209,38 @@ docker compose -f compose.prod.yaml up -d --build
 ```
 
 `compose.prod.yaml` also inherits shared service defaults from `compose.yaml`.
+
+## Local Observability with LGTM
+
+The local LGTM stack uses:
+
+- Grafana for dashboards and exploration
+- Loki for API container logs
+- Tempo for traces
+- Mimir for Prometheus-compatible metrics
+- Grafana Alloy as the collector
+
+The API exports OpenTelemetry traces to Alloy over OTLP HTTP, and Alloy forwards them to Tempo. Metrics continue through `/actuator/prometheus` into Mimir, while logs are collected from container stdout into Loki with trace correlation fields.
+
+Start the API, PostgreSQL, and LGTM stack:
+
+```zsh
+docker compose -f compose.yaml -f compose.dev.yaml -f compose.observability.yaml --profile api up -d --build
+```
+
+Open Grafana:
+
+- `http://localhost:3000`
+
+The stack provisions Loki, Tempo, and Mimir datasources automatically. A starter dashboard is available under `Helpdesk / Helpdesk API`.
+
+Useful local endpoints:
+
+- API health: `http://localhost:8080/actuator/health`
+- Prometheus metrics: `http://localhost:8080/actuator/prometheus`
+- Alloy UI: `http://localhost:12345`
+
+The `observability` Spring profile exposes `/actuator/prometheus` publicly for local scraping. Without that profile, the endpoint remains protected by the same admin actuator rule as the rest of `/actuator/**`.
 
 ## API Testing with Bruno
 

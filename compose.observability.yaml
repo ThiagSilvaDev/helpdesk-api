@@ -1,0 +1,92 @@
+name: helpdesk-api-observability
+
+services:
+  api:
+    extends:
+      file: compose.yaml
+      service: api
+    environment:
+      SPRING_PROFILES_ACTIVE: dev,observability
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://alloy:4318/v1/traces
+      OTEL_SERVICE_NAME: helpdesk-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      alloy:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+
+  alloy:
+    image: grafana/alloy:latest
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    command: -config.file=/etc/loki/config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/config.yaml:/etc/loki/config.yaml:ro
+      - loki-data:/loki
+
+  tempo:
+    image: grafana/tempo:latest
+    user: "0"
+    restart: unless-stopped
+    command: -config.file=/etc/tempo/config.yaml
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./observability/tempo/config.yaml:/etc/tempo/config.yaml:ro
+      - tempo-data:/tmp/tempo
+
+  mimir:
+    image: grafana/mimir:latest
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/mimir/config.yaml
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./observability/mimir/config.yaml:/etc/mimir/config.yaml:ro
+      - mimir-data:/data
+
+volumes:
+  grafana-data:
+  loki-data:
+  tempo-data:
+  mimir-data:

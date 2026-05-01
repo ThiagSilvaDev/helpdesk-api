@@ -28,7 +28,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator/health");
+        return path.startsWith("/actuator/health") || path.startsWith("/actuator/prometheus");
     }
 
     @Override
