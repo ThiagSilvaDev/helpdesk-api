@@ -5,11 +5,13 @@ import com.thiagsilvadev.helpdesk.filter.RequestLoggingFilter;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import com.thiagsilvadev.helpdesk.security.CustomAuthenticationEntryPoint;
 import com.thiagsilvadev.helpdesk.security.UserPrincipal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,15 +37,18 @@ public class WebSecurityConfig {
     private final RateLimitFilter rateLimitFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CorsConfigurationSource corsConfigurationSource;
+    private final boolean publicPrometheusEndpoint;
 
     public WebSecurityConfig(RequestLoggingFilter requestLoggingFilter,
                              RateLimitFilter rateLimitFilter,
                              CustomAuthenticationEntryPoint authenticationEntryPoint,
-                             CorsConfigurationSource corsConfigurationSource) {
+                             CorsConfigurationSource corsConfigurationSource,
+                             @Value("${app.observability.prometheus-public:false}") boolean publicPrometheusEndpoint) {
         this.requestLoggingFilter = requestLoggingFilter;
         this.rateLimitFilter = rateLimitFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.corsConfigurationSource = corsConfigurationSource;
+        this.publicPrometheusEndpoint = publicPrometheusEndpoint;
     }
 
     @Bean
@@ -63,6 +68,13 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/system/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/prometheus")
+                        .access((authentication, context) -> {
+                            var currentAuthentication = authentication.get();
+                            boolean granted = publicPrometheusEndpoint || currentAuthentication.getAuthorities().stream()
+                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+                            return new AuthorizationDecision(granted);
+                        })
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 

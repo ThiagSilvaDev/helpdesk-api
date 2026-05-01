@@ -55,7 +55,10 @@ public class TicketCommandService {
         com.thiagsilvadev.helpdesk.entity.Ticket newTicket = ticketFactory.apply(client);
         com.thiagsilvadev.helpdesk.entity.Ticket savedTicket = ticketRepository.save(newTicket);
 
-        log.info("Ticket created successfully with id {}", savedTicket.getId());
+        log.atInfo()
+                .setMessage("Ticket created successfully")
+                .addKeyValue("ticketId", savedTicket.getId())
+                .log();
 
         return ticketMapper.toResponse(savedTicket);
     }

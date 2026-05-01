@@ -36,7 +36,11 @@ public class AuthService {
         );
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        log.info("User authenticated successfully with id={}", Objects.requireNonNull(userPrincipal).getId());
+        Long userId = Objects.requireNonNull(userPrincipal).getId();
+        log.atInfo()
+                .setMessage("Authentication successful")
+                .addKeyValue("userId", userId)
+                .log();
         String token = jwtService.generateToken(Objects.requireNonNull(userPrincipal));
 
         return new AuthResponse(token);
