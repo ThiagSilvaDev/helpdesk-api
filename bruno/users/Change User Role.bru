@@ -1,11 +1,11 @@
 meta {
-  name: Change Priority
+  name: Change User Role
   type: http
   seq: 4
 }
 
 patch {
-  url: {{baseUrl}}/api/staff/tickets/{{createdStaffTicketId}}/priority
+  url: {{baseUrl}}/api/users/{{createdUserId}}/role
   body: json
   auth: none
 }
@@ -16,6 +16,6 @@ headers {
 
 body:json {
   {
-    "priority": "HIGH"
+    "role": "ROLE_USER"
   }
 }

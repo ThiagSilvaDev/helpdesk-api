@@ -1,15 +1,20 @@
 meta {
-  name: Get All Users
+  name: Unsupported Media Type
   type: http
-  seq: 2
+  seq: 3
 }
 
-get {
+post {
   url: {{baseUrl}}/api/users
-  body: none
+  body: text
   auth: none
 }
 
 headers {
   Authorization: Bearer {{adminAccessToken}}
+  Content-Type: text/plain
+}
+
+body:text {
+  this is not json
 }

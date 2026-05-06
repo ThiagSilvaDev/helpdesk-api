@@ -5,18 +5,18 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/tickets/1/comments
+  url: {{baseUrl}}/api/tickets/{{createdUserTicketId}}/comments
   body: json
   auth: none
 }
 
 headers {
-  Authorization: Bearer {{technicianAccessToken}}
+  Authorization: Bearer {{userAccessToken}}
 }
 
 body:json {
   {
-    "content": "I already restarted the printer."
+    "content": "I already restarted the affected workstation."
   }
 }
 

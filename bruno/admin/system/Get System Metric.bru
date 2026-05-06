@@ -1,11 +1,11 @@
 meta {
-  name: Web - Method Not Allowed
+  name: Get System Metric
   type: http
   seq: 3
 }
 
 get {
-  url: {{baseUrl}}/api/auth/login
+  url: {{baseUrl}}/api/admin/system/metrics/{{metricName}}
   body: none
   auth: none
 }

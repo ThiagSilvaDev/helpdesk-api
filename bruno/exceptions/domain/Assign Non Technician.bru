@@ -1,5 +1,5 @@
 meta {
-  name: Invalid Numeric Field Type
+  name: Assign Non Technician
   type: http
   seq: 3
 }
@@ -16,6 +16,6 @@ headers {
 
 body:json {
   {
-    "technicianId": "not-a-number"
+    "technicianId": "{{devUserId}}"
   }
 }

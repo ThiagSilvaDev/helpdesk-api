@@ -5,7 +5,7 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments/{{createdCommentId}}
+  url: {{baseUrl}}/api/tickets/{{createdUserTicketId}}/comments/{{createdCommentId}}
   body: none
   auth: none
 }
@@ -13,4 +13,3 @@ delete {
 headers {
   Authorization: Bearer {{userAccessToken}}
 }
-

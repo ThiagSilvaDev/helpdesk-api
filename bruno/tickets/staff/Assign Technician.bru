@@ -5,7 +5,7 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/api/staff/tickets/{{createdTicketId}}/technician
+  url: {{baseUrl}}/api/staff/tickets/{{createdStaffTicketId}}/technician
   body: json
   auth: none
 }
@@ -16,7 +16,6 @@ headers {
 
 body:json {
   {
-    "technicianId": 3
+    "technicianId": "{{devTechnicianId}}"
   }
 }
-

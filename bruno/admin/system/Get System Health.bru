@@ -1,11 +1,11 @@
 meta {
-  name: Domain - User Not Found
+  name: Get System Health
   type: http
-  seq: 8
+  seq: 1
 }
 
 get {
-  url: {{baseUrl}}/api/users/999999
+  url: {{baseUrl}}/api/admin/system/health
   body: none
   auth: none
 }
@@ -13,4 +13,3 @@ get {
 headers {
   Authorization: Bearer {{adminAccessToken}}
 }
-

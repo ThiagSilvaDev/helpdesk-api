@@ -11,7 +11,7 @@ post {
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{adminAccessToken}}
 }
 
 body:json {
@@ -23,11 +23,13 @@ body:json {
   }
 }
 
-script:pre-userRequest {
+script:pre-request {
   const randomStr = Math.random().toString(36).substring(7);
   bru.setEnvVar("randomEmail", `user_${randomStr}@email.com`);
 }
 
 script:post-response {
-  bru.setEnvVar("createdUserId", res.body.id);
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdUserId", res.body.id);
+  }
 }

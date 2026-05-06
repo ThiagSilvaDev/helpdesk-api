@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{baseUrl}}/api/tickets/{{createdTicketId}}/comments/{{createdCommentId}}
+  url: {{baseUrl}}/api/tickets/{{createdUserTicketId}}/comments/{{createdCommentId}}
   body: json
   auth: none
 }
@@ -16,7 +16,6 @@ headers {
 
 body:json {
   {
-    "content": "I also checked the paper tray."
+    "content": "I also checked the service status page."
   }
 }
-

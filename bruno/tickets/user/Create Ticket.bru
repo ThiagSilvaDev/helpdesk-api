@@ -22,6 +22,7 @@ body:json {
 }
 
 script:post-response {
-  bru.setEnvVar("createdTicketId", res.body.id);
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdUserTicketId", res.body.id);
+  }
 }
-

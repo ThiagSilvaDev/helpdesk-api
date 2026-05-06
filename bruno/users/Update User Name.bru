@@ -1,11 +1,11 @@
 meta {
-  name: Domain - Assign Non Technician
+  name: Update User Name
   type: http
-  seq: 9
+  seq: 3
 }
 
 patch {
-  url: {{baseUrl}}/api/staff/tickets/1/technician
+  url: {{baseUrl}}/api/users/{{createdUserId}}/name
   body: json
   auth: none
 }
@@ -16,6 +16,6 @@ headers {
 
 body:json {
   {
-    "technicianId": 2
+    "name": "John Doe Updated"
   }
 }

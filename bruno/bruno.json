@@ -1,13 +1,13 @@
 {
   "version": "1",
-  "name": "bruno",
+  "name": "Helpdesk API",
   "type": "collection",
   "ignore": [
     "node_modules",
     ".git"
   ],
   "size": 0.001,
-  "filesCount": 7,
+  "filesCount": 50,
   "presets": {
     "requestType": "http",
     "requestUrl": "http://localhost:8080"

@@ -1,7 +1,7 @@
 meta {
   name: Delete User
   type: http
-  seq: 6
+  seq: 5
 }
 
 delete {
@@ -11,9 +11,11 @@ delete {
 }
 
 headers {
-  Authorization: Bearer {{accessToken}}
+  Authorization: Bearer {{adminAccessToken}}
 }
 
 script:post-response {
-  bru.setEnvVar("createdUserId", undefined);
+  if (res.status === 204) {
+    bru.setEnvVar("createdUserId", "");
+  }
 }

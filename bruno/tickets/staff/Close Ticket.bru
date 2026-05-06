@@ -5,7 +5,7 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/api/staff/tickets/{{createdTicketId}}/close
+  url: {{baseUrl}}/api/staff/tickets/{{createdStaffTicketId}}/close
   body: none
   auth: none
 }
@@ -13,4 +13,3 @@ patch {
 headers {
   Authorization: Bearer {{adminAccessToken}}
 }
-
