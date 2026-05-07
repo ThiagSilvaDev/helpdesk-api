@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.service.notification;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationMessage;
-import com.thiagsilvadev.helpdesk.entity.NotificationOutboxEvent;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxEvent;
 import com.thiagsilvadev.helpdesk.repository.NotificationOutboxRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

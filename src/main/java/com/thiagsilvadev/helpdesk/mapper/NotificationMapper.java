@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.mapper;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
-import com.thiagsilvadev.helpdesk.entity.Notification;
+import com.thiagsilvadev.helpdesk.entity.notification.Notification;
 import org.springframework.stereotype.Component;
 
 @Component

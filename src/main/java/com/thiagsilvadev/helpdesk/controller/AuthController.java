@@ -4,7 +4,7 @@ import com.thiagsilvadev.helpdesk.api.AuthApi;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

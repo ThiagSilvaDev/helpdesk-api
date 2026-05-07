@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.repository;
 
-import com.thiagsilvadev.helpdesk.entity.User;
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

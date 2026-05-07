@@ -1,9 +1,9 @@
 package com.thiagsilvadev.helpdesk.service.notification;
 
-import com.thiagsilvadev.helpdesk.entity.Notification;
-import com.thiagsilvadev.helpdesk.entity.NotificationType;
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.notification.Notification;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.mapper.NotificationMapper;
 import com.thiagsilvadev.helpdesk.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;

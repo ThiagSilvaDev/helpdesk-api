@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.dto.ticket;
 
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.TicketStatus;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
 
 import java.time.Instant;
 

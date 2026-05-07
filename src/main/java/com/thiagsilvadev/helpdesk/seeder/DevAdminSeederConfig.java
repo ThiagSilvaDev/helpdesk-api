@@ -1,9 +1,9 @@
 package com.thiagsilvadev.helpdesk.seeder;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.slf4j.Logger;

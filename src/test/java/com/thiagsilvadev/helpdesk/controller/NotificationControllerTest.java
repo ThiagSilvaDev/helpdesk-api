@@ -2,8 +2,8 @@ package com.thiagsilvadev.helpdesk.controller;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
-import com.thiagsilvadev.helpdesk.entity.NotificationType;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

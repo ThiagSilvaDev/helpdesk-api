@@ -4,7 +4,7 @@ import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

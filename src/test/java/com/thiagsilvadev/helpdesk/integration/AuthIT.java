@@ -1,8 +1,8 @@
 package com.thiagsilvadev.helpdesk.integration;
 
 import com.jayway.jsonpath.JsonPath;
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

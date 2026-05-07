@@ -1,7 +1,12 @@
 package com.thiagsilvadev.helpdesk.service.notification;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationMessage;
-import com.thiagsilvadev.helpdesk.entity.*;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketComment;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

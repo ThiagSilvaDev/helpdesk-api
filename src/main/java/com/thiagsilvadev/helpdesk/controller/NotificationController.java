@@ -3,7 +3,7 @@ package com.thiagsilvadev.helpdesk.controller;
 import com.thiagsilvadev.helpdesk.api.NotificationApi;
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

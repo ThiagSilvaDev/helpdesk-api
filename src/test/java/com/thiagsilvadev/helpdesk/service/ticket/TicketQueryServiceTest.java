@@ -2,7 +2,11 @@ package com.thiagsilvadev.helpdesk.service.ticket;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
-import com.thiagsilvadev.helpdesk.entity.*;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;

@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.user;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import jakarta.validation.constraints.NotNull;
 
 public record ChangeUserRoleRequest(

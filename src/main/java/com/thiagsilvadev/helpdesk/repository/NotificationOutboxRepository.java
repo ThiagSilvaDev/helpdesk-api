@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.repository;
 
-import com.thiagsilvadev.helpdesk.entity.NotificationOutboxEvent;
-import com.thiagsilvadev.helpdesk.entity.NotificationOutboxStatus;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxEvent;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

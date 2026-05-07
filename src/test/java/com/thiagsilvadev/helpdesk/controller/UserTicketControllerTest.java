@@ -1,12 +1,13 @@
 package com.thiagsilvadev.helpdesk.controller;
 
+import com.thiagsilvadev.helpdesk.controller.ticket.UserTicketController;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.TicketStatus;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,11 +1,11 @@
 package com.thiagsilvadev.helpdesk.integration;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
-import com.thiagsilvadev.helpdesk.security.JwtService;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
+import com.thiagsilvadev.helpdesk.security.auth.JwtService;
+import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

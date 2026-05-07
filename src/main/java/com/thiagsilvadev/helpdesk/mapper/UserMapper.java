@@ -3,7 +3,7 @@ package com.thiagsilvadev.helpdesk.mapper;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component

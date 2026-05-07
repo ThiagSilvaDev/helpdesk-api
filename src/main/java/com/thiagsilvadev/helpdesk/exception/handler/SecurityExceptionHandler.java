@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
-import com.thiagsilvadev.helpdesk.security.UserPrincipal;
+import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

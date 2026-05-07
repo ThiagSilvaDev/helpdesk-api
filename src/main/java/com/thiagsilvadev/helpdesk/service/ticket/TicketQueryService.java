@@ -26,7 +26,7 @@ public class TicketQueryService {
         this.ticketMapper = ticketMapper;
     }
 
-    protected com.thiagsilvadev.helpdesk.entity.Ticket getTicketEntityById(Long ticketId) {
+    protected com.thiagsilvadev.helpdesk.entity.ticket.Ticket getTicketEntityById(Long ticketId) {
         return ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
@@ -50,7 +50,7 @@ public class TicketQueryService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public Page<TicketResponse> findAll(TicketSearchCriteria criteria, Pageable pageable) {
-        Specification<com.thiagsilvadev.helpdesk.entity.Ticket> spec = TicketSpecification.withCriteria(criteria);
+        Specification<com.thiagsilvadev.helpdesk.entity.ticket.Ticket> spec = TicketSpecification.withCriteria(criteria);
         return ticketRepository.findAll(spec, pageable)
                 .map(ticketMapper::toResponse);
     }

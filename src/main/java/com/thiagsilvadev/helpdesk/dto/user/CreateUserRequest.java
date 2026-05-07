@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.user;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

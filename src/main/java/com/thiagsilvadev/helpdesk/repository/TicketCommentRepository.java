@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.repository;
 
-import com.thiagsilvadev.helpdesk.entity.TicketComment;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketComment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

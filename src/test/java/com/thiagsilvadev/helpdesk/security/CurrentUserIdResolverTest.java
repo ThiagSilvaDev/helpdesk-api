@@ -1,5 +1,8 @@
 package com.thiagsilvadev.helpdesk.security;
 
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserIdResolver;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;

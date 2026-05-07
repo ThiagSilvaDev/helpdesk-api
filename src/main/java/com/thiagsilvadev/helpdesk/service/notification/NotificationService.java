@@ -2,7 +2,7 @@ package com.thiagsilvadev.helpdesk.service.notification;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
-import com.thiagsilvadev.helpdesk.entity.Notification;
+import com.thiagsilvadev.helpdesk.entity.notification.Notification;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.NotificationMapper;

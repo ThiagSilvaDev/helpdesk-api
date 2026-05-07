@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.ticket;
 
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

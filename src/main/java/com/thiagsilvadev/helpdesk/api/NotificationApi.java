@@ -2,7 +2,7 @@ package com.thiagsilvadev.helpdesk.api;
 
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

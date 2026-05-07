@@ -1,8 +1,11 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.config.JwtConfig;
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.security.auth.JwtService;
+import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
+
+import com.thiagsilvadev.helpdesk.config.security.JwtConfig;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;

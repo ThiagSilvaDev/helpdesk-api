@@ -2,9 +2,9 @@ package com.thiagsilvadev.helpdesk.mapper;
 
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentAuthorInfo;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
-import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.TicketComment;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketComment;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component

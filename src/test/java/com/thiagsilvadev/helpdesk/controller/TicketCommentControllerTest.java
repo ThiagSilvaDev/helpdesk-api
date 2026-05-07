@@ -1,10 +1,11 @@
 package com.thiagsilvadev.helpdesk.controller;
 
+import com.thiagsilvadev.helpdesk.controller.ticket.TicketCommentController;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentAuthorInfo;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

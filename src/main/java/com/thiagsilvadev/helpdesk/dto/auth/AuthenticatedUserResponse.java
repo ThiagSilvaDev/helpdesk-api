@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.auth;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 public record AuthenticatedUserResponse(
         Long id,
         String name,

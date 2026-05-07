@@ -1,9 +1,9 @@
 package com.thiagsilvadev.helpdesk.repository.specification;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
-import com.thiagsilvadev.helpdesk.entity.Ticket;
-import com.thiagsilvadev.helpdesk.entity.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.TicketStatus;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;

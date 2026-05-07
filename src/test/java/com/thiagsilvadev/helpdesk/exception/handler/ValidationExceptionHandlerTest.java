@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

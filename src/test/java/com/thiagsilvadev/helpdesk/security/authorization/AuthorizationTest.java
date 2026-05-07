@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.security.authorization;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -3,7 +3,7 @@ package com.thiagsilvadev.helpdesk.api;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
-import com.thiagsilvadev.helpdesk.security.CurrentUserId;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -1,9 +1,9 @@
 package com.thiagsilvadev.helpdesk.service.notification;
 
-import com.thiagsilvadev.helpdesk.config.RabbitMqConfig;
+import com.thiagsilvadev.helpdesk.config.messaging.RabbitMqConfig;
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationMessage;
-import com.thiagsilvadev.helpdesk.entity.NotificationOutboxEvent;
-import com.thiagsilvadev.helpdesk.entity.NotificationOutboxStatus;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxEvent;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxStatus;
 import com.thiagsilvadev.helpdesk.repository.NotificationOutboxRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

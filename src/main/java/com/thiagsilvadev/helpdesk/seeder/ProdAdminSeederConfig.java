@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.seeder;
 
-import com.thiagsilvadev.helpdesk.entity.Roles;
-import com.thiagsilvadev.helpdesk.entity.User;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
