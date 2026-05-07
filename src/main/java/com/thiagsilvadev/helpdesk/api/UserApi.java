@@ -54,6 +54,7 @@ public interface UserApi {
                     responseCode = "200",
                     description = "User found"
             ),
+            @ApiResponse(responseCode = "400", ref = "Bad Request"),
             @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "403", ref = "Forbidden")
