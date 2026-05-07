@@ -6,6 +6,7 @@ public enum ResourceType {
     USER("User"),
     TICKET("Ticket"),
     COMMENT("Comment"),
+    NOTIFICATION("Notification"),
     METRIC("Metric");
 
     private final String label;

@@ -11,6 +11,7 @@ import com.thiagsilvadev.helpdesk.exception.InvalidTicketStateException;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,9 @@ class TicketCommandServiceTest {
 
     @Spy
     private TicketMapper ticketMapper = new TicketMapper();
+
+    @Mock
+    private NotificationDispatchService notificationDispatchService;
 
     @InjectMocks
     private TicketCommandService ticketCommandService;
@@ -86,7 +90,7 @@ class TicketCommandServiceTest {
             given(userService.getUserById(CLIENT_ID)).willReturn(client);
             given(ticketRepository.save(any(Ticket.class))).willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
 
-            TicketResponse response = ticketCommandService.createByStaff(request);
+            TicketResponse response = ticketCommandService.createByStaff(request, AUTHENTICATED_USER_ID);
 
             assertThat(response.priority()).isEqualTo(TicketPriority.HIGH);
             assertThat(response.client().id()).isEqualTo(CLIENT_ID);
@@ -152,7 +156,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            TicketResponse response = ticketCommandService.updatePriority(TICKET_ID, request);
+            TicketResponse response = ticketCommandService.updatePriority(TICKET_ID, request, AUTHENTICATED_USER_ID);
 
             assertThat(response.priority()).isEqualTo(TicketPriority.URGENT);
         }
@@ -166,7 +170,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 
             assertThatExceptionOfType(InvalidTicketStateException.class)
-                    .isThrownBy(() -> ticketCommandService.updatePriority(TICKET_ID, request))
+                    .isThrownBy(() -> ticketCommandService.updatePriority(TICKET_ID, request, AUTHENTICATED_USER_ID))
                     .withMessage("Cannot change priority of a closed ticket");
 
             then(ticketRepository).should(never()).save(any());
@@ -230,7 +234,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            ticketCommandService.close(TICKET_ID);
+            ticketCommandService.close(TICKET_ID, AUTHENTICATED_USER_ID);
 
             assertThat(ticket.getStatus()).isEqualTo(TicketStatus.CLOSED);
             assertThat(ticket.getClosedAt()).isNotNull();
@@ -243,7 +247,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            ticketCommandService.cancel(TICKET_ID);
+            ticketCommandService.cancel(TICKET_ID, AUTHENTICATED_USER_ID);
 
             assertThat(ticket.getStatus()).isEqualTo(TicketStatus.CANCELLED);
         }
@@ -256,7 +260,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 
             assertThatExceptionOfType(InvalidTicketStateException.class)
-                    .isThrownBy(() -> ticketCommandService.close(TICKET_ID))
+                    .isThrownBy(() -> ticketCommandService.close(TICKET_ID, AUTHENTICATED_USER_ID))
                     .withMessage("Cannot close a cancelled ticket");
 
             then(ticketRepository).should(never()).save(any());
@@ -270,7 +274,7 @@ class TicketCommandServiceTest {
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 
             assertThatExceptionOfType(InvalidTicketStateException.class)
-                    .isThrownBy(() -> ticketCommandService.cancel(TICKET_ID))
+                    .isThrownBy(() -> ticketCommandService.cancel(TICKET_ID, AUTHENTICATED_USER_ID))
                     .withMessage("Cannot cancel a closed ticket");
 
             then(ticketRepository).should(never()).save(any());

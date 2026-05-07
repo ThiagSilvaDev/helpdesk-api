@@ -7,6 +7,9 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: helpdesk
+      RABBITMQ_PASSWORD: helpdesk
 
   postgres:
     extends:
@@ -21,5 +24,18 @@ services:
     volumes:
       - dev-pgdata:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-helpdesk}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-helpdesk}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - dev-rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   dev-pgdata:
+  dev-rabbitmq-data:

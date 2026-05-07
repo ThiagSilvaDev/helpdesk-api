@@ -11,6 +11,7 @@ import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,15 +26,18 @@ public class TicketCommentService {
     private final TicketQueryService ticketQueryService;
     private final UserService userService;
     private final TicketCommentMapper ticketCommentMapper;
+    private final NotificationDispatchService notificationDispatchService;
 
     public TicketCommentService(TicketCommentRepository ticketCommentRepository,
                                 TicketQueryService ticketQueryService,
                                 UserService userService,
-                                TicketCommentMapper ticketCommentMapper) {
+                                TicketCommentMapper ticketCommentMapper,
+                                NotificationDispatchService notificationDispatchService) {
         this.ticketCommentRepository = ticketCommentRepository;
         this.ticketQueryService = ticketQueryService;
         this.userService = userService;
         this.ticketCommentMapper = ticketCommentMapper;
+        this.notificationDispatchService = notificationDispatchService;
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
@@ -42,8 +46,10 @@ public class TicketCommentService {
         Ticket ticket = ticketQueryService.getTicketEntityById(ticketId);
         User author = userService.getUserById(authorId);
         TicketComment comment = ticketCommentMapper.toEntity(ticket, author, request.content());
+        TicketComment savedComment = ticketCommentRepository.save(comment);
+        notificationDispatchService.ticketCommentCreated(savedComment, authorId);
 
-        return ticketCommentMapper.toResponse(ticketCommentRepository.save(comment));
+        return ticketCommentMapper.toResponse(savedComment);
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")

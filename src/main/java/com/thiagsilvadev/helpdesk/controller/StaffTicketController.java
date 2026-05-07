@@ -31,8 +31,9 @@ public class StaffTicketController implements StaffTicketApi {
     }
 
     @Override
-    public ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request) {
-        TicketResponse newTicket = ticketCommandService.createByStaff(request);
+    public ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request,
+                                                              @CurrentUserId Long userId) {
+        TicketResponse newTicket = ticketCommandService.createByStaff(request, userId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -61,9 +62,10 @@ public class StaffTicketController implements StaffTicketApi {
     @Override
     public ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(
             @PathVariable Long ticketId,
-            @RequestBody @Valid UpdateTicketPriorityRequest request
+            @RequestBody @Valid UpdateTicketPriorityRequest request,
+            @CurrentUserId Long userId
     ) {
-        TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request);
+        TicketResponse updatedTicket = ticketCommandService.updatePriority(ticketId, request, userId);
         return ResponseEntity.ok(updatedTicket);
     }
 
@@ -79,17 +81,19 @@ public class StaffTicketController implements StaffTicketApi {
 
     @Override
     public ResponseEntity<Void> closeTicketAsStaff(
-            @PathVariable Long ticketId
+            @PathVariable Long ticketId,
+            @CurrentUserId Long userId
     ) {
-        ticketCommandService.close(ticketId);
+        ticketCommandService.close(ticketId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     public ResponseEntity<Void> cancelTicketAsStaff(
-            @PathVariable Long ticketId
+            @PathVariable Long ticketId,
+            @CurrentUserId Long userId
     ) {
-        ticketCommandService.cancel(ticketId);
+        ticketCommandService.cancel(ticketId, userId);
         return ResponseEntity.noContent().build();
     }
 }

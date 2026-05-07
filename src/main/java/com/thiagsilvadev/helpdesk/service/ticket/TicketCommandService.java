@@ -5,10 +5,13 @@ import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
+import com.thiagsilvadev.helpdesk.entity.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.User;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,32 +31,37 @@ public class TicketCommandService {
     private final UserService userService;
     private final TicketQueryService ticketQueryService;
     private final TicketMapper ticketMapper;
+    private final NotificationDispatchService notificationDispatchService;
 
     public TicketCommandService(TicketRepository ticketRepository, UserService userService,
-                                TicketQueryService ticketQueryService, TicketMapper ticketMapper) {
+                                TicketQueryService ticketQueryService, TicketMapper ticketMapper,
+                                NotificationDispatchService notificationDispatchService) {
         this.ticketRepository = ticketRepository;
         this.userService = userService;
         this.ticketQueryService = ticketQueryService;
         this.ticketMapper = ticketMapper;
+        this.notificationDispatchService = notificationDispatchService;
     }
 
 
     @PreAuthorize("hasRole('USER')")
     @Transactional
     public TicketResponse createByUser(CreateUserTicketRequest userRequest, Long authenticatedUserId) {
-        return createTicket(authenticatedUserId, client -> ticketMapper.toEntityFromUserRequest(userRequest, client));
+        return createTicket(authenticatedUserId, authenticatedUserId, client -> ticketMapper.toEntityFromUserRequest(userRequest, client));
     }
 
     @PreAuthorize("hasAnyRole('TECHNICIAN', 'ADMIN')")
     @Transactional
-    public TicketResponse createByStaff(CreateStaffTicketRequest request) {
-        return createTicket(request.requesterId(), client -> ticketMapper.toEntityFromStaffRequest(request, client));
+    public TicketResponse createByStaff(CreateStaffTicketRequest request, Long authenticatedUserId) {
+        return createTicket(request.requesterId(), authenticatedUserId, client -> ticketMapper.toEntityFromStaffRequest(request, client));
     }
 
-    private TicketResponse createTicket(Long clientId, Function<User, com.thiagsilvadev.helpdesk.entity.Ticket> ticketFactory) {
+    private TicketResponse createTicket(Long clientId, Long actorUserId,
+                                        Function<User, com.thiagsilvadev.helpdesk.entity.Ticket> ticketFactory) {
         User client = userService.getUserById(clientId);
         com.thiagsilvadev.helpdesk.entity.Ticket newTicket = ticketFactory.apply(client);
         com.thiagsilvadev.helpdesk.entity.Ticket savedTicket = ticketRepository.save(newTicket);
+        notificationDispatchService.ticketCreated(savedTicket, actorUserId);
 
         log.atInfo()
                 .setMessage("Ticket created successfully")
@@ -71,8 +79,13 @@ public class TicketCommandService {
 
     @PreAuthorize("@ticketAuthorization.canUpdatePriority(authentication)")
     @Transactional
-    public TicketResponse updatePriority(Long id, UpdateTicketPriorityRequest request) {
-        return modifyAndSave(id, ticket -> ticket.changePriority(request.priority()));
+    public TicketResponse updatePriority(Long id, UpdateTicketPriorityRequest request, Long authenticatedUserId) {
+        com.thiagsilvadev.helpdesk.entity.Ticket ticket = ticketQueryService.getTicketEntityById(id);
+        TicketPriority previousPriority = ticket.getPriority();
+        ticket.changePriority(request.priority());
+        com.thiagsilvadev.helpdesk.entity.Ticket savedTicket = ticketRepository.save(ticket);
+        notificationDispatchService.ticketPriorityChanged(savedTicket, previousPriority, authenticatedUserId);
+        return ticketMapper.toResponse(savedTicket);
     }
 
     @PreAuthorize("hasAnyRole('TECHNICIAN', 'ADMIN')")
@@ -83,21 +96,27 @@ public class TicketCommandService {
 
         log.info("Assigning technician {} to ticket {}", technicianId, ticketId);
 
-        return modifyAndSave(ticketId, ticket -> ticket.assignTechnician(technician));
+        com.thiagsilvadev.helpdesk.entity.Ticket ticket = ticketQueryService.getTicketEntityById(ticketId);
+        TicketStatus previousStatus = ticket.getStatus();
+        ticket.assignTechnician(technician);
+        com.thiagsilvadev.helpdesk.entity.Ticket savedTicket = ticketRepository.save(ticket);
+        notificationDispatchService.ticketAssigned(savedTicket, authenticatedUserId);
+        notificationDispatchService.ticketStatusChanged(savedTicket, previousStatus, authenticatedUserId);
+        return ticketMapper.toResponse(savedTicket);
     }
 
     @PreAuthorize("@ticketAuthorization.canClose(#id, authentication)")
     @Transactional
-    public void close(Long id) {
+    public void close(Long id, Long authenticatedUserId) {
         log.info("Closing ticket with id {}", id);
-        modifyAndSaveVoid(id, com.thiagsilvadev.helpdesk.entity.Ticket::closeTicket);
+        changeStatus(id, authenticatedUserId, com.thiagsilvadev.helpdesk.entity.Ticket::closeTicket);
     }
 
     @PreAuthorize("@ticketAuthorization.canCancel(#id, authentication)")
     @Transactional
-    public void cancel(Long id) {
+    public void cancel(Long id, Long authenticatedUserId) {
         log.info("Canceling ticket with id {}", id);
-        modifyAndSaveVoid(id, com.thiagsilvadev.helpdesk.entity.Ticket::cancelTicket);
+        changeStatus(id, authenticatedUserId, com.thiagsilvadev.helpdesk.entity.Ticket::cancelTicket);
     }
 
     private TicketResponse modifyAndSave(Long ticketId, Consumer<com.thiagsilvadev.helpdesk.entity.Ticket> action) {
@@ -106,9 +125,11 @@ public class TicketCommandService {
         return ticketMapper.toResponse(ticketRepository.save(ticket));
     }
 
-    private void modifyAndSaveVoid(Long ticketId, Consumer<com.thiagsilvadev.helpdesk.entity.Ticket> action) {
+    private void changeStatus(Long ticketId, Long actorUserId, Consumer<com.thiagsilvadev.helpdesk.entity.Ticket> action) {
         com.thiagsilvadev.helpdesk.entity.Ticket ticket = ticketQueryService.getTicketEntityById(ticketId);
+        TicketStatus previousStatus = ticket.getStatus();
         action.accept(ticket);
-        ticketRepository.save(ticket);
+        com.thiagsilvadev.helpdesk.entity.Ticket savedTicket = ticketRepository.save(ticket);
+        notificationDispatchService.ticketStatusChanged(savedTicket, previousStatus, actorUserId);
     }
 }

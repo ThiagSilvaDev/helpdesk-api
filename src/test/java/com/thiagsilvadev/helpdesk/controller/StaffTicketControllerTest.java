@@ -56,10 +56,11 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldCreateTicketAsStaff() throws Exception {
-        given(ticketCommandService.createByStaff(any(CreateStaffTicketRequest.class)))
+        given(ticketCommandService.createByStaff(any(CreateStaffTicketRequest.class), eq(77L)))
                 .willReturn(ticketResponse(100L, TicketPriority.HIGH, null));
 
         mockMvc.perform(post("/api/staff/tickets")
+                        .header("X-Test-User-Id", "77")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -92,10 +93,11 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldUpdateTicketPriority() throws Exception {
-        given(ticketCommandService.updatePriority(eq(100L), any(UpdateTicketPriorityRequest.class)))
+        given(ticketCommandService.updatePriority(eq(100L), any(UpdateTicketPriorityRequest.class), eq(77L)))
                 .willReturn(ticketResponse(100L, TicketPriority.URGENT, null));
 
         mockMvc.perform(patch("/api/staff/tickets/100/priority")
+                        .header("X-Test-User-Id", "77")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"priority\":\"URGENT\"}"))
                 .andExpect(status().isOk())
@@ -118,18 +120,20 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldCloseTicket() throws Exception {
-        mockMvc.perform(patch("/api/staff/tickets/100/close"))
+        mockMvc.perform(patch("/api/staff/tickets/100/close")
+                        .header("X-Test-User-Id", "77"))
                 .andExpect(status().isNoContent());
 
-        then(ticketCommandService).should().close(100L);
+        then(ticketCommandService).should().close(100L, 77L);
     }
 
     @Test
     void shouldCancelTicket() throws Exception {
-        mockMvc.perform(patch("/api/staff/tickets/100/cancel"))
+        mockMvc.perform(patch("/api/staff/tickets/100/cancel")
+                        .header("X-Test-User-Id", "77"))
                 .andExpect(status().isNoContent());
 
-        then(ticketCommandService).should().cancel(100L);
+        then(ticketCommandService).should().cancel(100L, 77L);
     }
 
     private TicketResponse ticketResponse(Long id, TicketPriority priority, TicketUserInfo technician) {

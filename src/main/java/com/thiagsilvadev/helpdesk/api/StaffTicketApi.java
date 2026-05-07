@@ -42,7 +42,8 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request);
+    ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request,
+                                                       @CurrentUserId Long userId);
 
     @GetMapping("/{ticketId}")
     @Operation(operationId = "getTicketByIdForStaff", summary = "Get ticket by ID", description = "Returns a single ticket (admin/technician)")
@@ -90,7 +91,8 @@ public interface StaffTicketApi {
     ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(
             @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
-            @RequestBody @Valid UpdateTicketPriorityRequest request
+            @RequestBody @Valid UpdateTicketPriorityRequest request,
+            @CurrentUserId Long userId
     );
 
     @PatchMapping("/{ticketId}/technician")
@@ -123,7 +125,8 @@ public interface StaffTicketApi {
     })
     ResponseEntity<Void> closeTicketAsStaff(
             @Parameter(description = "Ticket id", example = "100")
-            @PathVariable Long ticketId
+            @PathVariable Long ticketId,
+            @CurrentUserId Long userId
     );
 
     @PatchMapping("/{ticketId}/cancel")
@@ -137,6 +140,7 @@ public interface StaffTicketApi {
     })
     ResponseEntity<Void> cancelTicketAsStaff(
             @Parameter(description = "Ticket id", example = "100")
-            @PathVariable Long ticketId
+            @PathVariable Long ticketId,
+            @CurrentUserId Long userId
     );
 }

@@ -8,6 +8,7 @@ import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
+import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,6 +47,9 @@ class TicketCommentServiceTest {
 
     @Spy
     private TicketCommentMapper ticketCommentMapper = new TicketCommentMapper();
+
+    @Mock
+    private NotificationDispatchService notificationDispatchService;
 
     @InjectMocks
     private TicketCommentService ticketCommentService;
