@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(value = "/api/tickets/{ticketId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Ticket Comments", description = "Comments attached to tickets")
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface TicketCommentApi {
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "createTicketComment", summary = "Create ticket comment", description = "Adds a comment to a ticket")
     @ApiResponses({
             @ApiResponse(
@@ -86,6 +89,7 @@ public interface TicketCommentApi {
     );
 
     @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "deleteTicketComment", summary = "Delete ticket comment", description = "Deletes an existing ticket comment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Comment deleted"),

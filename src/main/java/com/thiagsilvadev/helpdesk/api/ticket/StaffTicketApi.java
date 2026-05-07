@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(value = "/api/staff/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Staff Tickets", description = "Ticket management for technicians and admins")
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface StaffTicketApi {
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "createTicketAsStaff", summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
     @ApiResponses({
             @ApiResponse(
@@ -115,6 +118,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/close")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "closeTicketAsStaff", summary = "Close ticket", description = "Closes a ticket (admin, or assigned technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
@@ -130,6 +134,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/cancel")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "cancelTicketAsStaff", summary = "Cancel ticket", description = "Cancels a ticket (admin, technician, or ticket owner)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),

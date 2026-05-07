@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,7 @@ public interface NotificationApi {
     );
 
     @PatchMapping("/read-all")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "markAllNotificationsRead", summary = "Mark all notifications as read")
     ResponseEntity<Void> markAllNotificationsRead(@CurrentUserId Long userId);
 }
