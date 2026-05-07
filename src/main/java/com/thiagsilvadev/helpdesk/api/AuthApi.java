@@ -49,8 +49,7 @@ public interface AuthApi {
                     responseCode = "200",
                     description = "Authenticated user retrieved"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            @ApiResponse(responseCode = "401", ref = "Unauthorized")
     })
     ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(
             @CurrentUserId Long userId
