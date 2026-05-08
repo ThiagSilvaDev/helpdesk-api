@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface UserApi {
 
     @PostMapping
-    @Operation(operationId = "createUser", summary = "Create user", description = "Creates a new user (admin only)")
+    @Operation(operationId = "createUser")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
@@ -43,7 +43,7 @@ public interface UserApi {
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest request);
 
     @GetMapping("/{id}")
-    @Operation(operationId = "getUserById", summary = "Get user by ID", description = "Returns a single user by ID (admin/technician)")
+    @Operation(operationId = "getUserById")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -57,7 +57,7 @@ public interface UserApi {
     );
 
     @GetMapping
-    @Operation(operationId = "listUsers", summary = "List all users", description = "Returns a paginated list of all users (admin only)")
+    @Operation(operationId = "listUsers")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -67,7 +67,7 @@ public interface UserApi {
     ResponseEntity<Page<UserResponse>> listUsers(@ParameterObject Pageable pageable);
 
     @PatchMapping("/{id}/name")
-    @Operation(operationId = "updateUserName", summary = "Update user name", description = "Updates the user's name (admin or self)")
+    @Operation(operationId = "updateUserName")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -82,7 +82,7 @@ public interface UserApi {
     );
 
     @PatchMapping("/{id}/role")
-    @Operation(operationId = "changeUserRole", summary = "Change user role", description = "Changes a user's role (admin only)")
+    @Operation(operationId = "changeUserRole")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -97,7 +97,7 @@ public interface UserApi {
     );
 
     @DeleteMapping("/{id}")
-    @Operation(operationId = "deactivateUser", summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
+    @Operation(operationId = "deactivateUser")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
             @ApiResponse(responseCode = "404", ref = "NotFound")

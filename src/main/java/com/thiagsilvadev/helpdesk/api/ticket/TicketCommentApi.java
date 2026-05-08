@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface TicketCommentApi {
 
     @PostMapping
-    @Operation(operationId = "createTicketComment", summary = "Create ticket comment", description = "Adds a comment to a ticket")
+    @Operation(operationId = "createTicketComment")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
@@ -47,7 +47,7 @@ public interface TicketCommentApi {
     );
 
     @GetMapping
-    @Operation(operationId = "listTicketComments", summary = "List ticket comments", description = "Returns a paginated list of comments for a ticket")
+    @Operation(operationId = "listTicketComments")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -61,7 +61,7 @@ public interface TicketCommentApi {
     );
 
     @PutMapping("/{commentId}")
-    @Operation(operationId = "updateTicketComment", summary = "Update ticket comment", description = "Updates an existing ticket comment")
+    @Operation(operationId = "updateTicketComment")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -77,7 +77,7 @@ public interface TicketCommentApi {
     );
 
     @DeleteMapping("/{commentId}")
-    @Operation(operationId = "deleteTicketComment", summary = "Delete ticket comment", description = "Deletes an existing ticket comment")
+    @Operation(operationId = "deleteTicketComment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Comment deleted"),
             @ApiResponse(responseCode = "404", ref = "NotFound")

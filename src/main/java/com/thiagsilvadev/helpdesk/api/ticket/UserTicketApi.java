@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface UserTicketApi {
 
     @PostMapping
-    @Operation(operationId = "createAuthenticatedUserTicket", summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
+    @Operation(operationId = "createAuthenticatedUserTicket")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
@@ -44,7 +44,7 @@ public interface UserTicketApi {
     );
 
     @GetMapping("/{ticketId}")
-    @Operation(operationId = "getAuthenticatedUserTicketById", summary = "Get own ticket", description = "Returns a ticket owned by the authenticated user")
+    @Operation(operationId = "getAuthenticatedUserTicketById")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -58,7 +58,7 @@ public interface UserTicketApi {
     );
 
     @GetMapping
-    @Operation(operationId = "listAuthenticatedUserTickets", summary = "List own tickets", description = "Returns a paginated list of the authenticated user's tickets")
+    @Operation(operationId = "listAuthenticatedUserTickets")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -71,7 +71,7 @@ public interface UserTicketApi {
     );
 
     @PutMapping("/{id}")
-    @Operation(operationId = "updateAuthenticatedUserTicket", summary = "Update ticket", description = "Updates title and description of an existing ticket")
+    @Operation(operationId = "updateAuthenticatedUserTicket")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",

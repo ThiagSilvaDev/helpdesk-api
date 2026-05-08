@@ -22,11 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface AuthApi {
 
     @PostMapping("/login")
-    @Operation(
-            operationId = "authenticateUserAndIssueToken",
-            summary = "Authenticate user",
-            description = "Authenticates with email/password and returns a JWT token"
-    )
+    @Operation(operationId = "authenticateUserAndIssueToken")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -39,11 +35,7 @@ public interface AuthApi {
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(
-            operationId = "getAuthenticatedUser",
-            summary = "Get authenticated user",
-            description = "Returns the profile for the user identified by the current JWT subject"
-    )
+    @Operation(operationId = "getAuthenticatedUser")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",

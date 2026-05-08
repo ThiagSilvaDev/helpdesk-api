@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public interface NotificationApi {
 
     @GetMapping
-    @Operation(operationId = "listNotifications", summary = "List notifications")
+    @Operation(operationId = "listNotifications")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Notifications retrieved")
     })
@@ -33,17 +33,17 @@ public interface NotificationApi {
     );
 
     @GetMapping("/unread-count")
-    @Operation(operationId = "countUnreadNotifications", summary = "Count unread notifications")
+    @Operation(operationId = "countUnreadNotifications")
     ResponseEntity<UnreadNotificationCountResponse> countUnreadNotifications(@CurrentUserId Long userId);
 
     @PatchMapping("/{id}/read")
-    @Operation(operationId = "markNotificationRead", summary = "Mark notification as read")
+    @Operation(operationId = "markNotificationRead")
     ResponseEntity<NotificationResponse> markNotificationRead(
             @PathVariable Long id,
             @CurrentUserId Long userId
     );
 
     @PatchMapping("/read-all")
-    @Operation(operationId = "markAllNotificationsRead", summary = "Mark all notifications as read")
+    @Operation(operationId = "markAllNotificationsRead")
     ResponseEntity<Void> markAllNotificationsRead(@CurrentUserId Long userId);
 }

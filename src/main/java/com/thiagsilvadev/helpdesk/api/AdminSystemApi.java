@@ -21,11 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface AdminSystemApi {
 
     @GetMapping("/health")
-    @Operation(
-            operationId = "getAdminSystemHealth",
-            summary = "Get system health",
-            description = "Returns the Spring Boot health endpoint adapted to a stable response DTO for Angular API generation"
-    )
+    @Operation(operationId = "getAdminSystemHealth")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -35,11 +31,7 @@ public interface AdminSystemApi {
     ResponseEntity<AdminSystemHealthResponse> getAdminSystemHealth();
 
     @GetMapping("/metrics")
-    @Operation(
-            operationId = "listAdminSystemMetricNames",
-            summary = "List system metrics",
-            description = "Returns the metric names exposed by Spring Boot actuator using a dedicated DTO for Angular API generation"
-    )
+    @Operation(operationId = "listAdminSystemMetricNames")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -49,11 +41,7 @@ public interface AdminSystemApi {
     ResponseEntity<AdminSystemMetricNamesResponse> listAdminSystemMetricNames();
 
     @GetMapping("/metrics/{metricName}")
-    @Operation(
-            operationId = "getAdminSystemMetric",
-            summary = "Get system metric details",
-            description = "Returns a single actuator metric with explicit DTOs so Angular API generation produces stable models"
-    )
+    @Operation(operationId = "getAdminSystemMetric")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",

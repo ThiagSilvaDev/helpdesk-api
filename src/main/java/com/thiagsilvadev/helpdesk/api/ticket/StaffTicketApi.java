@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface StaffTicketApi {
 
     @PostMapping
-    @Operation(operationId = "createTicketAsStaff", summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
+    @Operation(operationId = "createTicketAsStaff")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
@@ -45,7 +45,7 @@ public interface StaffTicketApi {
                                                        @CurrentUserId Long userId);
 
     @GetMapping("/{ticketId}")
-    @Operation(operationId = "getTicketByIdForStaff", summary = "Get ticket by ID", description = "Returns a single ticket (admin/technician)")
+    @Operation(operationId = "getTicketByIdForStaff")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -58,7 +58,7 @@ public interface StaffTicketApi {
     );
 
     @GetMapping
-    @Operation(operationId = "listTicketsForStaff", summary = "List all tickets", description = "Returns a paginated, filterable list of all tickets (admin/technician)")
+    @Operation(operationId = "listTicketsForStaff")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -71,7 +71,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/priority")
-    @Operation(operationId = "updateTicketPriorityAsStaff", summary = "Update ticket priority", description = "Changes the priority of a ticket (admin/technician)")
+    @Operation(operationId = "updateTicketPriorityAsStaff")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -87,7 +87,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/technician")
-    @Operation(operationId = "assignTechnicianToTicket", summary = "Assign technician", description = "Assigns a technician to a ticket and sets status to IN_PROGRESS")
+    @Operation(operationId = "assignTechnicianToTicket")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -103,7 +103,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/close")
-    @Operation(operationId = "closeTicketAsStaff", summary = "Close ticket", description = "Closes a ticket (admin, or assigned technician)")
+    @Operation(operationId = "closeTicketAsStaff")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
@@ -115,7 +115,7 @@ public interface StaffTicketApi {
     );
 
     @PatchMapping("/{ticketId}/cancel")
-    @Operation(operationId = "cancelTicketAsStaff", summary = "Cancel ticket", description = "Cancels a ticket (admin, technician, or ticket owner)")
+    @Operation(operationId = "cancelTicketAsStaff")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
