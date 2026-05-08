@@ -61,7 +61,7 @@ public interface UserApi {
     })
     ResponseEntity<UserResponse> getUserById(
             @Parameter(description = "User id", example = "42")
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id
+            @PathVariable @Min(value = 1) Long id
     );
 
     @GetMapping
@@ -90,7 +90,7 @@ public interface UserApi {
     })
     ResponseEntity<UserResponse> updateUser(
             @Parameter(description = "User id", example = "42")
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid UpdateUserNameRequest request
     );
 
@@ -108,7 +108,7 @@ public interface UserApi {
     })
     ResponseEntity<UserResponse> changeUserRole(
             @Parameter(description = "User id", example = "42")
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid ChangeUserRoleRequest request
     );
 
@@ -123,6 +123,6 @@ public interface UserApi {
     })
     ResponseEntity<Void> deactivateUser(
             @Parameter(description = "User id", example = "42")
-            @PathVariable Long id
+            @PathVariable @Min(value = 1) Long id
     );
 }

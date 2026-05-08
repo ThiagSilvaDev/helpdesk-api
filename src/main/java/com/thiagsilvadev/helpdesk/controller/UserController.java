@@ -42,7 +42,7 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserResponse> getUserById(
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id
+            @PathVariable @Min(value = 1) Long id
     ) {
         UserResponse user = userService.getUserResponseById(id);
         return ResponseEntity.ok(user);
@@ -56,7 +56,7 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserResponse> updateUser(
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid UpdateUserNameRequest request
     ) {
         UserResponse updatedUser = userService.update(id, request);
@@ -65,7 +65,7 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserResponse> changeUserRole(
-            @PathVariable @Min(value = 1, message = "id must be greater than 0") Long id,
+            @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid ChangeUserRoleRequest request
     ) {
         UserResponse updatedUser = userService.changeRole(id, request);
@@ -74,7 +74,7 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<Void> deactivateUser(
-            @PathVariable Long id
+            @PathVariable @Min(value = 1) Long id
     ) {
         userService.deactivate(id);
         return ResponseEntity.noContent().build();
