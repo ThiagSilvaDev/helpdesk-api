@@ -7,6 +7,7 @@ import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.security.auth.JwtService;
 import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,10 +47,16 @@ class AuthServiceTest {
     @Nested
     class Authenticate {
 
+        private AuthLoginRequest request;
+
+        @BeforeEach
+        void setUp() {
+            request = new AuthLoginRequest(EMAIL, PASSWORD);
+        }
+
         @Test
         void shouldAuthenticateUserAndReturnToken() {
-            AuthLoginRequest request = new AuthLoginRequest(EMAIL, PASSWORD);
-            User user = persistedUser(USER_ID, "John User", EMAIL, Roles.ROLE_USER);
+            User user = persistedUser("John User", EMAIL, Roles.ROLE_USER);
             UserPrincipal principal = new UserPrincipal(user);
 
             Authentication authentication = createAuthenticationMock(principal);
@@ -65,8 +72,7 @@ class AuthServiceTest {
 
         @Test
         void shouldGenerateTokenWithUserRole() {
-            AuthLoginRequest request = new AuthLoginRequest(EMAIL, PASSWORD);
-            User user = persistedUser(USER_ID, "Tech User", EMAIL, Roles.ROLE_TECHNICIAN);
+            User user = persistedUser("Tech User", EMAIL, Roles.ROLE_TECHNICIAN);
             UserPrincipal principal = new UserPrincipal(user);
 
             Authentication authentication = createAuthenticationMock(principal);
@@ -82,7 +88,7 @@ class AuthServiceTest {
 
     @Test
     void shouldReturnAuthenticatedUserProfile() {
-        User user = persistedUser(USER_ID, "John User", EMAIL, Roles.ROLE_USER);
+        User user = persistedUser("John User", EMAIL, Roles.ROLE_USER);
         given(userService.getUserById(USER_ID)).willReturn(user);
 
         AuthenticatedUserResponse response = authService.getAuthenticatedUser(USER_ID);
@@ -101,9 +107,9 @@ class AuthServiceTest {
         return authentication;
     }
 
-    private User persistedUser(Long id, String name, String email, Roles role) {
+    private User persistedUser(String name, String email, Roles role) {
         User user = new User(name, email, "encoded-password", role);
-        ReflectionTestUtils.setField(user, "id", id);
+        ReflectionTestUtils.setField(user, "id", AuthServiceTest.USER_ID);
         return user;
     }
 }
