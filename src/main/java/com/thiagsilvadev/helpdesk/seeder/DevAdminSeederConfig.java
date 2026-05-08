@@ -1,9 +1,14 @@
 package com.thiagsilvadev.helpdesk.seeder;
 
+import com.thiagsilvadev.helpdesk.entity.notification.Notification;
+import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketComment;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.user.User;
+import com.thiagsilvadev.helpdesk.repository.NotificationRepository;
+import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.slf4j.Logger;
@@ -15,10 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Configuration
 @Profile("dev")
@@ -39,6 +46,9 @@ public class DevAdminSeederConfig {
     ) {
     }
 
+    private record SeedCommentSpec(String ticketTitle, String authorEmail, String content) {
+    }
+
     private enum TicketFinalState {
         KEEP_OPEN,
         CLOSE,
@@ -48,6 +58,8 @@ public class DevAdminSeederConfig {
     @Bean
     CommandLineRunner devAdminSeeder(UserRepository userRepository,
                                      TicketRepository ticketRepository,
+                                     TicketCommentRepository ticketCommentRepository,
+                                     NotificationRepository notificationRepository,
                                      PasswordEncoder passwordEncoder,
                                      @Value("${app.dev-admin.name}") String adminName,
                                      @Value("${app.dev-admin.email}") String adminEmail,
@@ -62,7 +74,8 @@ public class DevAdminSeederConfig {
             Map<String, User> usersByEmail = seedUsers(userRepository, passwordEncoder, adminName, adminEmail, adminPassword,
                     userName, userEmail, userPassword, technicianName, technicianEmail, technicianPassword);
 
-            seedTickets(ticketRepository, usersByEmail, technicianEmail);
+            Map<String, Ticket> ticketsByTitle = seedTickets(ticketRepository, usersByEmail, technicianEmail);
+            seedCommentsAndNotifications(ticketCommentRepository, notificationRepository, ticketsByTitle, usersByEmail);
         };
     }
 
@@ -110,12 +123,15 @@ public class DevAdminSeederConfig {
         return usersByEmail;
     }
 
-    private void seedTickets(TicketRepository ticketRepository,
-                             Map<String, User> usersByEmail,
-                             String defaultTechnicianEmail) {
-        Set<String> existingTitles = ticketRepository.findAll().stream()
+    private Map<String, Ticket> seedTickets(TicketRepository ticketRepository,
+                                            Map<String, User> usersByEmail,
+                                            String defaultTechnicianEmail) {
+        List<Ticket> existingTickets = ticketRepository.findAll();
+        Set<String> existingTitles = existingTickets.stream()
                 .map(Ticket::getTitle)
                 .collect(java.util.stream.Collectors.toSet());
+        Map<String, Ticket> ticketsByTitle = existingTickets.stream()
+                .collect(java.util.stream.Collectors.toMap(Ticket::getTitle, ticket -> ticket, (first, ignored) -> first));
 
         List<SeedTicketSpec> ticketsToSeed = List.of(
                 new SeedTicketSpec(
@@ -194,9 +210,56 @@ public class DevAdminSeederConfig {
                 ticket.cancelTicket();
             }
 
-            ticketRepository.save(ticket);
+            Ticket savedTicket = ticketRepository.save(ticket);
+            ticketsByTitle.put(savedTicket.getTitle(), savedTicket);
             log.info("Seeding development ticket {}", spec.title());
         }
+
+        return ticketsByTitle;
+    }
+
+    private void seedCommentsAndNotifications(TicketCommentRepository ticketCommentRepository,
+                                              NotificationRepository notificationRepository,
+                                              Map<String, Ticket> ticketsByTitle,
+                                              Map<String, User> usersByEmail) {
+        SeedCommentSpec commentSpec = new SeedCommentSpec(
+                "Printer offline in finance office",
+                "bruno.finance@helpdesk.local",
+                "I restarted the printer and the queue is still blocked. Finance needs this cleared before invoices go out."
+        );
+
+        Ticket ticket = ticketsByTitle.get(commentSpec.ticketTitle());
+        User author = usersByEmail.get(commentSpec.authorEmail());
+
+        TicketComment comment = ticketCommentRepository.findByTicketId(ticket.getId(), org.springframework.data.domain.Pageable.unpaged())
+                .stream()
+                .filter(existingComment -> existingComment.getContent().equals(commentSpec.content()))
+                .findFirst()
+                .orElseGet(() -> {
+                    log.info("Seeding development comment for ticket {}", commentSpec.ticketTitle());
+                    return ticketCommentRepository.save(new TicketComment(ticket, author, commentSpec.content()));
+                });
+
+        UUID sourceEventId = UUID.nameUUIDFromBytes(
+                ("dev-seed:notification:ticket-comment-created:" + commentSpec.ticketTitle()).getBytes(StandardCharsets.UTF_8)
+        );
+
+        if (notificationRepository.existsBySourceEventId(sourceEventId)) {
+            return;
+        }
+
+        User recipient = ticket.getTechnician() != null ? ticket.getTechnician() : usersByEmail.get("tech@helpdesk.local");
+        notificationRepository.save(new Notification(
+                recipient,
+                NotificationType.TICKET_COMMENT_CREATED,
+                "New ticket comment",
+                author.getName() + " commented on \"" + ticket.getTitle() + "\".",
+                ticket.getId(),
+                comment.getId(),
+                author.getId(),
+                sourceEventId
+        ));
+        log.info("Seeding development notification for ticket {}", commentSpec.ticketTitle());
     }
 
     private String userEmail(Map<String, User> usersByEmail) {
