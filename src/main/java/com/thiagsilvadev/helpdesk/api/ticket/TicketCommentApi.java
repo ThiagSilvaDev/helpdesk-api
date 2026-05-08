@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiByIdErrors;
 import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
@@ -32,13 +33,12 @@ public interface TicketCommentApi {
 
     @PostMapping
     @Operation(operationId = "createTicketComment")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
                     description = "Comment created"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<TicketCommentResponse> createTicketComment(
             @PathVariable Long ticketId,
@@ -48,12 +48,12 @@ public interface TicketCommentApi {
 
     @GetMapping
     @Operation(operationId = "listTicketComments")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Comments retrieved"
-            ),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<Page<TicketCommentResponse>> listTicketComments(
             @PathVariable Long ticketId,
@@ -62,13 +62,12 @@ public interface TicketCommentApi {
 
     @PutMapping("/{commentId}")
     @Operation(operationId = "updateTicketComment")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Comment updated"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<TicketCommentResponse> updateTicketComment(
             @PathVariable Long ticketId,
@@ -78,9 +77,9 @@ public interface TicketCommentApi {
 
     @DeleteMapping("/{commentId}")
     @Operation(operationId = "deleteTicketComment")
+    @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Comment deleted"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            @ApiResponse(responseCode = "204", description = "Comment deleted")
     })
     ResponseEntity<Void> deleteTicketComment(
             @PathVariable Long ticketId,

@@ -38,6 +38,7 @@ public interface NotificationApi {
 
     @PatchMapping("/{id}/read")
     @Operation(operationId = "markNotificationRead")
+    @ApiByIdErrors
     ResponseEntity<NotificationResponse> markNotificationRead(
             @PathVariable Long id,
             @CurrentUserId Long userId

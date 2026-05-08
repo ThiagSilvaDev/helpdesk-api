@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiByIdErrors;
 import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
@@ -45,12 +46,12 @@ public interface UserTicketApi {
 
     @GetMapping("/{ticketId}")
     @Operation(operationId = "getAuthenticatedUserTicketById")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Ticket found"
-            ),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
             @PathVariable Long ticketId,
@@ -72,13 +73,12 @@ public interface UserTicketApi {
 
     @PutMapping("/{id}")
     @Operation(operationId = "updateAuthenticatedUserTicket")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Ticket updated"
             ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketAsUser(

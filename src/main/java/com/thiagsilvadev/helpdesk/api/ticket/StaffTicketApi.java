@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiByIdErrors;
 import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
@@ -46,12 +47,12 @@ public interface StaffTicketApi {
 
     @GetMapping("/{ticketId}")
     @Operation(operationId = "getTicketByIdForStaff")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Ticket found"
-            ),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<TicketResponse> getTicketByIdForStaff(
             @PathVariable Long ticketId
@@ -72,12 +73,12 @@ public interface StaffTicketApi {
 
     @PatchMapping("/{ticketId}/priority")
     @Operation(operationId = "updateTicketPriorityAsStaff")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Priority updated"
             ),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(
@@ -88,12 +89,12 @@ public interface StaffTicketApi {
 
     @PatchMapping("/{ticketId}/technician")
     @Operation(operationId = "assignTechnicianToTicket")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Technician assigned"
             ),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> assignTechnicianToTicket(
@@ -104,9 +105,9 @@ public interface StaffTicketApi {
 
     @PatchMapping("/{ticketId}/close")
     @Operation(operationId = "closeTicketAsStaff")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<Void> closeTicketAsStaff(
@@ -116,9 +117,9 @@ public interface StaffTicketApi {
 
     @PatchMapping("/{ticketId}/cancel")
     @Operation(operationId = "cancelTicketAsStaff")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<Void> cancelTicketAsStaff(

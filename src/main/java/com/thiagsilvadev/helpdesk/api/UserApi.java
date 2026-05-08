@@ -44,13 +44,12 @@ public interface UserApi {
 
     @GetMapping("/{id}")
     @Operation(operationId = "getUserById")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "User found"
-            ),
-            @ApiResponse(responseCode = "400", ref = "Bad Request"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<UserResponse> getUserById(
             @PathVariable @Min(value = 1) Long id
@@ -68,13 +67,12 @@ public interface UserApi {
 
     @PatchMapping("/{id}/name")
     @Operation(operationId = "updateUserName")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "User updated"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<UserResponse> updateUser(
             @PathVariable @Min(value = 1) Long id,
@@ -83,13 +81,12 @@ public interface UserApi {
 
     @PatchMapping("/{id}/role")
     @Operation(operationId = "changeUserRole")
+    @ApiByIdErrors
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "User role changed"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            )
     })
     ResponseEntity<UserResponse> changeUserRole(
             @PathVariable @Min(value = 1) Long id,
@@ -98,9 +95,9 @@ public interface UserApi {
 
     @DeleteMapping("/{id}")
     @Operation(operationId = "deactivateUser")
+    @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "User deactivated"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+            @ApiResponse(responseCode = "204", description = "User deactivated")
     })
     ResponseEntity<Void> deactivateUser(
             @PathVariable @Min(value = 1) Long id
