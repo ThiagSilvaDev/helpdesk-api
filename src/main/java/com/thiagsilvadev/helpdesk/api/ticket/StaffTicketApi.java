@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticket.AssignTechnicianRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping(value = "/api/staff/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Staff Tickets", description = "Ticket management for technicians and admins")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface StaffTicketApi {
 
     @PostMapping
@@ -41,8 +43,6 @@ public interface StaffTicketApi {
                     description = "Ticket created"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request,
@@ -55,8 +55,6 @@ public interface StaffTicketApi {
                     responseCode = "200",
                     description = "Ticket found"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketResponse> getTicketByIdForStaff(
@@ -70,9 +68,7 @@ public interface StaffTicketApi {
             @ApiResponse(
                     responseCode = "200",
                     description = "Tickets retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            )
     })
     ResponseEntity<Page<TicketResponse>> listTicketsForStaff(
             @ParameterObject TicketSearchCriteria criteria,
@@ -86,8 +82,6 @@ public interface StaffTicketApi {
                     responseCode = "200",
                     description = "Priority updated"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
@@ -105,8 +99,6 @@ public interface StaffTicketApi {
                     responseCode = "200",
                     description = "Technician assigned"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
@@ -122,8 +114,6 @@ public interface StaffTicketApi {
     @Operation(operationId = "closeTicketAsStaff", summary = "Close ticket", description = "Closes a ticket (admin, or assigned technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
@@ -138,8 +128,6 @@ public interface StaffTicketApi {
     @Operation(operationId = "cancelTicketAsStaff", summary = "Cancel ticket", description = "Cancels a ticket (admin, technician, or ticket owner)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })

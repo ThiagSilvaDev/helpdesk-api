@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Notifications", description = "Authenticated user's in-app notifications")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface NotificationApi {
 
     @GetMapping
     @Operation(operationId = "listNotifications", summary = "List notifications")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Notifications retrieved"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized")
+            @ApiResponse(responseCode = "200", description = "Notifications retrieved")
     })
     ResponseEntity<Page<NotificationResponse>> listNotifications(
             @RequestParam(defaultValue = "false") boolean unreadOnly,

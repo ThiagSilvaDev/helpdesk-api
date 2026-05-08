@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Users", description = "User management (admin scope)")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface UserApi {
 
     @PostMapping
@@ -41,8 +42,6 @@ public interface UserApi {
                     description = "User created"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "409", ref = "Conflict")
     })
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest request);
@@ -55,9 +54,7 @@ public interface UserApi {
                     description = "User found"
             ),
             @ApiResponse(responseCode = "400", ref = "Bad Request"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "404", ref = "NotFound"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> getUserById(
             @Parameter(description = "User id", example = "42")
@@ -70,9 +67,7 @@ public interface UserApi {
             @ApiResponse(
                     responseCode = "200",
                     description = "Users retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            )
     })
     ResponseEntity<Page<UserResponse>> listUsers(@ParameterObject Pageable pageable);
 
@@ -84,8 +79,6 @@ public interface UserApi {
                     description = "User updated"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> updateUser(
@@ -102,8 +95,6 @@ public interface UserApi {
                     description = "User role changed"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> changeUserRole(
@@ -117,8 +108,6 @@ public interface UserApi {
     @Operation(operationId = "deactivateUser", summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<Void> deactivateUser(

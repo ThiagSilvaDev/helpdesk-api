@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/api/admin/system", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Admin System", description = "Admin-only system and actuator information for frontend API generation")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface AdminSystemApi {
 
     @GetMapping("/health")
@@ -30,9 +31,7 @@ public interface AdminSystemApi {
             @ApiResponse(
                     responseCode = "200",
                     description = "Health retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            )
     })
     ResponseEntity<AdminSystemHealthResponse> getAdminSystemHealth();
 
@@ -46,9 +45,7 @@ public interface AdminSystemApi {
             @ApiResponse(
                     responseCode = "200",
                     description = "Metric names retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            )
     })
     ResponseEntity<AdminSystemMetricNamesResponse> listAdminSystemMetricNames();
 
@@ -63,8 +60,6 @@ public interface AdminSystemApi {
                     responseCode = "200",
                     description = "Metric retrieved"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(

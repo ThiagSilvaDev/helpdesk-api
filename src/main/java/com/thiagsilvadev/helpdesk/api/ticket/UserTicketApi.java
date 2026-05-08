@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping(value = "/api/users/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "User Tickets", description = "Ticket operations for authenticated users (own tickets)")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface UserTicketApi {
 
     @PostMapping
@@ -38,9 +40,7 @@ public interface UserTicketApi {
                     responseCode = "201",
                     description = "Ticket created"
             ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden")
+            @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<TicketResponse> createTicketAsUser(
             @RequestBody @Valid CreateUserTicketRequest userRequest,
@@ -54,7 +54,6 @@ public interface UserTicketApi {
                     responseCode = "200",
                     description = "Ticket found"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
@@ -69,8 +68,7 @@ public interface UserTicketApi {
             @ApiResponse(
                     responseCode = "200",
                     description = "Own tickets retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized")
+            )
     })
     ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(
             @CurrentUserId Long userId,
@@ -85,8 +83,6 @@ public interface UserTicketApi {
                     description = "Ticket updated"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound"),
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })

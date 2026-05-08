@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
+import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping(value = "/api/tickets/{ticketId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Ticket Comments", description = "Comments attached to tickets")
 @SecurityRequirement(name = "bearerAuth")
+@ApiSecurityResponseErrors
 public interface TicketCommentApi {
 
     @PostMapping
@@ -40,8 +42,6 @@ public interface TicketCommentApi {
                     description = "Comment created"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketCommentResponse> createTicketComment(
@@ -58,8 +58,6 @@ public interface TicketCommentApi {
                     responseCode = "200",
                     description = "Comments retrieved"
             ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<Page<TicketCommentResponse>> listTicketComments(
@@ -76,8 +74,6 @@ public interface TicketCommentApi {
                     description = "Comment updated"
             ),
             @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketCommentResponse> updateTicketComment(
@@ -93,8 +89,6 @@ public interface TicketCommentApi {
     @Operation(operationId = "deleteTicketComment", summary = "Delete ticket comment", description = "Deletes an existing ticket comment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Comment deleted"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "403", ref = "Forbidden"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<Void> deleteTicketComment(
