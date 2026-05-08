@@ -5,7 +5,6 @@ import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,7 +14,6 @@ import jakarta.validation.constraints.Min;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Users", description = "User management (admin scope)")
@@ -34,7 +31,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public interface UserApi {
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "createUser", summary = "Create user", description = "Creates a new user (admin only)")
     @ApiResponses({
             @ApiResponse(
@@ -57,7 +53,6 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> getUserById(
-            @Parameter(description = "User id", example = "42")
             @PathVariable @Min(value = 1) Long id
     );
 
@@ -82,7 +77,6 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> updateUser(
-            @Parameter(description = "User id", example = "42")
             @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid UpdateUserNameRequest request
     );
@@ -98,20 +92,17 @@ public interface UserApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<UserResponse> changeUserRole(
-            @Parameter(description = "User id", example = "42")
             @PathVariable @Min(value = 1) Long id,
             @RequestBody @Valid ChangeUserRoleRequest request
     );
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "deactivateUser", summary = "Deactivate user", description = "Soft-deletes a user by setting active=false (admin only)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deactivated"),
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<Void> deactivateUser(
-            @Parameter(description = "User id", example = "42")
             @PathVariable @Min(value = 1) Long id
     );
 }

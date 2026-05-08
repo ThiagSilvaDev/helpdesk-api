@@ -6,7 +6,6 @@ import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,7 +14,6 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(value = "/api/users/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "User Tickets", description = "Ticket operations for authenticated users (own tickets)")
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public interface UserTicketApi {
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "createAuthenticatedUserTicket", summary = "Create ticket", description = "Creates a new ticket as the authenticated user")
     @ApiResponses({
             @ApiResponse(
@@ -57,7 +53,6 @@ public interface UserTicketApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @CurrentUserId Long userId
     );
@@ -87,7 +82,6 @@ public interface UserTicketApi {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketAsUser(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long id,
             @RequestBody @Valid UpdateTicketRequest request
     );

@@ -4,7 +4,6 @@ import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,13 +39,11 @@ public interface NotificationApi {
     @PatchMapping("/{id}/read")
     @Operation(operationId = "markNotificationRead", summary = "Mark notification as read")
     ResponseEntity<NotificationResponse> markNotificationRead(
-            @Parameter(description = "Notification id", example = "42")
             @PathVariable Long id,
             @CurrentUserId Long userId
     );
 
     @PatchMapping("/read-all")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "markAllNotificationsRead", summary = "Mark all notifications as read")
     ResponseEntity<Void> markAllNotificationsRead(@CurrentUserId Long userId);
 }

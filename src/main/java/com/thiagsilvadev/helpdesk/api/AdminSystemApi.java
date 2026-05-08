@@ -4,7 +4,6 @@ import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -63,7 +62,6 @@ public interface AdminSystemApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(
-            @Parameter(description = "Metric name exposed by actuator", example = "jvm.memory.used")
             @PathVariable String metricName
     );
 }

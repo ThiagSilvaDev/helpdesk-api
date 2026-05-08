@@ -8,7 +8,6 @@ import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,7 +16,6 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(value = "/api/staff/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Staff Tickets", description = "Ticket management for technicians and admins")
@@ -35,7 +32,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public interface StaffTicketApi {
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "createTicketAsStaff", summary = "Create ticket for requester", description = "Staff creates a ticket on behalf of a user, with explicit priority")
     @ApiResponses({
             @ApiResponse(
@@ -58,7 +54,6 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "404", ref = "NotFound")
     })
     ResponseEntity<TicketResponse> getTicketByIdForStaff(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId
     );
 
@@ -86,7 +81,6 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @RequestBody @Valid UpdateTicketPriorityRequest request,
             @CurrentUserId Long userId
@@ -103,14 +97,12 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> assignTechnicianToTicket(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @RequestBody @Valid AssignTechnicianRequest request,
             @CurrentUserId Long userId
     );
 
     @PatchMapping("/{ticketId}/close")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "closeTicketAsStaff", summary = "Close ticket", description = "Closes a ticket (admin, or assigned technician)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket closed"),
@@ -118,13 +110,11 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<Void> closeTicketAsStaff(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @CurrentUserId Long userId
     );
 
     @PatchMapping("/{ticketId}/cancel")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "cancelTicketAsStaff", summary = "Cancel ticket", description = "Cancels a ticket (admin, technician, or ticket owner)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
@@ -132,7 +122,6 @@ public interface StaffTicketApi {
             @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<Void> cancelTicketAsStaff(
-            @Parameter(description = "Ticket id", example = "100")
             @PathVariable Long ticketId,
             @CurrentUserId Long userId
     );
