@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -95,7 +96,7 @@ class AuthServiceTest {
     }
 
     private Authentication createAuthenticationMock(UserPrincipal principal) {
-        Authentication authentication = org.mockito.Mockito.mock(Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         given(authentication.getPrincipal()).willReturn(principal);
         return authentication;
     }
