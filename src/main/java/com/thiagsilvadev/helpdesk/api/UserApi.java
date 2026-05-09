@@ -1,5 +1,7 @@
 package com.thiagsilvadev.helpdesk.api;
 
+import com.thiagsilvadev.helpdesk.api.annotations.ApiByIdErrors;
+import com.thiagsilvadev.helpdesk.api.annotations.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;

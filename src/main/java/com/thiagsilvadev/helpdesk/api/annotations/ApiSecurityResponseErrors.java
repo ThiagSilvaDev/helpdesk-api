@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.api;
+package com.thiagsilvadev.helpdesk.api.annotations;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -8,11 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @ApiResponses({
-        @ApiResponse(responseCode = "400", ref = "BadRequest"),
-        @ApiResponse(responseCode = "404", ref = "NotFound")
+        @ApiResponse(responseCode = "401", ref = "Unauthorized"),
+        @ApiResponse(responseCode = "403", ref = "Forbidden")
 })
-public @interface ApiByIdErrors {
+public @interface ApiSecurityResponseErrors {
 }

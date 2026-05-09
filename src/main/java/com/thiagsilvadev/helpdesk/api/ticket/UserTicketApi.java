@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.api.ticket;
 
-import com.thiagsilvadev.helpdesk.api.ApiByIdErrors;
-import com.thiagsilvadev.helpdesk.api.ApiSecurityResponseErrors;
+import com.thiagsilvadev.helpdesk.api.annotations.ApiByIdErrors;
+import com.thiagsilvadev.helpdesk.api.annotations.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;

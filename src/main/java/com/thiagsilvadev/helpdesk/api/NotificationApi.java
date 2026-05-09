@@ -1,5 +1,7 @@
 package com.thiagsilvadev.helpdesk.api;
 
+import com.thiagsilvadev.helpdesk.api.annotations.ApiByIdErrors;
+import com.thiagsilvadev.helpdesk.api.annotations.ApiSecurityResponseErrors;
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
