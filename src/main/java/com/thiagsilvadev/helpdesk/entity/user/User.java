@@ -2,7 +2,14 @@ package com.thiagsilvadev.helpdesk.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thiagsilvadev.helpdesk.entity.AuditableEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.util.Objects;
 
