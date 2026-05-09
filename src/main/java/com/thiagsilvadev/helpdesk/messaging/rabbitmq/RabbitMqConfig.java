@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.config.messaging;
+package com.thiagsilvadev.helpdesk.messaging.rabbitmq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;

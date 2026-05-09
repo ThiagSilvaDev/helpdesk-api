@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.dto.notification;
+package com.thiagsilvadev.helpdesk.messaging.notification;
 
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
 

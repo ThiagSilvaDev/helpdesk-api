@@ -1,11 +1,10 @@
-package com.thiagsilvadev.helpdesk.service.notification;
+package com.thiagsilvadev.helpdesk.messaging.notification;
 
-import com.thiagsilvadev.helpdesk.config.messaging.RabbitMqConfig;
-import com.thiagsilvadev.helpdesk.dto.notification.NotificationMessage;
 import com.thiagsilvadev.helpdesk.entity.notification.Notification;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.exception.ResourceType;
+import com.thiagsilvadev.helpdesk.messaging.rabbitmq.RabbitMqConfig;
 import com.thiagsilvadev.helpdesk.repository.NotificationRepository;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
