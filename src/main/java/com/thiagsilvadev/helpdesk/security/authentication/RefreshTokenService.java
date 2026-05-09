@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -58,9 +58,8 @@ public class RefreshTokenService {
     private final DefaultRedisScript<List> rotateScript;
 
     @Autowired
-    public RefreshTokenService(StringRedisTemplate redisTemplate,
-                               @Value("${security.jwt.refresh-expiration-ms}") long refreshExpirationMs) {
-        this(redisTemplate, new SecureRandom(), Duration.ofMillis(refreshExpirationMs));
+    public RefreshTokenService(StringRedisTemplate redisTemplate, JwtProperties jwtProperties) {
+        this(redisTemplate, new SecureRandom(), Duration.ofMillis(jwtProperties.refreshExpirationMs()));
     }
 
     RefreshTokenService(StringRedisTemplate redisTemplate, SecureRandom secureRandom, Duration refreshTokenTtl) {

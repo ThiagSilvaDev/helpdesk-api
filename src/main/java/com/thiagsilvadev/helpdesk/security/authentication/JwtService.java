@@ -1,6 +1,6 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -17,23 +17,17 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
-    private static final String CLAIM_USER_ROLES = "roles";
-    private static final String CLAIM_TOKEN_USE = "token_use";
-    private static final String TOKEN_USE_ACCESS = "access";
-
     private final JwtEncoder jwtEncoder;
     private final long expirationMs;
     private final String issuer;
     private final String audience;
 
     public JwtService(JwtEncoder jwtEncoder,
-                      @Value("${security.jwt.expiration-ms}") long expirationMs,
-                      @Value("${security.jwt.issuer}") String issuer,
-                      @Value("${security.jwt.audience}") String audience) {
+                      JwtProperties jwtProperties) {
         this.jwtEncoder = jwtEncoder;
-        this.expirationMs = expirationMs;
-        this.issuer = issuer;
-        this.audience = audience;
+        this.expirationMs = jwtProperties.expirationMs();
+        this.issuer = jwtProperties.issuer();
+        this.audience = jwtProperties.audience();
     }
 
     public String generateToken(UserPrincipal userPrincipal) {
@@ -55,8 +49,8 @@ public class JwtService {
                 .issuedAt(now)
                 .notBefore(now)
                 .expiresAt(expiryDate)
-                .claim(CLAIM_TOKEN_USE, TOKEN_USE_ACCESS)
-                .claim(CLAIM_USER_ROLES, roles)
+                .claim(JwtClaims.TOKEN_USE, JwtClaims.TOKEN_USE_ACCESS)
+                .claim(JwtClaims.USER_ROLES, roles)
                 .build();
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();

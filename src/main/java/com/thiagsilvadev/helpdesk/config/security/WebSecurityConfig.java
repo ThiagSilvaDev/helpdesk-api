@@ -4,6 +4,7 @@ import com.thiagsilvadev.helpdesk.filter.RateLimitFilter;
 import com.thiagsilvadev.helpdesk.filter.RequestLoggingFilter;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import com.thiagsilvadev.helpdesk.security.authentication.CustomAuthenticationEntryPoint;
+import com.thiagsilvadev.helpdesk.security.authentication.JwtClaims;
 import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -111,7 +112,7 @@ public class WebSecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthoritiesClaimName("roles");
+        authoritiesConverter.setAuthoritiesClaimName(JwtClaims.USER_ROLES);
         authoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();

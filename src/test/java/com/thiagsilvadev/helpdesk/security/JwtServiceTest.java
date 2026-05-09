@@ -1,16 +1,26 @@
 package com.thiagsilvadev.helpdesk.security;
 
+import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
+import com.thiagsilvadev.helpdesk.security.authentication.JwtClaims;
 import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtConfig;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Instant;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,12 +33,19 @@ class JwtServiceTest {
     private static final String ISSUER = "helpdesk-api";
     private static final String AUDIENCE = "helpdesk-api";
     private static final Long USER_ID = 42L;
+    private static final JwtProperties JWT_PROPERTIES = new JwtProperties(
+            SECRET,
+            EXPIRATION_MS,
+            604_800_000L,
+            ISSUER,
+            AUDIENCE
+    );
 
     private final JwtConfig jwtConfig = new JwtConfig();
-    private final SecretKey signingKey = jwtConfig.jwtSigningKey(SECRET);
+    private final SecretKey signingKey = jwtConfig.jwtSigningKey(JWT_PROPERTIES);
     private final JwtEncoder jwtEncoder = jwtConfig.jwtEncoder(signingKey);
-    private final JwtDecoder jwtDecoder = jwtConfig.jwtDecoder(signingKey, ISSUER, AUDIENCE);
-    private final JwtService jwtService = new JwtService(jwtEncoder, EXPIRATION_MS, ISSUER, AUDIENCE);
+    private final JwtDecoder jwtDecoder = jwtConfig.jwtDecoder(signingKey, JWT_PROPERTIES);
+    private final JwtService jwtService = new JwtService(jwtEncoder, JWT_PROPERTIES);
 
     @Test
     void shouldGenerateTokenWithSubjectRoleAndIssuer() {
@@ -41,10 +58,64 @@ class JwtServiceTest {
         assertThat(decoded.getClaimAsString("iss")).isEqualTo(ISSUER);
         assertThat(decoded.getAudience()).containsExactly(AUDIENCE);
         assertThat(decoded.getId()).isNotBlank();
-        assertThat(decoded.getClaimAsString("token_use")).isEqualTo("access");
+        assertThat(decoded.getClaimAsString(JwtClaims.TOKEN_USE)).isEqualTo(JwtClaims.TOKEN_USE_ACCESS);
         assertThat(decoded.hasClaim("email")).isFalse();
-        assertThat(decoded.getClaimAsStringList("roles")).containsExactly(Roles.ROLE_TECHNICIAN.name());
+        assertThat(decoded.getClaimAsStringList(JwtClaims.USER_ROLES)).containsExactly(Roles.ROLE_TECHNICIAN.name());
         assertThat(decoded.getExpiresAt()).isAfter(decoded.getIssuedAt());
+    }
+
+    @Test
+    void shouldRejectTokenWithWrongTokenUse() {
+        String token = token("42", List.of(AUDIENCE), "refresh", List.of(Roles.ROLE_USER.name()));
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT token_use must be access");
+    }
+
+    @Test
+    void shouldRejectTokenWithoutNumericSubject() {
+        String token = token("not-a-user-id", List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, List.of(Roles.ROLE_USER.name()));
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT subject must be a user id");
+    }
+
+    @Test
+    void shouldRejectTokenWithoutSubject() {
+        String token = token(null, List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, List.of(Roles.ROLE_USER.name()));
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT subject must be a user id");
+    }
+
+    @Test
+    void shouldRejectTokenWithEmptyRoles() {
+        String token = token("42", List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, List.of());
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT roles must not be empty");
+    }
+
+    @Test
+    void shouldRejectTokenWithoutRoles() {
+        String token = token("42", List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, null);
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT roles must not be empty");
+    }
+
+    @Test
+    void shouldRejectTokenWithWrongAudience() {
+        String token = token("42", List.of("other-api"), JwtClaims.TOKEN_USE_ACCESS, List.of(Roles.ROLE_USER.name()));
+
+        assertThatExceptionOfType(JwtException.class)
+                .isThrownBy(() -> jwtDecoder.decode(token))
+                .withMessageContaining("JWT audience is invalid");
     }
 
     @Test
@@ -54,6 +125,26 @@ class JwtServiceTest {
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> jwtService.generateToken(userPrincipal))
                 .withMessage("user id must not be null");
+    }
+
+    private String token(String subject, List<String> audience, String tokenUse, List<String> roles) {
+        Instant now = Instant.now();
+        JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
+                .issuer(ISSUER)
+                .audience(audience)
+                .issuedAt(now)
+                .expiresAt(now.plusMillis(EXPIRATION_MS))
+                .claim(JwtClaims.TOKEN_USE, tokenUse);
+
+        if (subject != null) {
+            claims.subject(subject);
+        }
+        if (roles != null) {
+            claims.claim(JwtClaims.USER_ROLES, roles);
+        }
+
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
     }
 
     private User user(Long id, Roles role) {
