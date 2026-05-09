@@ -4,6 +4,7 @@ import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketMapper {
 
-    public TicketResponse toResponse(com.thiagsilvadev.helpdesk.entity.ticket.Ticket ticket) {
+    public TicketResponse toResponse(Ticket ticket) {
         if (ticket == null) {
             return null;
         }
@@ -30,7 +31,7 @@ public class TicketMapper {
         );
     }
 
-    public com.thiagsilvadev.helpdesk.entity.ticket.Ticket toEntityFromUserRequest(CreateUserTicketRequest userRequest, User client) {
+    public Ticket toEntityFromUserRequest(CreateUserTicketRequest userRequest, User client) {
         if (userRequest == null || client == null) {
             return null;
         }
@@ -38,7 +39,7 @@ public class TicketMapper {
         return toEntity(userRequest.title(), userRequest.description(), client, null);
     }
 
-    public com.thiagsilvadev.helpdesk.entity.ticket.Ticket toEntityFromStaffRequest(CreateStaffTicketRequest request, User client) {
+    public Ticket toEntityFromStaffRequest(CreateStaffTicketRequest request, User client) {
         if (request == null || client == null) {
             return null;
         }
@@ -46,8 +47,8 @@ public class TicketMapper {
         return toEntity(request.title(), request.description(), client, request.priority());
     }
 
-    private com.thiagsilvadev.helpdesk.entity.ticket.Ticket toEntity(String title, String description, User client, TicketPriority priority) {
-        return new com.thiagsilvadev.helpdesk.entity.ticket.Ticket(title, description, client, priority);
+    private Ticket toEntity(String title, String description, User client, TicketPriority priority) {
+        return new Ticket(title, description, client, priority);
     }
 
     private TicketUserInfo toUserInfo(User user) {

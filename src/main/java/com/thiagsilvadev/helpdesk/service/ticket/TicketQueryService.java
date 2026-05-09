@@ -2,6 +2,7 @@ package com.thiagsilvadev.helpdesk.service.ticket;
 
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
+import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.exception.ResourceType;
 import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
@@ -26,7 +27,7 @@ public class TicketQueryService {
         this.ticketMapper = ticketMapper;
     }
 
-    protected com.thiagsilvadev.helpdesk.entity.ticket.Ticket getTicketEntityById(Long ticketId) {
+    protected Ticket getTicketEntityById(Long ticketId) {
         return ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
@@ -50,7 +51,7 @@ public class TicketQueryService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public Page<TicketResponse> findAll(TicketSearchCriteria criteria, Pageable pageable) {
-        Specification<com.thiagsilvadev.helpdesk.entity.ticket.Ticket> spec = TicketSpecification.withCriteria(criteria);
+        Specification<Ticket> spec = TicketSpecification.withCriteria(criteria);
         return ticketRepository.findAll(spec, pageable)
                 .map(ticketMapper::toResponse);
     }

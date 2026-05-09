@@ -2,6 +2,7 @@ package com.thiagsilvadev.helpdesk.service;
 
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.LogoutRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.RefreshTokenRequest;
@@ -80,9 +81,9 @@ class AuthServiceTest {
             assertThat(response.expiresIn()).isEqualTo(3600L);
             assertThat(response.refreshExpiresIn()).isEqualTo(604800L);
             assertThat(response.user())
-                    .returns(USER_ID, com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::id)
-                    .returns("John User", com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::name)
-                    .returns(Roles.ROLE_USER, com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::role);
+                    .returns(USER_ID, AuthUserResponse::id)
+                    .returns("John User", AuthUserResponse::name)
+                    .returns(Roles.ROLE_USER, AuthUserResponse::role);
             then(authenticationManager).should().authenticate(any());
             then(jwtService).should().generateToken(principal);
             then(refreshTokenService).should().issue(USER_ID);

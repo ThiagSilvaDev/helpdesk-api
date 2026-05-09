@@ -18,6 +18,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Configuration
 @Profile("dev")
@@ -129,9 +131,9 @@ public class DevAdminSeederConfig {
         List<Ticket> existingTickets = ticketRepository.findAll();
         Set<String> existingTitles = existingTickets.stream()
                 .map(Ticket::getTitle)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
         Map<String, Ticket> ticketsByTitle = existingTickets.stream()
-                .collect(java.util.stream.Collectors.toMap(Ticket::getTitle, ticket -> ticket, (first, ignored) -> first));
+                .collect(Collectors.toMap(Ticket::getTitle, ticket -> ticket, (first, ignored) -> first));
 
         List<SeedTicketSpec> ticketsToSeed = List.of(
                 new SeedTicketSpec(
@@ -231,7 +233,7 @@ public class DevAdminSeederConfig {
         Ticket ticket = ticketsByTitle.get(commentSpec.ticketTitle());
         User author = usersByEmail.get(commentSpec.authorEmail());
 
-        TicketComment comment = ticketCommentRepository.findByTicketId(ticket.getId(), org.springframework.data.domain.Pageable.unpaged())
+        TicketComment comment = ticketCommentRepository.findByTicketId(ticket.getId(), Pageable.unpaged())
                 .stream()
                 .filter(existingComment -> existingComment.getContent().equals(commentSpec.content()))
                 .findFirst()

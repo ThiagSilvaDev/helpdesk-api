@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -62,9 +63,9 @@ class UserManagementIT extends PostgresIntegrationTest {
                                   "password": "StrongPass@123",
                                   "role": "ROLE_TECHNICIAN"
                                 }
-                                """))
+                """))
                 .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION, org.hamcrest.Matchers.containsString("/api/users/")))
+                .andExpect(header().string(HttpHeaders.LOCATION, containsString("/api/users/")))
                 .andExpect(jsonPath("$.email").value("tech@helpdesk.local"))
                 .andExpect(jsonPath("$.role").value("ROLE_TECHNICIAN"));
 

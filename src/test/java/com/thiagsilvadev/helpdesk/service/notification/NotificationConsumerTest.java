@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -83,6 +84,6 @@ class NotificationConsumerTest {
         notificationConsumer.handle(message);
 
         then(userRepository).should(never()).findById(10L);
-        then(notificationRepository).should(never()).save(org.mockito.ArgumentMatchers.any());
+        then(notificationRepository).should(never()).save(any());
     }
 }
