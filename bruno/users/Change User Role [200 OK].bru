@@ -1,0 +1,21 @@
+meta {
+  name: Change User Role [200 OK]
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/api/users/{{userId}}/role
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "role": "ROLE_USER"
+  }
+}

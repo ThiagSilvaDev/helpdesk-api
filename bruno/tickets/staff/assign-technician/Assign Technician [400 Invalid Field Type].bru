@@ -1,5 +1,5 @@
 meta {
-  name: Invalid Numeric Field Type
+  name: Assign Technician [400 Invalid Field Type]
   type: http
   seq: 3
 }
@@ -7,11 +7,11 @@ meta {
 patch {
   url: {{baseUrl}}/api/staff/tickets/{{ticketId}}/technician
   body: json
-  auth: none
+  auth: bearer
 }
 
-headers {
-  Authorization: Bearer {{accessToken}}
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {

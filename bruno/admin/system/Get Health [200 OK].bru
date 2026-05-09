@@ -1,0 +1,15 @@
+meta {
+  name: Get Health [200 OK]
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/admin/system/health
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

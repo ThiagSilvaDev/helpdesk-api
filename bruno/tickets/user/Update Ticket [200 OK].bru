@@ -1,0 +1,22 @@
+meta {
+  name: Update Ticket [200 OK]
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/users/tickets/{{ticketId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "title": "Server is down",
+    "description": "The main server is not responding since 10am. All services are affected."
+  }
+}

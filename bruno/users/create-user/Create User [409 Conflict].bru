@@ -1,17 +1,17 @@
 meta {
-  name: Duplicate Email
+  name: Create User [409 Conflict]
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
   url: {{baseUrl}}/api/users
   body: json
-  auth: none
+  auth: bearer
 }
 
-headers {
-  Authorization: Bearer {{accessToken}}
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {

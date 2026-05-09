@@ -1,0 +1,35 @@
+meta {
+  name: Create Tech [201 Created]
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Bruno Technician",
+    "email": "{{randomTechEmail}}",
+    "password": "Tech@123456",
+    "role": "ROLE_TECHNICIAN"
+  }
+}
+
+script:pre-request {
+  const randomStr = Math.random().toString(36).substring(7);
+  bru.setEnvVar("randomTechEmail", `tech_${randomStr}@email.com`);
+}
+
+script:post-response {
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdTechnicianId", res.body.id);
+  }
+}

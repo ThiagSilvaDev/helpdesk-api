@@ -1,0 +1,28 @@
+meta {
+  name: Create Comment [201 Created]
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/tickets/{{ticketId}}/comments
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "content": "I already restarted the affected workstation."
+  }
+}
+
+script:post-response {
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdCommentId", res.body.id);
+    bru.setEnvVar("commentId", res.body.id);
+  }
+}

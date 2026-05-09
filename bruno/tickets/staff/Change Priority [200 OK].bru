@@ -1,0 +1,21 @@
+meta {
+  name: Change Priority [200 OK]
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/staff/tickets/{{ticketId}}/priority
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "priority": "HIGH"
+  }
+}

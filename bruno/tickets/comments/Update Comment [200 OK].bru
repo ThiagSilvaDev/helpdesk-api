@@ -1,0 +1,21 @@
+meta {
+  name: Update Comment [200 OK]
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/tickets/{{ticketId}}/comments/{{commentId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "content": "I also checked the service status page."
+  }
+}

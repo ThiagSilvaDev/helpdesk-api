@@ -1,0 +1,29 @@
+meta {
+  name: Create Ticket [201 Created]
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/users/tickets
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "title": "Server is down",
+    "description": "The main server is not responding since 10am"
+  }
+}
+
+script:post-response {
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdUserTicketId", res.body.id);
+    bru.setEnvVar("ticketId", res.body.id);
+  }
+}

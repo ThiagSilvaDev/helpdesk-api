@@ -1,0 +1,15 @@
+meta {
+  name: Get Metrics [200 OK]
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/admin/system/metrics
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

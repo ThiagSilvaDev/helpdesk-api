@@ -1,5 +1,5 @@
 meta {
-  name: Forbidden
+  name: List Users [200 OK]
   type: http
   seq: 2
 }
@@ -7,9 +7,9 @@ meta {
 get {
   url: {{baseUrl}}/api/users
   body: none
-  auth: none
+  auth: bearer
 }
 
-headers {
-  Authorization: Bearer {{accessToken}}
+auth:bearer {
+  token: {{accessToken}}
 }

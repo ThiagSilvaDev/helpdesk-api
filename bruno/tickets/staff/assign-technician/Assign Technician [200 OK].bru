@@ -1,0 +1,21 @@
+meta {
+  name: Assign Technician [200 OK]
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/api/staff/tickets/{{ticketId}}/technician
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "technicianId": {{technicianId}}
+  }
+}

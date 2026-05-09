@@ -1,0 +1,35 @@
+meta {
+  name: Create User [201 Created]
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Bruno Customer",
+    "email": "{{randomEmail}}",
+    "password": "User@123456",
+    "role": "ROLE_USER"
+  }
+}
+
+script:pre-request {
+  const randomStr = Math.random().toString(36).substring(7);
+  bru.setEnvVar("randomEmail", `user_${randomStr}@email.com`);
+}
+
+script:post-response {
+  if (res.status === 201 && res.body?.id) {
+    bru.setEnvVar("createdUserId", res.body.id);
+  }
+}

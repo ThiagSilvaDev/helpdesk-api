@@ -1,0 +1,15 @@
+meta {
+  name: List Notifications [200 OK]
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/notifications?unreadOnly=false&page=0&size=20
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

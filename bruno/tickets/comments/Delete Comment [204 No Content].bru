@@ -1,0 +1,15 @@
+meta {
+  name: Delete Comment [204 No Content]
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/tickets/{{ticketId}}/comments/{{commentId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

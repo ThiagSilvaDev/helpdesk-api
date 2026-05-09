@@ -1,0 +1,21 @@
+meta {
+  name: Update User Name [200 OK]
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/api/users/{{userId}}/name
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "John Doe Updated"
+  }
+}

@@ -1,0 +1,15 @@
+meta {
+  name: List Comments [200 OK]
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/tickets/{{ticketId}}/comments
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

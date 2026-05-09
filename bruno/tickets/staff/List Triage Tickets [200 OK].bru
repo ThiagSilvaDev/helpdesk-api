@@ -1,0 +1,27 @@
+meta {
+  name: List Triage Tickets [200 OK]
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/staff/tickets
+  body: none
+  auth: bearer
+}
+
+params:query {
+  priority: TRIAGE
+  page: 0
+  size: 20
+  sort: createdAt,desc
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

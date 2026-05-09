@@ -339,11 +339,11 @@ Swagger/OpenAPI is disabled in the `prod` profile.
 
 Collection root: `bruno/`
 
-Environment file: `bruno/environments/local.bru`
+Environment files: `bruno/environments/Local - Admin.bru`, `Local - Customer.bru`, `Local - Staff.bru`
 
 Suggested flow:
 
-1. Run login requests in `bruno/auth/` to populate `adminAccessToken`, `userAccessToken`, and `technicianAccessToken`.
+1. Run the login request in `bruno/auth/` to populate `accessToken`.
 2. Use `bruno/users/` for user management scenarios.
 3. Use ticket requests by audience:
    - `bruno/tickets/user/`

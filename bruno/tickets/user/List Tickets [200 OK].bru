@@ -1,0 +1,15 @@
+meta {
+  name: List Tickets [200 OK]
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/users/tickets
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
