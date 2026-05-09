@@ -3,10 +3,13 @@ package com.thiagsilvadev.helpdesk.service;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.LogoutRequest;
+import com.thiagsilvadev.helpdesk.dto.auth.RefreshTokenRequest;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
-import com.thiagsilvadev.helpdesk.security.auth.JwtService;
-import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
+import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
+import com.thiagsilvadev.helpdesk.security.authentication.RefreshTokenService;
+import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,12 +34,16 @@ class AuthServiceTest {
     private static final String EMAIL = "user@helpdesk.local";
     private static final String PASSWORD = "SecurePassword@123";
     private static final String JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    private static final String REFRESH_TOKEN = "refresh-token";
 
     @Mock
     private AuthenticationManager authenticationManager;
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @Mock
     private UserService userService;
@@ -62,12 +69,23 @@ class AuthServiceTest {
             Authentication authentication = createAuthenticationMock(principal);
             given(authenticationManager.authenticate(any())).willReturn(authentication);
             given(jwtService.generateToken(principal)).willReturn(JWT_TOKEN);
+            given(jwtService.getExpirationSeconds()).willReturn(3600L);
+            given(refreshTokenService.issue(USER_ID))
+                    .willReturn(new RefreshTokenService.RefreshTokenIssue(REFRESH_TOKEN, 604800L));
 
             AuthResponse response = authService.authenticate(request);
 
-            assertThat(response.token()).isEqualTo(JWT_TOKEN);
+            assertThat(response.accessToken()).isEqualTo(JWT_TOKEN);
+            assertThat(response.refreshToken()).isEqualTo(REFRESH_TOKEN);
+            assertThat(response.expiresIn()).isEqualTo(3600L);
+            assertThat(response.refreshExpiresIn()).isEqualTo(604800L);
+            assertThat(response.user())
+                    .returns(USER_ID, com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::id)
+                    .returns("John User", com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::name)
+                    .returns(Roles.ROLE_USER, com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse::role);
             then(authenticationManager).should().authenticate(any());
             then(jwtService).should().generateToken(principal);
+            then(refreshTokenService).should().issue(USER_ID);
         }
 
         @Test
@@ -78,12 +96,41 @@ class AuthServiceTest {
             Authentication authentication = createAuthenticationMock(principal);
             given(authenticationManager.authenticate(any())).willReturn(authentication);
             given(jwtService.generateToken(principal)).willReturn(JWT_TOKEN);
+            given(jwtService.getExpirationSeconds()).willReturn(3600L);
+            given(refreshTokenService.issue(USER_ID))
+                    .willReturn(new RefreshTokenService.RefreshTokenIssue(REFRESH_TOKEN, 604800L));
 
             AuthResponse response = authService.authenticate(request);
 
-            assertThat(response.token()).isEqualTo(JWT_TOKEN);
+            assertThat(response.accessToken()).isEqualTo(JWT_TOKEN);
+            assertThat(response.user().role()).isEqualTo(Roles.ROLE_TECHNICIAN);
             then(jwtService).should().generateToken(principal);
         }
+    }
+
+    @Test
+    void shouldRefreshTokens() {
+        User user = persistedUser("John User", EMAIL, Roles.ROLE_USER);
+        RefreshTokenRequest request = new RefreshTokenRequest(REFRESH_TOKEN);
+        given(refreshTokenService.rotate(REFRESH_TOKEN))
+                .willReturn(new RefreshTokenService.RefreshTokenRotation(USER_ID, "new-refresh-token", 604800L));
+        given(userService.getUserById(USER_ID)).willReturn(user);
+        given(jwtService.generateToken(any(UserPrincipal.class))).willReturn("new-jwt-token");
+        given(jwtService.getExpirationSeconds()).willReturn(3600L);
+
+        AuthResponse response = authService.refresh(request);
+
+        assertThat(response.accessToken()).isEqualTo("new-jwt-token");
+        assertThat(response.refreshToken()).isEqualTo("new-refresh-token");
+        assertThat(response.user()).isNull();
+        then(refreshTokenService).should().rotate(REFRESH_TOKEN);
+    }
+
+    @Test
+    void shouldLogoutByRevokingRefreshToken() {
+        authService.logout(new LogoutRequest(REFRESH_TOKEN));
+
+        then(refreshTokenService).should().revoke(REFRESH_TOKEN);
     }
 
     @Test

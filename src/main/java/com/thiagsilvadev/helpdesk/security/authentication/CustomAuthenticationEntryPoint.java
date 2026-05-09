@@ -1,4 +1,4 @@
-package com.thiagsilvadev.helpdesk.security.auth;
+package com.thiagsilvadev.helpdesk.security.authentication;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

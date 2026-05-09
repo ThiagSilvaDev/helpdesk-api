@@ -4,6 +4,8 @@ import com.thiagsilvadev.helpdesk.api.AuthApi;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.LogoutRequest;
+import com.thiagsilvadev.helpdesk.dto.auth.RefreshTokenRequest;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.AuthService;
 import jakarta.validation.Valid;
@@ -23,6 +25,17 @@ public class AuthController implements AuthApi {
 	@Override
 	public ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));
+	}
+
+	@Override
+	public ResponseEntity<AuthResponse> refreshAuthenticationTokens(@RequestBody @Valid RefreshTokenRequest request) {
+		return ResponseEntity.ok(authService.refresh(request));
+	}
+
+	@Override
+	public ResponseEntity<Void> logoutAuthenticatedSession(@RequestBody @Valid LogoutRequest request) {
+		authService.logout(request);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Override

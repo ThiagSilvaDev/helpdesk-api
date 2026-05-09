@@ -12,6 +12,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   postgres:
     extends:
@@ -28,5 +30,13 @@ services:
     volumes:
       - prod-pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - prod-redis-data:/data
+
 volumes:
   prod-pgdata:
+  prod-redis-data:

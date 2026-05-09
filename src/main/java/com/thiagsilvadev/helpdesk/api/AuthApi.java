@@ -3,6 +3,8 @@ package com.thiagsilvadev.helpdesk.api;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthenticatedUserResponse;
+import com.thiagsilvadev.helpdesk.dto.auth.LogoutRequest;
+import com.thiagsilvadev.helpdesk.dto.auth.RefreshTokenRequest;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +34,23 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request);
+
+    @PostMapping("/refresh")
+    @Operation(operationId = "refreshAuthenticationTokens")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Tokens refreshed"),
+            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
+            @ApiResponse(responseCode = "400", ref = "BadRequest")
+    })
+    ResponseEntity<AuthResponse> refreshAuthenticationTokens(@RequestBody @Valid RefreshTokenRequest request);
+
+    @PostMapping("/logout")
+    @Operation(operationId = "logoutAuthenticatedSession")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Refresh token revoked"),
+            @ApiResponse(responseCode = "400", ref = "BadRequest")
+    })
+    ResponseEntity<Void> logoutAuthenticatedSession(@RequestBody @Valid LogoutRequest request);
 
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")

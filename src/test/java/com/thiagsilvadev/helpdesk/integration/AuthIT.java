@@ -57,14 +57,19 @@ class AuthIT extends PostgresIntegrationTest {
                                   "email": "jane@helpdesk.local",
                                   "password": "StrongPass@123"
                                 }
-                                """))
+                """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.accessToken").isString())
+                .andExpect(jsonPath("$.refreshToken").isString())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.user.id").isNumber())
+                .andExpect(jsonPath("$.user.name").value("Jane User"))
+                .andExpect(jsonPath("$.user.role").value("ROLE_USER"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        String token = JsonPath.read(response, "$.token");
+        String token = JsonPath.read(response, "$.accessToken");
         assertThat(jwtDecoder.decode(token).getClaimAsStringList("roles")).containsExactly(Roles.ROLE_USER.name());
     }
 

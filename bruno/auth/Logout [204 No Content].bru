@@ -1,0 +1,24 @@
+meta {
+  name: Logout [204 No Content]
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/auth/logout
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: true
+  maxRedirects: 5
+  timeout: inherit
+}

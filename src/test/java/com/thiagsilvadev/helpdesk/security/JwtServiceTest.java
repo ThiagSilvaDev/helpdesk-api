@@ -1,7 +1,7 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.security.auth.JwtService;
-import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
+import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
+import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtConfig;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
@@ -21,13 +21,14 @@ class JwtServiceTest {
     private static final String SECRET = "c3VwZXItc2VjcmV0LWtleS10aGF0LWlzLWF0LWxlYXN0LTMyLWJ5dGVzLWxvbmc=";
     private static final long EXPIRATION_MS = 3_600_000L;
     private static final String ISSUER = "helpdesk-api";
+    private static final String AUDIENCE = "helpdesk-api";
     private static final Long USER_ID = 42L;
 
     private final JwtConfig jwtConfig = new JwtConfig();
     private final SecretKey signingKey = jwtConfig.jwtSigningKey(SECRET);
     private final JwtEncoder jwtEncoder = jwtConfig.jwtEncoder(signingKey);
-    private final JwtDecoder jwtDecoder = jwtConfig.jwtDecoder(signingKey, ISSUER);
-    private final JwtService jwtService = new JwtService(jwtEncoder, EXPIRATION_MS, ISSUER);
+    private final JwtDecoder jwtDecoder = jwtConfig.jwtDecoder(signingKey, ISSUER, AUDIENCE);
+    private final JwtService jwtService = new JwtService(jwtEncoder, EXPIRATION_MS, ISSUER, AUDIENCE);
 
     @Test
     void shouldGenerateTokenWithSubjectRoleAndIssuer() {
@@ -38,6 +39,9 @@ class JwtServiceTest {
 
         assertThat(decoded.getSubject()).isEqualTo(USER_ID.toString());
         assertThat(decoded.getClaimAsString("iss")).isEqualTo(ISSUER);
+        assertThat(decoded.getAudience()).containsExactly(AUDIENCE);
+        assertThat(decoded.getId()).isNotBlank();
+        assertThat(decoded.getClaimAsString("token_use")).isEqualTo("access");
         assertThat(decoded.hasClaim("email")).isFalse();
         assertThat(decoded.getClaimAsStringList("roles")).containsExactly(Roles.ROLE_TECHNICIAN.name());
         assertThat(decoded.getExpiresAt()).isAfter(decoded.getIssuedAt());

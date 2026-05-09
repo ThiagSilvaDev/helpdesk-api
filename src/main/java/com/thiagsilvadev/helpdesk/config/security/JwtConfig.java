@@ -6,6 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 
@@ -13,6 +17,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
 
 @Configuration
 public class JwtConfig {
@@ -37,13 +42,41 @@ public class JwtConfig {
 
     @Bean
     public JwtDecoder jwtDecoder(SecretKey jwtSigningKey,
-                                 @Value("${security.jwt.issuer}") String issuer) {
+                                 @Value("${security.jwt.issuer}") String issuer,
+                                 @Value("${security.jwt.audience}") String audience) {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(jwtSigningKey)
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
-        jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+        jwtDecoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuer),
+                audienceValidator(audience),
+                accessTokenUseValidator()
+        ));
 
         return jwtDecoder;
+    }
+
+    private OAuth2TokenValidator<Jwt> audienceValidator(String audience) {
+        return jwt -> jwt.getAudience().contains(audience)
+                ? OAuth2TokenValidatorResult.success()
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                "invalid_token",
+                "JWT audience is invalid",
+                null
+        ));
+    }
+
+    private OAuth2TokenValidator<Jwt> accessTokenUseValidator() {
+        return jwt -> {
+            String tokenUse = jwt.getClaimAsString("token_use");
+            return Objects.equals(tokenUse, "access")
+                    ? OAuth2TokenValidatorResult.success()
+                    : OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                    "invalid_token",
+                    "JWT token_use must be access",
+                    null
+            ));
+        };
     }
 
     private byte[] resolveSecretBytes(String secret) {

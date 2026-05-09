@@ -1,5 +1,6 @@
-package com.thiagsilvadev.helpdesk.security.auth;
+package com.thiagsilvadev.helpdesk.security.authentication;
 
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,14 @@ public final class UserPrincipal implements UserDetails {
 
     public Long getId() {
         return user.getId();
+    }
+
+    public String getName() {
+        return user.getName();
+    }
+
+    public Roles getRole() {
+        return user.getRole();
     }
 
     @Override

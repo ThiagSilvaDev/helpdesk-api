@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/staff/tickets
+  url: {{baseUrl}}/api/staff/tickets?priority=TRIAGE&page=0&size=20&sort=createdAt,desc
   body: none
   auth: bearer
 }

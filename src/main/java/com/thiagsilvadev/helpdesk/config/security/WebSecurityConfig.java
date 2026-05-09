@@ -3,8 +3,8 @@ package com.thiagsilvadev.helpdesk.config.security;
 import com.thiagsilvadev.helpdesk.filter.RateLimitFilter;
 import com.thiagsilvadev.helpdesk.filter.RequestLoggingFilter;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
-import com.thiagsilvadev.helpdesk.security.auth.CustomAuthenticationEntryPoint;
-import com.thiagsilvadev.helpdesk.security.auth.UserPrincipal;
+import com.thiagsilvadev.helpdesk.security.authentication.CustomAuthenticationEntryPoint;
+import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +66,8 @@ public class WebSecurityConfig {
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
                         .requestMatchers("/api/admin/system/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/actuator/prometheus")

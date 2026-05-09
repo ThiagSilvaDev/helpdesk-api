@@ -10,6 +10,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_USERNAME: helpdesk
       RABBITMQ_PASSWORD: helpdesk
+      SPRING_DATA_REDIS_HOST: redis
 
   postgres:
     extends:
@@ -36,6 +37,15 @@ services:
     volumes:
       - dev-rabbitmq-data:/var/lib/rabbitmq
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - dev-redis-data:/data
+
 volumes:
   dev-pgdata:
   dev-rabbitmq-data:
+  dev-redis-data:
