@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 
 @Service
@@ -21,10 +22,14 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
+    private final Clock clock;
 
-    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               NotificationMapper notificationMapper,
+                               Clock clock) {
         this.notificationRepository = notificationRepository;
         this.notificationMapper = notificationMapper;
+        this.clock = clock;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -45,13 +50,13 @@ public class NotificationService {
     public NotificationResponse markAsRead(Long notificationId, Long userId) {
         Notification notification = notificationRepository.findByIdAndRecipientId(notificationId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.NOTIFICATION, notificationId));
-        notification.markAsRead();
+        notification.markAsRead(clock.instant());
         return notificationMapper.toResponse(notificationRepository.save(notification));
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional
     public void markAllAsRead(Long userId) {
-        notificationRepository.markAllAsRead(userId, Instant.now());
+        notificationRepository.markAllAsRead(userId, Instant.from(clock.instant()));
     }
 }

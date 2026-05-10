@@ -8,16 +8,21 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Clock;
+
 @Service
 public class NotificationOutboxService {
 
     private final NotificationOutboxRepository notificationOutboxRepository;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     public NotificationOutboxService(NotificationOutboxRepository notificationOutboxRepository,
-                                     ObjectMapper objectMapper) {
+                                     ObjectMapper objectMapper,
+                                     Clock clock) {
         this.notificationOutboxRepository = notificationOutboxRepository;
         this.objectMapper = objectMapper;
+        this.clock = clock;
     }
 
     @Transactional
@@ -25,7 +30,8 @@ public class NotificationOutboxService {
         try {
             notificationOutboxRepository.save(new NotificationOutboxEvent(
                     message.sourceEventId(),
-                    objectMapper.writeValueAsString(message)
+                    objectMapper.writeValueAsString(message),
+                    clock.instant()
             ));
         } catch (JacksonException ex) {
             throw new IllegalStateException("Failed to serialize notification message", ex);

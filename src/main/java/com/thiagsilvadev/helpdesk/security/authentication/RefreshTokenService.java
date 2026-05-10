@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -17,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
@@ -54,23 +55,35 @@ public class RefreshTokenService {
 
     private final StringRedisTemplate redisTemplate;
     private final SecureRandom secureRandom;
+    private final Clock clock;
+    private final IdGenerator idGenerator;
     private final Duration refreshTokenTtl;
     private final DefaultRedisScript<List> rotateScript;
 
     @Autowired
-    public RefreshTokenService(StringRedisTemplate redisTemplate, JwtProperties jwtProperties) {
-        this(redisTemplate, new SecureRandom(), Duration.ofMillis(jwtProperties.refreshExpirationMs()));
+    public RefreshTokenService(StringRedisTemplate redisTemplate,
+                               SecureRandom secureRandom,
+                               Clock clock,
+                               IdGenerator idGenerator,
+                               JwtProperties jwtProperties) {
+        this(redisTemplate, secureRandom, clock, idGenerator, Duration.ofMillis(jwtProperties.refreshExpirationMs()));
     }
 
-    RefreshTokenService(StringRedisTemplate redisTemplate, SecureRandom secureRandom, Duration refreshTokenTtl) {
+    RefreshTokenService(StringRedisTemplate redisTemplate,
+                        SecureRandom secureRandom,
+                        Clock clock,
+                        IdGenerator idGenerator,
+                        Duration refreshTokenTtl) {
         this.redisTemplate = redisTemplate;
         this.secureRandom = secureRandom;
+        this.clock = clock;
+        this.idGenerator = idGenerator;
         this.refreshTokenTtl = refreshTokenTtl;
         this.rotateScript = new DefaultRedisScript<>(ROTATE_LUA_SCRIPT, List.class);
     }
 
     public RefreshTokenIssue issue(Long userId) {
-        return issue(userId, UUID.randomUUID().toString());
+        return issue(userId, idGenerator.nextUuidString());
     }
 
     public RefreshTokenRotation rotate(String refreshToken) {
@@ -131,7 +144,7 @@ public class RefreshTokenService {
         Objects.requireNonNull(userId, "user id must not be null");
         String token = generateOpaqueToken();
         String tokenHash = hash(token);
-        Instant expiresAt = Instant.now().plus(refreshTokenTtl);
+        Instant expiresAt = clock.instant().plus(refreshTokenTtl);
 
         redisTemplate.opsForHash().putAll(tokenKey(tokenHash), Map.of(
                 FIELD_USER_ID, userId.toString(),

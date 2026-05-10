@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.filter;
 
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.UUID;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -24,6 +24,12 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(RequestLoggingFilter.class);
     private static final String REQUEST_ID_HEADER = "X-Request-Id";
     private static final String REQUEST_ID_MDC_KEY = "requestId";
+
+    private final IdGenerator idGenerator;
+
+    public RequestLoggingFilter(IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -52,7 +58,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(requestIdHeader)) {
             return requestIdHeader;
         }
-        return UUID.randomUUID().toString();
+        return idGenerator.nextUuidString();
     }
 
     private void logRequestCompletion(HttpServletRequest request, HttpServletResponse response, long startedAt) {

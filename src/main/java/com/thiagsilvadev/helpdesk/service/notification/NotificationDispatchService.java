@@ -6,6 +6,7 @@ import com.thiagsilvadev.helpdesk.entity.ticket.TicketComment;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import com.thiagsilvadev.helpdesk.messaging.notification.NotificationMessage;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,20 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class NotificationDispatchService {
 
     private final UserRepository userRepository;
     private final NotificationOutboxService notificationOutboxService;
+    private final IdGenerator idGenerator;
 
     public NotificationDispatchService(UserRepository userRepository,
-                                       NotificationOutboxService notificationOutboxService) {
+                                       NotificationOutboxService notificationOutboxService,
+                                       IdGenerator idGenerator) {
         this.userRepository = userRepository;
         this.notificationOutboxService = notificationOutboxService;
+        this.idGenerator = idGenerator;
     }
 
     public void ticketCreated(Ticket ticket, Long actorUserId) {
@@ -91,7 +94,7 @@ public class NotificationDispatchService {
         recipients.stream()
                 .filter(recipientId -> actorUserId == null || !actorUserId.equals(recipientId))
                 .forEach(recipientId -> notificationOutboxService.enqueue(new NotificationMessage(
-                        UUID.randomUUID(),
+                        idGenerator.nextUuid(),
                         recipientId,
                         type,
                         title,

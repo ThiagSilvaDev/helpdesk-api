@@ -25,6 +25,9 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Clock;
+import java.time.Instant;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +42,7 @@ class TicketCommandServiceTest {
     private static final Long CLIENT_ID = 10L;
     private static final Long TECHNICIAN_ID = 20L;
     private static final Long AUTHENTICATED_USER_ID = 30L;
+    private static final Instant NOW = Instant.parse("2026-05-09T18:00:00Z");
 
     @Mock
     private TicketRepository ticketRepository;
@@ -54,6 +58,9 @@ class TicketCommandServiceTest {
 
     @Mock
     private NotificationDispatchService notificationDispatchService;
+
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private TicketCommandService ticketCommandService;
@@ -136,7 +143,7 @@ class TicketCommandServiceTest {
         @Test
         void shouldRejectUpdatesToClosedTickets() {
             Ticket ticket = ticket("Closed ticket", "Closed description", TicketPriority.TRIAGE);
-            ticket.closeTicket();
+            ticket.closeTicket(NOW);
             UpdateTicketRequest request = new UpdateTicketRequest("New title", "New description for ticket");
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
@@ -168,7 +175,7 @@ class TicketCommandServiceTest {
         @Test
         void shouldRejectPriorityChangesForClosedTickets() {
             Ticket ticket = ticket("Closed ticket", "Ticket already closed state", TicketPriority.TRIAGE);
-            ticket.closeTicket();
+            ticket.closeTicket(NOW);
             UpdateTicketPriorityRequest request = new UpdateTicketPriorityRequest(TicketPriority.HIGH);
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
@@ -237,11 +244,12 @@ class TicketCommandServiceTest {
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
             given(ticketRepository.save(ticket)).willReturn(ticket);
+            given(clock.instant()).willReturn(NOW);
 
             ticketCommandService.close(TICKET_ID, AUTHENTICATED_USER_ID);
 
             assertThat(ticket.getStatus()).isEqualTo(TicketStatus.CLOSED);
-            assertThat(ticket.getClosedAt()).isNotNull();
+            assertThat(ticket.getClosedAt()).isEqualTo(NOW);
         }
 
         @Test
@@ -262,6 +270,7 @@ class TicketCommandServiceTest {
             ticket.cancelTicket();
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
+            given(clock.instant()).willReturn(NOW);
 
             assertThatExceptionOfType(InvalidTicketStateException.class)
                     .isThrownBy(() -> ticketCommandService.close(TICKET_ID, AUTHENTICATED_USER_ID))
@@ -273,7 +282,7 @@ class TicketCommandServiceTest {
         @Test
         void shouldRejectCancellingClosedTicket() {
             Ticket ticket = ticket("Old title", "Old description for ticket", TicketPriority.TRIAGE);
-            ticket.closeTicket();
+            ticket.closeTicket(NOW);
 
             given(ticketQueryService.getTicketEntityById(TICKET_ID)).willReturn(ticket);
 

@@ -1,10 +1,13 @@
 package com.thiagsilvadev.helpdesk.filter;
 
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -12,9 +15,12 @@ import static org.mockito.Mockito.mock;
 
 class RequestLoggingFilterTest {
 
+    private static final UUID REQUEST_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+    private final IdGenerator idGenerator = () -> REQUEST_ID;
+
     @Test
     void shouldPropagateRequestIdHeader() throws Exception {
-        RequestLoggingFilter filter = new RequestLoggingFilter();
+        RequestLoggingFilter filter = new RequestLoggingFilter(idGenerator);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
         request.addHeader("X-Request-Id", "request-123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -29,18 +35,18 @@ class RequestLoggingFilterTest {
 
     @Test
     void shouldGenerateRequestIdWhenHeaderIsMissing() throws Exception {
-        RequestLoggingFilter filter = new RequestLoggingFilter();
+        RequestLoggingFilter filter = new RequestLoggingFilter(idGenerator);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         filter.doFilter(request, response, mock(FilterChain.class));
 
-        assertThat(response.getHeader("X-Request-Id")).isNotBlank();
+        assertThat(response.getHeader("X-Request-Id")).isEqualTo(REQUEST_ID.toString());
     }
 
     @Test
     void shouldSkipHealthEndpoint() throws Exception {
-        RequestLoggingFilter filter = new RequestLoggingFilter();
+        RequestLoggingFilter filter = new RequestLoggingFilter(idGenerator);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/actuator/health");
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);

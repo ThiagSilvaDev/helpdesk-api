@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,12 +34,13 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 class ValidationExceptionHandlerTest {
 
     private static final String NOT_BLANK_MESSAGE = "Title cannot be blank";
+    private static final Instant NOW = Instant.parse("2026-05-09T18:00:00Z");
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        ProblemDetailFactory problemDetails = new ProblemDetailFactory();
+        ProblemDetailFactory problemDetails = new ProblemDetailFactory(Clock.fixed(NOW, ZoneOffset.UTC));
         mockMvc = standaloneSetup(new DummyController())
                 .setControllerAdvice(new ValidationExceptionHandler(problemDetails))
                 .build();

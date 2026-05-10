@@ -1,5 +1,6 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.HashOperations;
@@ -8,9 +9,13 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -25,6 +30,9 @@ import static org.mockito.Mockito.verify;
 
 class RefreshTokenServiceTest {
 
+    private static final Instant NOW = Instant.parse("2026-05-09T18:00:00Z");
+    private static final UUID FAMILY_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
     private StringRedisTemplate redisTemplate;
     private HashOperations<String, Object, Object> hashOperations;
     private ValueOperations<String, String> valueOperations;
@@ -38,7 +46,9 @@ class RefreshTokenServiceTest {
         valueOperations = mock(ValueOperations.class);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
-        refreshTokenService = new RefreshTokenService(redisTemplate, new SecureRandom(), Duration.ofDays(7));
+        Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
+        IdGenerator idGenerator = () -> FAMILY_ID;
+        refreshTokenService = new RefreshTokenService(redisTemplate, new SecureRandom(), clock, idGenerator, Duration.ofDays(7));
     }
 
     @Test
@@ -50,7 +60,9 @@ class RefreshTokenServiceTest {
         verify(hashOperations).putAll(startsWith("refresh:token:"), argThat(value ->
                 value instanceof Map<?, ?> map
                         && map.containsValue("42")
+                        && map.containsValue(FAMILY_ID.toString())
                         && map.containsValue("ACTIVE")
+                        && map.containsValue(NOW.plus(Duration.ofDays(7)).toString())
         ));
         verify(redisTemplate).expire(startsWith("refresh:token:"), eq(Duration.ofDays(7)));
     }

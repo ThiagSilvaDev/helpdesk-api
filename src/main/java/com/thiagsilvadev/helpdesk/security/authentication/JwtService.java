@@ -1,6 +1,7 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -9,29 +10,35 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class JwtService {
 
     private final JwtEncoder jwtEncoder;
+    private final Clock clock;
+    private final IdGenerator idGenerator;
     private final long expirationMs;
     private final String issuer;
     private final String audience;
 
     public JwtService(JwtEncoder jwtEncoder,
+                      Clock clock,
+                      IdGenerator idGenerator,
                       JwtProperties jwtProperties) {
         this.jwtEncoder = jwtEncoder;
+        this.clock = clock;
+        this.idGenerator = idGenerator;
         this.expirationMs = jwtProperties.expirationMs();
         this.issuer = jwtProperties.issuer();
         this.audience = jwtProperties.audience();
     }
 
     public String generateToken(UserPrincipal userPrincipal) {
-        Instant now = Instant.now();
+        Instant now = clock.instant();
         Instant expiryDate = now.plusMillis(expirationMs);
         Long userId = Objects.requireNonNull(userPrincipal.getId(), "user id must not be null");
         List<String> roles = userPrincipal.getAuthorities().stream()
@@ -44,7 +51,7 @@ public class JwtService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(issuer)
                 .subject(userId.toString())
-                .id(UUID.randomUUID().toString())
+                .id(idGenerator.nextUuidString())
                 .audience(List.of(audience))
                 .issuedAt(now)
                 .notBefore(now)

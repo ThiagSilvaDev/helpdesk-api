@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,15 +34,18 @@ public class TicketCommandService {
     private final TicketQueryService ticketQueryService;
     private final TicketMapper ticketMapper;
     private final NotificationDispatchService notificationDispatchService;
+    private final Clock clock;
 
     public TicketCommandService(TicketRepository ticketRepository, UserService userService,
                                 TicketQueryService ticketQueryService, TicketMapper ticketMapper,
-                                NotificationDispatchService notificationDispatchService) {
+                                NotificationDispatchService notificationDispatchService,
+                                Clock clock) {
         this.ticketRepository = ticketRepository;
         this.userService = userService;
         this.ticketQueryService = ticketQueryService;
         this.ticketMapper = ticketMapper;
         this.notificationDispatchService = notificationDispatchService;
+        this.clock = clock;
     }
 
 
@@ -110,7 +114,7 @@ public class TicketCommandService {
     @Transactional
     public void close(Long id, Long authenticatedUserId) {
         log.info("Closing ticket with id {}", id);
-        changeStatus(id, authenticatedUserId, Ticket::closeTicket);
+        changeStatus(id, authenticatedUserId, ticket -> ticket.closeTicket(clock.instant()));
     }
 
     @PreAuthorize("@ticketAuthorization.canCancel(#id, authentication)")

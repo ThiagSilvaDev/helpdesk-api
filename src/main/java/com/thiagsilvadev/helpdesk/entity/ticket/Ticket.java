@@ -106,7 +106,7 @@ public class Ticket extends AuditableEntity {
         this.status = TicketStatus.IN_PROGRESS;
     }
 
-    public void closeTicket() {
+    public void closeTicket(Instant closedAt) {
         if (this.status == TicketStatus.CLOSED) {
             throw new InvalidTicketStateException("Ticket is already closed");
         }
@@ -114,7 +114,7 @@ public class Ticket extends AuditableEntity {
             throw new InvalidTicketStateException("Cannot close a cancelled ticket");
         }
         this.status = TicketStatus.CLOSED;
-        this.closedAt = Instant.now();
+        this.closedAt = closedAt;
     }
 
     public void cancelTicket() {

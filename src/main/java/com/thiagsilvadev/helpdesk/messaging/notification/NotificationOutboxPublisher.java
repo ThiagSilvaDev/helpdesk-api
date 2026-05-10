@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
@@ -26,13 +27,16 @@ public class NotificationOutboxPublisher {
     private final NotificationOutboxRepository notificationOutboxRepository;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     public NotificationOutboxPublisher(NotificationOutboxRepository notificationOutboxRepository,
                                        RabbitTemplate rabbitTemplate,
-                                       ObjectMapper objectMapper) {
+                                       ObjectMapper objectMapper,
+                                       Clock clock) {
         this.notificationOutboxRepository = notificationOutboxRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
+        this.clock = clock;
     }
 
     @Scheduled(fixedDelayString = "${app.notifications.outbox.publish-delay-ms:5000}")
@@ -40,7 +44,7 @@ public class NotificationOutboxPublisher {
     public void publishPendingEvents() {
         List<NotificationOutboxEvent> events = notificationOutboxRepository.findPublishable(
                 List.of(NotificationOutboxStatus.PENDING, NotificationOutboxStatus.FAILED),
-                Instant.now(),
+                Instant.from(clock.instant()),
                 PageRequest.of(0, 50)
         );
 
@@ -53,9 +57,9 @@ public class NotificationOutboxPublisher {
                         RabbitMqConfig.NOTIFICATIONS_ROUTING_KEY,
                         message
                 );
-                event.markPublished();
+                event.markPublished(clock.instant());
             } catch (Exception ex) {
-                event.markFailed(ex.getMessage());
+                event.markFailed(ex.getMessage(), clock.instant());
                 log.warn("Failed to publish notification outbox event {}", event.getId(), ex);
             }
         }

@@ -8,6 +8,7 @@ import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 import com.thiagsilvadev.helpdesk.config.security.JwtConfig;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -19,10 +20,15 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -33,6 +39,8 @@ class JwtServiceTest {
     private static final String ISSUER = "helpdesk-api";
     private static final String AUDIENCE = "helpdesk-api";
     private static final Long USER_ID = 42L;
+    private static final Instant TOKEN_ISSUED_AT = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+    private static final UUID TOKEN_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private static final JwtProperties JWT_PROPERTIES = new JwtProperties(
             SECRET,
             EXPIRATION_MS,
@@ -45,7 +53,9 @@ class JwtServiceTest {
     private final SecretKey signingKey = jwtConfig.jwtSigningKey(JWT_PROPERTIES);
     private final JwtEncoder jwtEncoder = jwtConfig.jwtEncoder(signingKey);
     private final JwtDecoder jwtDecoder = jwtConfig.jwtDecoder(signingKey, JWT_PROPERTIES);
-    private final JwtService jwtService = new JwtService(jwtEncoder, JWT_PROPERTIES);
+    private final Clock clock = Clock.fixed(TOKEN_ISSUED_AT, ZoneOffset.UTC);
+    private final IdGenerator idGenerator = () -> TOKEN_ID;
+    private final JwtService jwtService = new JwtService(jwtEncoder, clock, idGenerator, JWT_PROPERTIES);
 
     @Test
     void shouldGenerateTokenWithSubjectRoleAndIssuer() {
@@ -57,11 +67,13 @@ class JwtServiceTest {
         assertThat(decoded.getSubject()).isEqualTo(USER_ID.toString());
         assertThat(decoded.getClaimAsString("iss")).isEqualTo(ISSUER);
         assertThat(decoded.getAudience()).containsExactly(AUDIENCE);
-        assertThat(decoded.getId()).isNotBlank();
+        assertThat(decoded.getId()).isEqualTo(TOKEN_ID.toString());
         assertThat(decoded.getClaimAsString(JwtClaims.TOKEN_USE)).isEqualTo(JwtClaims.TOKEN_USE_ACCESS);
         assertThat(decoded.hasClaim("email")).isFalse();
         assertThat(decoded.getClaimAsStringList(JwtClaims.USER_ROLES)).containsExactly(Roles.ROLE_TECHNICIAN.name());
-        assertThat(decoded.getExpiresAt()).isAfter(decoded.getIssuedAt());
+        assertThat(decoded.getIssuedAt()).isEqualTo(TOKEN_ISSUED_AT);
+        assertThat(decoded.getNotBefore()).isEqualTo(TOKEN_ISSUED_AT);
+        assertThat(decoded.getExpiresAt()).isEqualTo(TOKEN_ISSUED_AT.plusMillis(EXPIRATION_MS));
     }
 
     @Test

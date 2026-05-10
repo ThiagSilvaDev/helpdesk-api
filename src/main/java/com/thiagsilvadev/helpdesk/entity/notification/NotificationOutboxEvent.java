@@ -41,27 +41,27 @@ public class NotificationOutboxEvent {
     public NotificationOutboxEvent() {
     }
 
-    public NotificationOutboxEvent(UUID id, String payload) {
+    public NotificationOutboxEvent(UUID id, String payload, Instant now) {
         this.id = id;
         this.payload = payload;
         this.status = NotificationOutboxStatus.PENDING;
         this.attempts = 0;
-        this.nextAttemptAt = Instant.now();
-        this.createdAt = Instant.now();
+        this.nextAttemptAt = now;
+        this.createdAt = now;
     }
 
-    public void markPublished() {
+    public void markPublished(Instant publishedAt) {
         this.status = NotificationOutboxStatus.PUBLISHED;
-        this.publishedAt = Instant.now();
+        this.publishedAt = publishedAt;
         this.lastError = null;
     }
 
-    public void markFailed(String errorMessage) {
+    public void markFailed(String errorMessage, Instant failedAt) {
         this.attempts++;
         this.status = NotificationOutboxStatus.FAILED;
         this.lastError = errorMessage;
         long delaySeconds = Math.min(300, (long) Math.pow(2, Math.min(this.attempts, 8)));
-        this.nextAttemptAt = Instant.now().plusSeconds(delaySeconds);
+        this.nextAttemptAt = failedAt.plusSeconds(delaySeconds);
     }
 
     public void retry() {

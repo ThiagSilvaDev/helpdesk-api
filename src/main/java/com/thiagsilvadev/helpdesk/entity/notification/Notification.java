@@ -69,9 +69,9 @@ public class Notification extends AuditableEntity {
         this.sourceEventId = Objects.requireNonNull(sourceEventId, "sourceEventId must not be null");
     }
 
-    public void markAsRead() {
+    public void markAsRead(Instant readAt) {
         if (this.readAt == null) {
-            this.readAt = Instant.now();
+            this.readAt = readAt;
         }
     }
 

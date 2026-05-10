@@ -9,11 +9,18 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
 @Component
 public class ProblemDetailFactory {
+
+    private final Clock clock;
+
+    public ProblemDetailFactory(Clock clock) {
+        this.clock = clock;
+    }
 
     public ProblemDetail create(HttpStatus status, String message) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(status, message);
@@ -43,7 +50,7 @@ public class ProblemDetailFactory {
             problemDetail.setInstance(URI.create("urn:helpdesk:background-process"));
         }
 
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("timestamp", Instant.from(clock.instant()));
 
         if (customProperties != null) {
             customProperties.forEach(problemDetail::setProperty);

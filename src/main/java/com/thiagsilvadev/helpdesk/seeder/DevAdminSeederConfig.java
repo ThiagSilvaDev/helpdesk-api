@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,12 +72,13 @@ public class DevAdminSeederConfig {
                                      @Value("${app.dev-user.password}") String userPassword,
                                      @Value("${app.dev-tech.name}") String technicianName,
                                      @Value("${app.dev-tech.email}") String technicianEmail,
-                                     @Value("${app.dev-tech.password}") String technicianPassword) {
+                                     @Value("${app.dev-tech.password}") String technicianPassword,
+                                     Clock clock) {
         return args -> {
             Map<String, User> usersByEmail = seedUsers(userRepository, passwordEncoder, adminName, adminEmail, adminPassword,
                     userName, userEmail, userPassword, technicianName, technicianEmail, technicianPassword);
 
-            Map<String, Ticket> ticketsByTitle = seedTickets(ticketRepository, usersByEmail, technicianEmail);
+            Map<String, Ticket> ticketsByTitle = seedTickets(ticketRepository, usersByEmail, technicianEmail, clock);
             seedCommentsAndNotifications(ticketCommentRepository, notificationRepository, ticketsByTitle, usersByEmail);
         };
     }
@@ -127,7 +129,8 @@ public class DevAdminSeederConfig {
 
     private Map<String, Ticket> seedTickets(TicketRepository ticketRepository,
                                             Map<String, User> usersByEmail,
-                                            String defaultTechnicianEmail) {
+                                            String defaultTechnicianEmail,
+                                            Clock clock) {
         List<Ticket> existingTickets = ticketRepository.findAll();
         Set<String> existingTitles = existingTickets.stream()
                 .map(Ticket::getTitle)
@@ -207,7 +210,7 @@ public class DevAdminSeederConfig {
             }
 
             if (spec.finalState() == TicketFinalState.CLOSE) {
-                ticket.closeTicket();
+                ticket.closeTicket(clock.instant());
             } else if (spec.finalState() == TicketFinalState.CANCEL) {
                 ticket.cancelTicket();
             }
