@@ -34,16 +34,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Order(1)
 public class ValidationExceptionHandler {
+
+    private static final String UNKNOWN_FIELD = "unknown";
 
     private final ProblemDetailFactory problemDetails;
 
@@ -64,9 +62,9 @@ public class ValidationExceptionHandler {
     public ProblemDetail handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
         String paramName = ex.getName();
 
-        String expectedType = ex.getRequiredType() != null
-                ? ex.getRequiredType().getSimpleName()
-                : "valid type";
+        String expectedType = Optional.ofNullable(ex.getRequiredType())
+                .map(Class::getSimpleName)
+                .orElse("valid type");
 
         String errorMessage = String.format("must be of type %s", expectedType);
 
@@ -82,7 +80,7 @@ public class ValidationExceptionHandler {
         if (ex.getCause() instanceof MismatchedInputException cause) {
             String name = cause.getPath() != null && !cause.getPath().isEmpty()
                     ? cause.getPath().getLast().getPropertyName()
-                    : "unknown";
+                    : UNKNOWN_FIELD;
 
             String reason;
             if (cause instanceof InvalidFormatException formatException && formatException.getTargetType().isEnum()) {
@@ -161,7 +159,7 @@ public class ValidationExceptionHandler {
             private void extractSimpleErrors(@NonNull ParameterValidationResult result) {
                 String paramName = Objects.requireNonNullElse(
                         result.getMethodParameter().getParameterName(),
-                        "unknown"
+                        UNKNOWN_FIELD
                 );
 
                 result.getResolvableErrors().forEach(error ->
@@ -177,7 +175,7 @@ public class ValidationExceptionHandler {
                 errors.getGlobalErrors().forEach(globalError -> {
                     String paramName = Objects.requireNonNullElse(
                             errors.getMethodParameter().getParameterName(),
-                            "unknown"
+                            UNKNOWN_FIELD
                     );
                     invalidParams.add(new InvalidParam(paramName, getErrorMessage(globalError)));
                 });
