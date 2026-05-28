@@ -8,3 +8,6 @@ de8bd7052599355f8adacbf3dfb05a53d36472e2
 
 # refactor: replace wildcard imports
 63150ff99a334887e349d0785be103355efb0444
+
+# style: apply palantir java format
+6bb14093b87d7decafa3a26600d55fdbc850f566
