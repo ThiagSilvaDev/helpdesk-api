@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.util.Objects;
 
 @Entity
@@ -33,8 +32,7 @@ public class TicketComment extends AuditableEntity {
     @Column(nullable = false, columnDefinition = "text")
     private String content;
 
-    public TicketComment() {
-    }
+    public TicketComment() {}
 
     public TicketComment(Ticket ticket, User author, String content) {
         this.ticket = Objects.requireNonNull(ticket, "ticket must not be null");

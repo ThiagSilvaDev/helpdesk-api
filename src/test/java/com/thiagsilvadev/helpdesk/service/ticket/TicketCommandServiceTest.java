@@ -1,5 +1,12 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
@@ -16,6 +23,8 @@ import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
+import java.time.Clock;
+import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,16 +33,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.time.Clock;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class TicketCommandServiceTest {
@@ -70,14 +69,13 @@ class TicketCommandServiceTest {
 
         @Test
         void shouldCreateByUserWithTriagePriority() {
-            CreateUserTicketRequest request = new CreateUserTicketRequest(
-                    "Printer issue",
-                    "Office printer is not working"
-            );
+            CreateUserTicketRequest request =
+                    new CreateUserTicketRequest("Printer issue", "Office printer is not working");
             User client = user(CLIENT_ID, Roles.ROLE_USER);
 
             given(userService.getUserById(CLIENT_ID)).willReturn(client);
-            given(ticketRepository.save(any(Ticket.class))).willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
+            given(ticketRepository.save(any(Ticket.class)))
+                    .willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
 
             TicketResponse response = ticketCommandService.createByUser(request, CLIENT_ID);
 
@@ -91,15 +89,12 @@ class TicketCommandServiceTest {
         @Test
         void shouldCreateByStaffWithRequestedPriority() {
             CreateStaffTicketRequest request = new CreateStaffTicketRequest(
-                    "VPN issue",
-                    "Cannot connect to corporate VPN",
-                    CLIENT_ID,
-                    TicketPriority.HIGH
-            );
+                    "VPN issue", "Cannot connect to corporate VPN", CLIENT_ID, TicketPriority.HIGH);
             User client = user(CLIENT_ID, Roles.ROLE_USER);
 
             given(userService.getUserById(CLIENT_ID)).willReturn(client);
-            given(ticketRepository.save(any(Ticket.class))).willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
+            given(ticketRepository.save(any(Ticket.class)))
+                    .willAnswer(invocation -> persistTicket(invocation.getArgument(0), TICKET_ID));
 
             TicketResponse response = ticketCommandService.createByStaff(request, AUTHENTICATED_USER_ID);
 
@@ -109,10 +104,8 @@ class TicketCommandServiceTest {
 
         @Test
         void shouldThrowWhenRequesterIsNotRoleUser() {
-            CreateUserTicketRequest request = new CreateUserTicketRequest(
-                    "Printer issue",
-                    "Office printer is not working"
-            );
+            CreateUserTicketRequest request =
+                    new CreateUserTicketRequest("Printer issue", "Office printer is not working");
             given(userService.getUserById(CLIENT_ID)).willReturn(user(CLIENT_ID, Roles.ROLE_ADMIN));
 
             assertThatExceptionOfType(InvalidRoleAssignmentException.class)
@@ -200,7 +193,8 @@ class TicketCommandServiceTest {
             given(userService.getUserById(TECHNICIAN_ID)).willReturn(technician);
             given(ticketRepository.save(ticket)).willReturn(ticket);
 
-            TicketResponse response = ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID);
+            TicketResponse response =
+                    ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID);
 
             assertThat(response.technician().id()).isEqualTo(TECHNICIAN_ID);
             assertThat(response.status()).isEqualTo(TicketStatus.IN_PROGRESS);
@@ -228,7 +222,8 @@ class TicketCommandServiceTest {
             given(userService.getUserById(TECHNICIAN_ID)).willReturn(user(TECHNICIAN_ID, Roles.ROLE_USER));
 
             assertThatExceptionOfType(InvalidRoleAssignmentException.class)
-                    .isThrownBy(() -> ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID))
+                    .isThrownBy(() ->
+                            ticketCommandService.assignTechnician(TICKET_ID, TECHNICIAN_ID, AUTHENTICATED_USER_ID))
                     .withMessage("Assigned user must have TECHNICIAN role");
 
             then(ticketRepository).should(never()).save(any());

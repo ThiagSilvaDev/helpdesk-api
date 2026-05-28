@@ -8,19 +8,8 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "security.jwt")
 public record JwtProperties(
-        @NotBlank
-        String secret,
-
-        @Positive
-        long expirationMs,
-
-        @Positive
-        long refreshExpirationMs,
-
-        @NotBlank
-        String issuer,
-
-        @NotBlank
-        String audience
-) {
-}
+        @NotBlank String secret,
+        @Positive long expirationMs,
+        @Positive long refreshExpirationMs,
+        @NotBlank String issuer,
+        @NotBlank String audience) {}

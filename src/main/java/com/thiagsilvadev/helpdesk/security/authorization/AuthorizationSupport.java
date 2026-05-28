@@ -28,7 +28,7 @@ class AuthorizationSupport {
     boolean hasRole(Authentication authentication, Roles role) {
         return isAuthenticated(authentication)
                 && authentication.getAuthorities().stream()
-                .anyMatch(authority -> role.name().equals(authority.getAuthority()));
+                        .anyMatch(authority -> role.name().equals(authority.getAuthority()));
     }
 
     boolean isUser(Authentication authentication) {

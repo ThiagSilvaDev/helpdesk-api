@@ -1,31 +1,5 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.controller.ticket.UserTicketController;
-import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
-import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
-import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
-import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
-import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
-import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.core.MethodParameter;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
-
-import java.time.Instant;
-import java.util.List;
-
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -40,6 +14,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
+import com.thiagsilvadev.helpdesk.controller.ticket.UserTicketController;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateUserTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketRequest;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
+import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
+import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
 class UserTicketControllerTest {
 
     private TicketCommandService ticketCommandService;
@@ -52,9 +51,7 @@ class UserTicketControllerTest {
         ticketQueryService = mock(TicketQueryService.class);
         mockMvc = standaloneSetup(new UserTicketController(ticketCommandService, ticketQueryService))
                 .setCustomArgumentResolvers(
-                        new TestCurrentUserIdArgumentResolver(),
-                        new PageableHandlerMethodArgumentResolver()
-                )
+                        new TestCurrentUserIdArgumentResolver(), new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
@@ -63,10 +60,12 @@ class UserTicketControllerTest {
         given(ticketCommandService.createByUser(any(CreateUserTicketRequest.class), eq(42L)))
                 .willReturn(ticketResponse(100L));
 
-        mockMvc.perform(post("/api/users/tickets")
-                        .header("X-Test-User-Id", "42")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/users/tickets")
+                                .header("X-Test-User-Id", "42")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Printer issue",
                                   "description": "Office printer is not working"
@@ -112,12 +111,13 @@ class UserTicketControllerTest {
                         null,
                         Instant.now(),
                         Instant.now(),
-                        null
-                ));
+                        null));
 
-        mockMvc.perform(put("/api/users/tickets/100")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        put("/api/users/tickets/100")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Updated ticket",
                                   "description": "Updated description for ticket"
@@ -140,8 +140,7 @@ class UserTicketControllerTest {
                 null,
                 Instant.now(),
                 Instant.now(),
-                null
-        );
+                null);
     }
 
     private static class TestCurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
@@ -152,10 +151,11 @@ class UserTicketControllerTest {
         }
 
         @Override
-        public Object resolveArgument(MethodParameter parameter,
-                                      ModelAndViewContainer mavContainer,
-                                      NativeWebRequest webRequest,
-                                      WebDataBinderFactory binderFactory) {
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory) {
             return Long.valueOf(webRequest.getHeader("X-Test-User-Id"));
         }
     }

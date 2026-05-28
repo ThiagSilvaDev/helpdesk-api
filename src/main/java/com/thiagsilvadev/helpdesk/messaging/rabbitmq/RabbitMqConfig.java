@@ -26,7 +26,9 @@ public class RabbitMqConfig {
 
     @Bean
     public DirectExchange notificationsExchange() {
-        return ExchangeBuilder.directExchange(NOTIFICATIONS_EXCHANGE).durable(true).build();
+        return ExchangeBuilder.directExchange(NOTIFICATIONS_EXCHANGE)
+                .durable(true)
+                .build();
     }
 
     @Bean
@@ -53,8 +55,8 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Binding notificationsDeadLetterBinding(Queue notificationsDeadLetterQueue,
-                                                  DirectExchange notificationsDeadLetterExchange) {
+    public Binding notificationsDeadLetterBinding(
+            Queue notificationsDeadLetterQueue, DirectExchange notificationsDeadLetterExchange) {
         return BindingBuilder.bind(notificationsDeadLetterQueue)
                 .to(notificationsDeadLetterExchange)
                 .with(NOTIFICATIONS_ROUTING_KEY);

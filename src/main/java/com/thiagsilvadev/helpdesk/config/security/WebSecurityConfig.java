@@ -40,11 +40,12 @@ public class WebSecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
     private final boolean publicPrometheusEndpoint;
 
-    public WebSecurityConfig(RequestLoggingFilter requestLoggingFilter,
-                             RateLimitFilter rateLimitFilter,
-                             CustomAuthenticationEntryPoint authenticationEntryPoint,
-                             CorsConfigurationSource corsConfigurationSource,
-                             @Value("${app.observability.prometheus-public:false}") boolean publicPrometheusEndpoint) {
+    public WebSecurityConfig(
+            RequestLoggingFilter requestLoggingFilter,
+            RateLimitFilter rateLimitFilter,
+            CustomAuthenticationEntryPoint authenticationEntryPoint,
+            CorsConfigurationSource corsConfigurationSource,
+            @Value("${app.observability.prometheus-public:false}") boolean publicPrometheusEndpoint) {
         this.requestLoggingFilter = requestLoggingFilter;
         this.rateLimitFilter = rateLimitFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -54,35 +55,39 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                )
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-                        .requestMatchers("/api/admin/system/**").hasRole("ADMIN")
-                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                .oauth2ResourceServer(oauth2 -> oauth2.authenticationEntryPoint(authenticationEntryPoint)
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                .authorizeHttpRequests(requests -> requests.requestMatchers(HttpMethod.POST, "/api/auth/login")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout")
+                        .permitAll()
+                        .requestMatchers("/api/admin/system/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info")
+                        .permitAll()
                         .requestMatchers("/actuator/prometheus")
                         .access((authentication, context) -> {
                             var currentAuthentication = authentication.get();
-                            boolean granted = publicPrometheusEndpoint || currentAuthentication.getAuthorities().stream()
-                                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+                            boolean granted = publicPrometheusEndpoint
+                                    || currentAuthentication.getAuthorities().stream()
+                                            .anyMatch(authority ->
+                                                    authority.getAuthority().equals("ROLE_ADMIN"));
                             return new AuthorizationDecision(granted);
                         })
-                        .requestMatchers("/actuator/**").hasRole("ADMIN")
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/actuator/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(requestLoggingFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -96,14 +101,15 @@ public class WebSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return email -> userRepository.findByEmail(email)
+        return email -> userRepository
+                .findByEmail(email)
                 .map(UserPrincipal::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService,
-                                                              PasswordEncoder passwordEncoder) {
+    public DaoAuthenticationProvider daoAuthenticationProvider(
+            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;

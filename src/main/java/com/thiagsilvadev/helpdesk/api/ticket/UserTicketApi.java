@@ -33,56 +33,32 @@ public interface UserTicketApi {
     @PostMapping
     @Operation(operationId = "createAuthenticatedUserTicket")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Ticket created"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest")
+        @ApiResponse(responseCode = "201", description = "Ticket created"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<TicketResponse> createTicketAsUser(
-            @RequestBody @Valid CreateUserTicketRequest userRequest,
-            @CurrentUserId Long userId
-    );
+            @RequestBody @Valid CreateUserTicketRequest userRequest, @CurrentUserId Long userId);
 
     @GetMapping("/{ticketId}")
     @Operation(operationId = "getAuthenticatedUserTicketById")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Ticket found"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Ticket found")})
     ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
-            @PathVariable Long ticketId,
-            @CurrentUserId Long userId
-    );
+            @PathVariable Long ticketId, @CurrentUserId Long userId);
 
     @GetMapping
     @Operation(operationId = "listAuthenticatedUserTickets")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Own tickets retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Own tickets retrieved")})
     ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(
-            @CurrentUserId Long userId,
-            @ParameterObject Pageable pageable
-    );
+            @CurrentUserId Long userId, @ParameterObject Pageable pageable);
 
     @PutMapping("/{id}")
     @Operation(operationId = "updateAuthenticatedUserTicket")
     @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Ticket updated"
-            ),
-            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
+        @ApiResponse(responseCode = "200", description = "Ticket updated"),
+        @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketAsUser(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateTicketRequest request
-    );
+            @PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request);
 }

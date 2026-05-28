@@ -20,20 +20,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
-        info = @Info(
-                title = "Helpdesk API",
-                version = "1.0",
-                description = "REST API for support ticket management with JWT authentication and role-based authorization",
-                contact = @Contact(name = "ThiagSilvaDev")
-        )
-)
+        info =
+                @Info(
+                        title = "Helpdesk API",
+                        version = "1.0",
+                        description =
+                                "REST API for support ticket management with JWT authentication and role-based authorization",
+                        contact = @Contact(name = "ThiagSilvaDev")))
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
         scheme = "bearer",
         bearerFormat = "JWT",
-        description = "Provide the JWT token obtained from POST /api/auth/login"
-)
+        description = "Provide the JWT token obtained from POST /api/auth/login")
 @Configuration
 public class OpenApiConfig {
 
@@ -58,10 +57,10 @@ public class OpenApiConfig {
     private ApiResponse problemResponse(String description) {
         return new ApiResponse()
                 .description(description)
-                .content(new Content().addMediaType(
-                        "application/problem+json",
-                        new MediaType().schema(new Schema<>().$ref("#/components/schemas/ProblemDetail"))
-                ));
+                .content(new Content()
+                        .addMediaType(
+                                "application/problem+json",
+                                new MediaType().schema(new Schema<>().$ref("#/components/schemas/ProblemDetail"))));
     }
 
     private Schema<?> buildProblemDetailSchema() {

@@ -7,5 +7,4 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 @Configuration
 @EnableJpaAuditing
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-public class SpringDataWebConfig {
-}
+public class SpringDataWebConfig {}

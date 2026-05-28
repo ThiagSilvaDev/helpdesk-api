@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.util.Objects;
 
 @Entity
@@ -38,8 +37,7 @@ public class User extends AuditableEntity {
     @Column(nullable = false)
     private boolean active = true;
 
-    public User() {
-    }
+    public User() {}
 
     public User(String name, String email, String password, Roles role) {
         this.name = requireText(name, "Name");

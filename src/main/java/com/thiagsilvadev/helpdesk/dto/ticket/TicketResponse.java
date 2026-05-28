@@ -2,7 +2,6 @@ package com.thiagsilvadev.helpdesk.dto.ticket;
 
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
-
 import java.time.Instant;
 
 public record TicketResponse(
@@ -15,6 +14,4 @@ public record TicketResponse(
         TicketUserInfo technician,
         Instant createdAt,
         Instant updatedAt,
-        Instant closedAt
-) {
-}
+        Instant closedAt) {}

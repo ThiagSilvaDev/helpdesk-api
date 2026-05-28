@@ -1,22 +1,5 @@
 package com.thiagsilvadev.helpdesk.security.authentication;
 
-import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-
-import java.security.SecureRandom;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +10,22 @@ import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 class RefreshTokenServiceTest {
 
@@ -48,7 +47,8 @@ class RefreshTokenServiceTest {
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
         Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
         IdGenerator idGenerator = () -> FAMILY_ID;
-        refreshTokenService = new RefreshTokenService(redisTemplate, new SecureRandom(), clock, idGenerator, Duration.ofDays(7));
+        refreshTokenService =
+                new RefreshTokenService(redisTemplate, new SecureRandom(), clock, idGenerator, Duration.ofDays(7));
     }
 
     @Test
@@ -57,13 +57,15 @@ class RefreshTokenServiceTest {
 
         assertThat(issue.token()).isNotBlank();
         assertThat(issue.expiresIn()).isEqualTo(Duration.ofDays(7).toSeconds());
-        verify(hashOperations).putAll(startsWith("refresh:token:"), argThat(value ->
-                value instanceof Map<?, ?> map
-                        && map.containsValue("42")
-                        && map.containsValue(FAMILY_ID.toString())
-                        && map.containsValue("ACTIVE")
-                        && map.containsValue(NOW.plus(Duration.ofDays(7)).toString())
-        ));
+        verify(hashOperations)
+                .putAll(
+                        startsWith("refresh:token:"),
+                        argThat(value -> value instanceof Map<?, ?> map
+                                && map.containsValue("42")
+                                && map.containsValue(FAMILY_ID.toString())
+                                && map.containsValue("ACTIVE")
+                                && map.containsValue(
+                                        NOW.plus(Duration.ofDays(7)).toString())));
         verify(redisTemplate).expire(startsWith("refresh:token:"), eq(Duration.ofDays(7)));
     }
 
@@ -85,7 +87,8 @@ class RefreshTokenServiceTest {
 
     @Test
     void shouldRevokeFamilyOnRefreshTokenReuse() {
-        given(redisTemplate.execute(any(DefaultRedisScript.class), anyList())).willReturn(List.of("REUSED", "family-1"));
+        given(redisTemplate.execute(any(DefaultRedisScript.class), anyList()))
+                .willReturn(List.of("REUSED", "family-1"));
 
         assertThatExceptionOfType(InvalidRefreshTokenException.class)
                 .isThrownBy(() -> refreshTokenService.rotate("used-token"))
@@ -105,11 +108,12 @@ class RefreshTokenServiceTest {
         assertThat(rotation.refreshToken()).isNotBlank();
         assertThat(rotation.refreshExpiresIn()).isEqualTo(Duration.ofDays(7).toSeconds());
         verify(valueOperations).get("refresh:family:family-1");
-        verify(hashOperations).putAll(startsWith("refresh:token:"), argThat(value ->
-                value instanceof Map<?, ?> map
-                        && map.containsValue("42")
-                        && map.containsValue("family-1")
-                        && map.containsValue("ACTIVE")
-        ));
+        verify(hashOperations)
+                .putAll(
+                        startsWith("refresh:token:"),
+                        argThat(value -> value instanceof Map<?, ?> map
+                                && map.containsValue("42")
+                                && map.containsValue("family-1")
+                                && map.containsValue("ACTIVE")));
     }
 }

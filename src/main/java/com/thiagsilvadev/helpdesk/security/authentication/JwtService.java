@@ -2,6 +2,10 @@ package com.thiagsilvadev.helpdesk.security.authentication;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -9,11 +13,6 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 public class JwtService {
@@ -25,10 +24,7 @@ public class JwtService {
     private final String issuer;
     private final String audience;
 
-    public JwtService(JwtEncoder jwtEncoder,
-                      Clock clock,
-                      IdGenerator idGenerator,
-                      JwtProperties jwtProperties) {
+    public JwtService(JwtEncoder jwtEncoder, Clock clock, IdGenerator idGenerator, JwtProperties jwtProperties) {
         this.jwtEncoder = jwtEncoder;
         this.clock = clock;
         this.idGenerator = idGenerator;

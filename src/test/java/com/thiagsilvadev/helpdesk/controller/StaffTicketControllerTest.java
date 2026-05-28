@@ -1,32 +1,5 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.controller.ticket.StaffTicketController;
-import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
-import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
-import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
-import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
-import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
-import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
-import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
-import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.core.MethodParameter;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
-
-import java.time.Instant;
-import java.util.List;
-
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,6 +14,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
+import com.thiagsilvadev.helpdesk.controller.ticket.StaffTicketController;
+import com.thiagsilvadev.helpdesk.dto.ticket.CreateStaffTicketRequest;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketResponse;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
+import com.thiagsilvadev.helpdesk.dto.ticket.TicketUserInfo;
+import com.thiagsilvadev.helpdesk.dto.ticket.UpdateTicketPriorityRequest;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
+import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
+import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
+import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
 class StaffTicketControllerTest {
 
     private TicketCommandService ticketCommandService;
@@ -53,9 +52,7 @@ class StaffTicketControllerTest {
         ticketQueryService = mock(TicketQueryService.class);
         mockMvc = standaloneSetup(new StaffTicketController(ticketCommandService, ticketQueryService))
                 .setCustomArgumentResolvers(
-                        new TestCurrentUserIdArgumentResolver(),
-                        new PageableHandlerMethodArgumentResolver()
-                )
+                        new TestCurrentUserIdArgumentResolver(), new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
@@ -64,10 +61,12 @@ class StaffTicketControllerTest {
         given(ticketCommandService.createByStaff(any(CreateStaffTicketRequest.class), eq(77L)))
                 .willReturn(ticketResponse(100L, TicketPriority.HIGH, null));
 
-        mockMvc.perform(post("/api/staff/tickets")
-                        .header("X-Test-User-Id", "77")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/staff/tickets")
+                                .header("X-Test-User-Id", "77")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "VPN issue",
                                   "description": "Cannot connect to corporate VPN",
@@ -83,9 +82,9 @@ class StaffTicketControllerTest {
     @Test
     void shouldListTicketsForStaffWithCriteria() throws Exception {
         given(ticketQueryService.findAll(
-                new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.TRIAGE),
-                PageRequest.of(0, 10)
-        )).willReturn(new PageImpl<>(List.of(ticketResponse(100L, TicketPriority.TRIAGE, null)), PageRequest.of(0, 10), 1));
+                        new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.TRIAGE), PageRequest.of(0, 10)))
+                .willReturn(new PageImpl<>(
+                        List.of(ticketResponse(100L, TicketPriority.TRIAGE, null)), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/staff/tickets")
                         .param("status", "OPEN")
@@ -125,8 +124,7 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldCloseTicket() throws Exception {
-        mockMvc.perform(patch("/api/staff/tickets/100/close")
-                        .header("X-Test-User-Id", "77"))
+        mockMvc.perform(patch("/api/staff/tickets/100/close").header("X-Test-User-Id", "77"))
                 .andExpect(status().isNoContent());
 
         then(ticketCommandService).should().close(100L, 77L);
@@ -134,8 +132,7 @@ class StaffTicketControllerTest {
 
     @Test
     void shouldCancelTicket() throws Exception {
-        mockMvc.perform(patch("/api/staff/tickets/100/cancel")
-                        .header("X-Test-User-Id", "77"))
+        mockMvc.perform(patch("/api/staff/tickets/100/cancel").header("X-Test-User-Id", "77"))
                 .andExpect(status().isNoContent());
 
         then(ticketCommandService).should().cancel(100L, 77L);
@@ -152,8 +149,7 @@ class StaffTicketControllerTest {
                 technician,
                 Instant.now(),
                 Instant.now(),
-                null
-        );
+                null);
     }
 
     private static class TestCurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
@@ -164,10 +160,11 @@ class StaffTicketControllerTest {
         }
 
         @Override
-        public Object resolveArgument(MethodParameter parameter,
-                                      ModelAndViewContainer mavContainer,
-                                      NativeWebRequest webRequest,
-                                      WebDataBinderFactory binderFactory) {
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory) {
             return Long.valueOf(webRequest.getHeader("X-Test-User-Id"));
         }
     }

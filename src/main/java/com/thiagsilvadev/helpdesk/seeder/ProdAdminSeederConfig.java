@@ -19,16 +19,18 @@ public class ProdAdminSeederConfig {
 
     private static final Logger log = LoggerFactory.getLogger(ProdAdminSeederConfig.class);
 
-    private record SeedUserSpec(String name, String email, String password, Roles role) {
-    }
+    private record SeedUserSpec(String name, String email, String password, Roles role) {}
 
     @Bean
-    @ConditionalOnProperty(prefix = "app.setup.admin", name = {"name", "email", "password"})
-    CommandLineRunner prodAdminSeeder(UserRepository userRepository,
-                                      PasswordEncoder passwordEncoder,
-                                      @Value("${app.setup.admin.name}") String adminName,
-                                      @Value("${app.setup.admin.email}") String adminEmail,
-                                      @Value("${app.setup.admin.password}") String adminPassword) {
+    @ConditionalOnProperty(
+            prefix = "app.setup.admin",
+            name = {"name", "email", "password"})
+    CommandLineRunner prodAdminSeeder(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            @Value("${app.setup.admin.name}") String adminName,
+            @Value("${app.setup.admin.email}") String adminEmail,
+            @Value("${app.setup.admin.password}") String adminPassword) {
         return args -> {
             SeedUserSpec adminSpec = new SeedUserSpec(adminName, adminEmail, adminPassword, Roles.ROLE_ADMIN);
             seedIfAbsent(userRepository, passwordEncoder, adminSpec);
@@ -42,12 +44,7 @@ public class ProdAdminSeederConfig {
         }
 
         log.info("Seeding initial production admin user.");
-        User user = new User(
-                spec.name(),
-                spec.email(),
-                passwordEncoder.encode(spec.password()),
-                spec.role()
-        );
+        User user = new User(spec.name(), spec.email(), passwordEncoder.encode(spec.password()), spec.role());
         userRepository.save(user);
     }
 }

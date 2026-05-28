@@ -9,6 +9,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.time.Duration;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.net.URI;
-import java.time.Duration;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -41,9 +40,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         String clientIp = getClientIp(request);
         Bucket bucket = buckets.get(clientIp, key -> createBucket());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(TOKENS_PER_REQUEST);
@@ -68,9 +69,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 .capacity(MAX_REQUESTS)
                 .refillGreedy(MAX_REQUESTS, WINDOW)
                 .build();
-        return Bucket.builder()
-                .addLimit(limit)
-                .build();
+        return Bucket.builder().addLimit(limit).build();
     }
 
     private ProblemDetail buildRateLimitProblem(HttpServletRequest request) {
@@ -79,10 +78,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 .build()
                 .toUriString();
 
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.TOO_MANY_REQUESTS,
-                "Rate limit exceeded. Try again later."
-        );
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded. Try again later.");
         problem.setType(URI.create(baseUrl + "/errors/too-many-requests"));
         problem.setInstance(URI.create(baseUrl + request.getRequestURI()));
         return problem;

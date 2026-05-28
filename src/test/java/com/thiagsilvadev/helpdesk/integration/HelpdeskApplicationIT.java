@@ -5,6 +5,5 @@ import org.junit.jupiter.api.Test;
 class HelpdeskApplicationIT extends PostgresIntegrationTest {
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 }

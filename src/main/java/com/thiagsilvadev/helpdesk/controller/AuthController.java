@@ -16,32 +16,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthController implements AuthApi {
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	public AuthController(AuthService authService) {
-		this.authService = authService;
-	}
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
-	@Override
-	public ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request) {
-		return ResponseEntity.ok(authService.authenticate(request));
-	}
+    @Override
+    public ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
 
-	@Override
-	public ResponseEntity<AuthResponse> refreshAuthenticationTokens(@RequestBody @Valid RefreshTokenRequest request) {
-		return ResponseEntity.ok(authService.refresh(request));
-	}
+    @Override
+    public ResponseEntity<AuthResponse> refreshAuthenticationTokens(@RequestBody @Valid RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
+    }
 
-	@Override
-	public ResponseEntity<Void> logoutAuthenticatedSession(@RequestBody @Valid LogoutRequest request) {
-		authService.logout(request);
-		return ResponseEntity.noContent().build();
-	}
+    @Override
+    public ResponseEntity<Void> logoutAuthenticatedSession(@RequestBody @Valid LogoutRequest request) {
+        authService.logout(request);
+        return ResponseEntity.noContent().build();
+    }
 
-	@Override
-	public ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(
-			@CurrentUserId Long userId
-	) {
-		return ResponseEntity.ok(authService.getAuthenticatedUser(userId));
-	}
+    @Override
+    public ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(@CurrentUserId Long userId) {
+        return ResponseEntity.ok(authService.getAuthenticatedUser(userId));
+    }
 }

@@ -1,20 +1,18 @@
 package com.thiagsilvadev.helpdesk.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserIdResolver;
-
+import java.lang.reflect.Method;
+import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import java.lang.reflect.Method;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class CurrentUserIdResolverTest {
 
@@ -64,10 +62,8 @@ class CurrentUserIdResolverTest {
     }
 
     private static class TestEndpoint {
-        void supported(@CurrentUserId Long userId) {
-        }
+        void supported(@CurrentUserId Long userId) {}
 
-        void unsupported(Long userId) {
-        }
+        void unsupported(Long userId) {}
     }
 }

@@ -1,10 +1,20 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,17 +29,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 class ValidationExceptionHandlerTest {
 
@@ -117,8 +116,7 @@ class ValidationExceptionHandlerTest {
     class HandlerMethodValidation {
         @Test
         void shouldHandleInvalidRequestParamValue() throws Exception {
-            mockMvc.perform(get("/test-validation/param")
-                            .param("val", "0"))
+            mockMvc.perform(get("/test-validation/param").param("val", "0"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.invalid_params[0].name").value("val"))
                     .andExpect(jsonPath("$.invalid_params[0].reason").value("must be greater than or equal to 1"));
@@ -129,30 +127,23 @@ class ValidationExceptionHandlerTest {
     @RequestMapping("/test-validation")
     static class DummyController {
 
-        record DummyDto(@NotBlank(message = NOT_BLANK_MESSAGE) String title) {
-        }
+        record DummyDto(@NotBlank(message = NOT_BLANK_MESSAGE) String title) {}
 
-        record DummyEnumDto(Roles role) {
-        }
+        record DummyEnumDto(Roles role) {}
 
         @PostMapping("/dto")
-        void testDto(@Valid @RequestBody DummyDto dto) {
-        }
+        void testDto(@Valid @RequestBody DummyDto dto) {}
 
         @PostMapping("/enum")
-        void testEnum(@RequestBody DummyEnumDto dto) {
-        }
+        void testEnum(@RequestBody DummyEnumDto dto) {}
 
         @GetMapping("/mismatch/{id}")
-        void testMismatch(@PathVariable Long id) {
-        }
+        void testMismatch(@PathVariable Long id) {}
 
         @GetMapping("/param")
-        void testParam(@RequestParam @Min(1) Integer val) {
-        }
+        void testParam(@RequestParam @Min(1) Integer val) {}
 
         @GetMapping("/header")
-        void testHeader(@RequestHeader("X-Custom-Header") @NotBlank String header) {
-        }
+        void testHeader(@RequestHeader("X-Custom-Header") @NotBlank String header) {}
     }
 }

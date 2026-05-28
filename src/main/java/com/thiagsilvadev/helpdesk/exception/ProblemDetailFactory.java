@@ -1,17 +1,16 @@
 package com.thiagsilvadev.helpdesk.exception;
 
 import jakarta.annotation.Nullable;
+import java.net.URI;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Map;
 
 @Component
 public class ProblemDetailFactory {
@@ -26,7 +25,7 @@ public class ProblemDetailFactory {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(status, message);
         return enrich(detail, null);
     }
-    
+
     public ProblemDetail enrich(ProblemDetail problemDetail) {
         return enrich(problemDetail, null);
     }

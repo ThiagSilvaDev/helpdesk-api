@@ -1,17 +1,16 @@
 package com.thiagsilvadev.helpdesk.filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+
 import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
 import jakarta.servlet.FilterChain;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 
 class RequestLoggingFilterTest {
 

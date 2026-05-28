@@ -9,6 +9,4 @@ public record CreateStaffTicketRequest(
         @NotBlank @Size(min = 5, max = 100) String title,
         @NotBlank @Size(min = 10) String description,
         @NotNull Long requesterId,
-        @NotNull TicketPriority priority
-) {
-}
+        @NotNull TicketPriority priority) {}

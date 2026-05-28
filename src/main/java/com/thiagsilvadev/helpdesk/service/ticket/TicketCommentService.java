@@ -28,11 +28,12 @@ public class TicketCommentService {
     private final TicketCommentMapper ticketCommentMapper;
     private final NotificationDispatchService notificationDispatchService;
 
-    public TicketCommentService(TicketCommentRepository ticketCommentRepository,
-                                TicketQueryService ticketQueryService,
-                                UserService userService,
-                                TicketCommentMapper ticketCommentMapper,
-                                NotificationDispatchService notificationDispatchService) {
+    public TicketCommentService(
+            TicketCommentRepository ticketCommentRepository,
+            TicketQueryService ticketQueryService,
+            UserService userService,
+            TicketCommentMapper ticketCommentMapper,
+            NotificationDispatchService notificationDispatchService) {
         this.ticketCommentRepository = ticketCommentRepository;
         this.ticketQueryService = ticketQueryService;
         this.userService = userService;
@@ -54,8 +55,7 @@ public class TicketCommentService {
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication)")
     public Page<TicketCommentResponse> findByTicketId(Long ticketId, Pageable pageable) {
-        return ticketCommentRepository.findByTicketId(ticketId, pageable)
-                .map(ticketCommentMapper::toResponse);
+        return ticketCommentRepository.findByTicketId(ticketId, pageable).map(ticketCommentMapper::toResponse);
     }
 
     @PreAuthorize("@ticketAuthorization.canReadAsParticipant(#ticketId, authentication) "
@@ -77,7 +77,8 @@ public class TicketCommentService {
     }
 
     private TicketComment getCommentEntityByIdAndTicketId(Long commentId, Long ticketId) {
-        return ticketCommentRepository.findByIdAndTicketId(commentId, ticketId)
+        return ticketCommentRepository
+                .findByIdAndTicketId(commentId, ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.COMMENT, commentId));
     }
 }

@@ -1,10 +1,21 @@
 package com.thiagsilvadev.helpdesk.controller;
 
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
 import com.thiagsilvadev.helpdesk.dto.notification.NotificationResponse;
 import com.thiagsilvadev.helpdesk.dto.notification.UnreadNotificationCountResponse;
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationService;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
@@ -17,18 +28,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.time.Instant;
-import java.util.List;
-
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-
 class NotificationControllerTest {
 
     private NotificationService notificationService;
@@ -39,9 +38,7 @@ class NotificationControllerTest {
         notificationService = mock(NotificationService.class);
         mockMvc = standaloneSetup(new NotificationController(notificationService))
                 .setCustomArgumentResolvers(
-                        new TestCurrentUserIdArgumentResolver(),
-                        new PageableHandlerMethodArgumentResolver()
-                )
+                        new TestCurrentUserIdArgumentResolver(), new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
@@ -65,8 +62,7 @@ class NotificationControllerTest {
     void shouldReturnUnreadCount() throws Exception {
         given(notificationService.countUnread(42L)).willReturn(new UnreadNotificationCountResponse(3));
 
-        mockMvc.perform(get("/api/notifications/unread-count")
-                        .header("X-Test-User-Id", "42"))
+        mockMvc.perform(get("/api/notifications/unread-count").header("X-Test-User-Id", "42"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.unreadCount").value(3));
     }
@@ -83,20 +79,17 @@ class NotificationControllerTest {
                 77L,
                 true,
                 Instant.now(),
-                Instant.now()
-        );
+                Instant.now());
         given(notificationService.markAsRead(1L, 42L)).willReturn(response);
 
-        mockMvc.perform(patch("/api/notifications/1/read")
-                        .header("X-Test-User-Id", "42"))
+        mockMvc.perform(patch("/api/notifications/1/read").header("X-Test-User-Id", "42"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.read").value(true));
     }
 
     @Test
     void shouldMarkAllNotificationsRead() throws Exception {
-        mockMvc.perform(patch("/api/notifications/read-all")
-                        .header("X-Test-User-Id", "42"))
+        mockMvc.perform(patch("/api/notifications/read-all").header("X-Test-User-Id", "42"))
                 .andExpect(status().isNoContent());
 
         then(notificationService).should().markAllAsRead(42L);
@@ -113,8 +106,7 @@ class NotificationControllerTest {
                 77L,
                 false,
                 null,
-                Instant.now()
-        );
+                Instant.now());
     }
 
     private static class TestCurrentUserIdArgumentResolver implements HandlerMethodArgumentResolver {
@@ -125,10 +117,11 @@ class NotificationControllerTest {
         }
 
         @Override
-        public Object resolveArgument(MethodParameter parameter,
-                                      ModelAndViewContainer mavContainer,
-                                      NativeWebRequest webRequest,
-                                      WebDataBinderFactory binderFactory) {
+        public Object resolveArgument(
+                MethodParameter parameter,
+                ModelAndViewContainer mavContainer,
+                NativeWebRequest webRequest,
+                WebDataBinderFactory binderFactory) {
             return Long.valueOf(webRequest.getHeader("X-Test-User-Id"));
         }
     }

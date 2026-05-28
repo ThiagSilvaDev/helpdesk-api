@@ -23,34 +23,19 @@ public interface AdminSystemApi {
 
     @GetMapping("/health")
     @Operation(operationId = "getAdminSystemHealth")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Health retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Health retrieved")})
     ResponseEntity<AdminSystemHealthResponse> getAdminSystemHealth();
 
     @GetMapping("/metrics")
     @Operation(operationId = "listAdminSystemMetricNames")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Metric names retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Metric names retrieved")})
     ResponseEntity<AdminSystemMetricNamesResponse> listAdminSystemMetricNames();
 
     @GetMapping("/metrics/{metricName}")
     @Operation(operationId = "getAdminSystemMetric")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Metric retrieved"
-            ),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+        @ApiResponse(responseCode = "200", description = "Metric retrieved"),
+        @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(
-            @PathVariable String metricName
-    );
+    ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(@PathVariable String metricName);
 }

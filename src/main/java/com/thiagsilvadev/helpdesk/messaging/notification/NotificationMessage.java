@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.messaging.notification;
 
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
-
 import java.util.UUID;
 
 public record NotificationMessage(
@@ -12,6 +11,4 @@ public record NotificationMessage(
         String message,
         Long ticketId,
         Long commentId,
-        Long actorUserId
-) {
-}
+        Long actorUserId) {}

@@ -2,6 +2,8 @@ package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
 import jakarta.validation.ConstraintViolationException;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSourceResolvable;
@@ -33,9 +35,6 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Order(1)
@@ -83,15 +82,15 @@ public class ValidationExceptionHandler {
                     : UNKNOWN_FIELD;
 
             String reason;
-            if (cause instanceof InvalidFormatException formatException && formatException.getTargetType().isEnum()) {
+            if (cause instanceof InvalidFormatException formatException
+                    && formatException.getTargetType().isEnum()) {
                 String accepted = Arrays.stream(formatException.getTargetType().getEnumConstants())
                         .map(Object::toString)
                         .collect(Collectors.joining(", "));
                 reason = "Accepted values are: " + accepted;
             } else {
-                String targetType = cause.getTargetType() != null
-                        ? cause.getTargetType().getSimpleName()
-                        : "valid type";
+                String targetType =
+                        cause.getTargetType() != null ? cause.getTargetType().getSimpleName() : "valid type";
                 reason = String.format("must be of type %s", targetType);
             }
 
@@ -117,7 +116,8 @@ public class ValidationExceptionHandler {
     public ProblemDetail handleServletRequestBinding(ServletRequestBindingException ex) {
         InvalidParam invalidParam = resolveRequestBindingError(ex);
         List<InvalidParam> invalidParams = List.of(invalidParam);
-        ProblemDetail problemDetail = problemDetails.create(HttpStatus.BAD_REQUEST, "Missing required request component");
+        ProblemDetail problemDetail =
+                problemDetails.create(HttpStatus.BAD_REQUEST, "Missing required request component");
         return problemDetails.enrich(problemDetail, invalidParamsProperty(invalidParams));
     }
 
@@ -125,28 +125,18 @@ public class ValidationExceptionHandler {
         return switch (ex) {
             case MissingServletRequestParameterException e -> new InvalidParam(
                     e.getParameterName(),
-                    String.format("Required query parameter '%s' is missing", e.getParameterName())
-            );
+                    String.format("Required query parameter '%s' is missing", e.getParameterName()));
             case MissingRequestHeaderException e -> new InvalidParam(
-                    e.getHeaderName(),
-                    String.format("Required request header '%s' is missing", e.getHeaderName())
-            );
+                    e.getHeaderName(), String.format("Required request header '%s' is missing", e.getHeaderName()));
             case MissingRequestCookieException e -> new InvalidParam(
-                    e.getCookieName(),
-                    String.format("Required cookie '%s' is missing", e.getCookieName())
-            );
+                    e.getCookieName(), String.format("Required cookie '%s' is missing", e.getCookieName()));
             case MissingPathVariableException e -> new InvalidParam(
-                    e.getVariableName(),
-                    String.format("Required path variable '%s' is missing", e.getVariableName())
-            );
+                    e.getVariableName(), String.format("Required path variable '%s' is missing", e.getVariableName()));
             case MissingMatrixVariableException e -> new InvalidParam(
                     e.getVariableName(),
-                    String.format("Required matrix variable '%s' is missing", e.getVariableName())
-            );
+                    String.format("Required matrix variable '%s' is missing", e.getVariableName()));
             case UnsatisfiedServletRequestParameterException e -> new InvalidParam(
-                    "request parameters",
-                    e.getMessage()
-            );
+                    "request parameters", e.getMessage());
             default -> new InvalidParam("request", ex.getMessage());
         };
     }
@@ -157,26 +147,21 @@ public class ValidationExceptionHandler {
         ex.visitResults(new HandlerMethodValidationException.Visitor() {
 
             private void extractSimpleErrors(@NonNull ParameterValidationResult result) {
-                String paramName = Objects.requireNonNullElse(
-                        result.getMethodParameter().getParameterName(),
-                        UNKNOWN_FIELD
-                );
+                String paramName =
+                        Objects.requireNonNullElse(result.getMethodParameter().getParameterName(), UNKNOWN_FIELD);
 
-                result.getResolvableErrors().forEach(error ->
-                        invalidParams.add(new InvalidParam(paramName, getErrorMessage(error)))
-                );
+                result.getResolvableErrors()
+                        .forEach(error -> invalidParams.add(new InvalidParam(paramName, getErrorMessage(error))));
             }
 
             private void extractComplexErrors(@NonNull ParameterErrors errors) {
-                errors.getFieldErrors().forEach(fieldError ->
-                        invalidParams.add(new InvalidParam(fieldError.getField(), getErrorMessage(fieldError)))
-                );
+                errors.getFieldErrors()
+                        .forEach(fieldError -> invalidParams.add(
+                                new InvalidParam(fieldError.getField(), getErrorMessage(fieldError))));
 
                 errors.getGlobalErrors().forEach(globalError -> {
                     String paramName = Objects.requireNonNullElse(
-                            errors.getMethodParameter().getParameterName(),
-                            UNKNOWN_FIELD
-                    );
+                            errors.getMethodParameter().getParameterName(), UNKNOWN_FIELD);
                     invalidParams.add(new InvalidParam(paramName, getErrorMessage(globalError)));
                 });
             }
@@ -187,7 +172,8 @@ public class ValidationExceptionHandler {
             }
 
             @Override
-            public void matrixVariable(@NonNull MatrixVariable matrixVariable, @NonNull ParameterValidationResult result) {
+            public void matrixVariable(
+                    @NonNull MatrixVariable matrixVariable, @NonNull ParameterValidationResult result) {
                 extractSimpleErrors(result);
             }
 
@@ -237,6 +223,5 @@ public class ValidationExceptionHandler {
         return error.getDefaultMessage() != null ? error.getDefaultMessage() : "invalid value";
     }
 
-    private record InvalidParam(String name, String reason) {
-    }
+    private record InvalidParam(String name, String reason) {}
 }

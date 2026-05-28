@@ -18,7 +18,6 @@ public class NotificationMapper {
                 notification.getActorUserId(),
                 notification.isRead(),
                 notification.getReadAt(),
-                notification.getCreatedAt()
-        );
+                notification.getCreatedAt());
     }
 }

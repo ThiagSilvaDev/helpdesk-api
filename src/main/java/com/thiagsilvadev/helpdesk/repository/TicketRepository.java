@@ -1,20 +1,19 @@
 package com.thiagsilvadev.helpdesk.repository;
 
 import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Optional;
-
 public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecificationExecutor<Ticket> {
 
-	boolean existsByIdAndClientId(Long id, Long clientId);
+    boolean existsByIdAndClientId(Long id, Long clientId);
 
-	boolean existsByIdAndTechnicianId(Long id, Long technicianId);
+    boolean existsByIdAndTechnicianId(Long id, Long technicianId);
 
-	Optional<Ticket> findByIdAndClientId(Long ticketId, Long userId);
+    Optional<Ticket> findByIdAndClientId(Long ticketId, Long userId);
 
-	Page<Ticket> findByClientId(Long clientId, Pageable pageable);
+    Page<Ticket> findByClientId(Long clientId, Pageable pageable);
 }

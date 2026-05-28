@@ -1,7 +1,6 @@
 package com.thiagsilvadev.helpdesk.dto.notification;
 
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
-
 import java.time.Instant;
 
 public record NotificationResponse(
@@ -14,6 +13,4 @@ public record NotificationResponse(
         Long actorUserId,
         boolean read,
         Instant readAt,
-        Instant createdAt
-) {
-}
+        Instant createdAt) {}

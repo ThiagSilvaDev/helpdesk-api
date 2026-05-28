@@ -10,6 +10,7 @@ import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
 import com.thiagsilvadev.helpdesk.security.authentication.RefreshTokenService;
 import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,8 +18,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -30,10 +29,11 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
-    public AuthService(AuthenticationManager authenticationManager,
-                       JwtService jwtService,
-                       RefreshTokenService refreshTokenService,
-                       UserService userService) {
+    public AuthService(
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            RefreshTokenService refreshTokenService,
+            UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -42,8 +42,7 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthLoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Long userId = Objects.requireNonNull(userPrincipal).getId();
@@ -59,8 +58,7 @@ public class AuthService {
                 refreshToken.token(),
                 jwtService.getExpirationSeconds(),
                 refreshToken.expiresIn(),
-                toAuthUserResponse(userPrincipal)
-        );
+                toAuthUserResponse(userPrincipal));
     }
 
     public AuthResponse refresh(RefreshTokenRequest request) {
@@ -74,11 +72,7 @@ public class AuthService {
         String token = jwtService.generateToken(userPrincipal);
 
         return AuthResponse.refresh(
-                token,
-                rotation.refreshToken(),
-                jwtService.getExpirationSeconds(),
-                rotation.refreshExpiresIn()
-        );
+                token, rotation.refreshToken(), jwtService.getExpirationSeconds(), rotation.refreshExpiresIn());
     }
 
     public void logout(LogoutRequest request) {
@@ -88,27 +82,14 @@ public class AuthService {
     public AuthenticatedUserResponse getAuthenticatedUser(Long userId) {
         User user = userService.getUserById(userId);
         return new AuthenticatedUserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole(),
-                user.isActive()
-        );
+                user.getId(), user.getName(), user.getEmail(), user.getRole(), user.isActive());
     }
 
     private AuthUserResponse toAuthUserResponse(UserPrincipal userPrincipal) {
-        return new AuthUserResponse(
-                userPrincipal.getId(),
-                userPrincipal.getName(),
-                userPrincipal.getRole()
-        );
+        return new AuthUserResponse(userPrincipal.getId(), userPrincipal.getName(), userPrincipal.getRole());
     }
 
     private AuthUserResponse toAuthUserResponse(User user) {
-        return new AuthUserResponse(
-                user.getId(),
-                user.getName(),
-                user.getRole()
-        );
+        return new AuthUserResponse(user.getId(), user.getName(), user.getRole());
     }
 }

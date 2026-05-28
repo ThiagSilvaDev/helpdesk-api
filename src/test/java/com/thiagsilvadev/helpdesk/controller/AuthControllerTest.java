@@ -1,5 +1,14 @@
 package com.thiagsilvadev.helpdesk.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
 import com.thiagsilvadev.helpdesk.dto.auth.AuthLoginRequest;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthResponse;
 import com.thiagsilvadev.helpdesk.dto.auth.AuthUserResponse;
@@ -11,15 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 class AuthControllerTest {
 
@@ -40,12 +40,13 @@ class AuthControllerTest {
                         "refresh-token",
                         3600,
                         604800,
-                        new AuthUserResponse(1L, "Jane User", Roles.ROLE_USER)
-                ));
+                        new AuthUserResponse(1L, "Jane User", Roles.ROLE_USER)));
 
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "email": "jane@helpdesk.local",
                                   "password": "StrongPass@123"
@@ -65,12 +66,7 @@ class AuthControllerTest {
     @Test
     void shouldRefreshTokens() throws Exception {
         given(authService.refresh(any(RefreshTokenRequest.class)))
-                .willReturn(AuthResponse.refresh(
-                        "new-jwt-token",
-                        "new-refresh-token",
-                        3600,
-                        604800
-                ));
+                .willReturn(AuthResponse.refresh("new-jwt-token", "new-refresh-token", 3600, 604800));
 
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)

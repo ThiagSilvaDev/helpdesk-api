@@ -8,6 +8,9 @@ import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricTagResponse;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.exception.ResourceType;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
@@ -15,10 +18,6 @@ import org.springframework.boot.micrometer.metrics.actuate.endpoint.MetricsEndpo
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,9 +39,7 @@ public class AdminSystemService {
     @PreAuthorize("hasRole('ADMIN')")
     public AdminSystemMetricNamesResponse listMetricNames() {
         MetricsEndpoint.MetricNamesDescriptor descriptor = metricsEndpoint.listNames();
-        List<String> names = descriptor.getNames().stream()
-                .sorted()
-                .toList();
+        List<String> names = descriptor.getNames().stream().sorted().toList();
 
         return new AdminSystemMetricNamesResponse(names);
     }
@@ -58,10 +55,7 @@ public class AdminSystemService {
     }
 
     private AdminSystemHealthResponse mapHealthDescriptor(HealthDescriptor descriptor) {
-        return new AdminSystemHealthResponse(
-                getStatusCode(descriptor),
-                mapHealthComponents(descriptor)
-        );
+        return new AdminSystemHealthResponse(getStatusCode(descriptor), mapHealthComponents(descriptor));
     }
 
     private List<AdminSystemHealthComponentResponse> mapHealthComponents(HealthDescriptor descriptor) {
@@ -70,10 +64,7 @@ public class AdminSystemService {
         }
 
         return Objects.requireNonNull(compositeHealthDescriptor.getComponents()).entrySet().stream()
-                .map(entry -> new AdminSystemHealthComponentResponse(
-                        entry.getKey(),
-                        getStatusCode(entry.getValue())
-                ))
+                .map(entry -> new AdminSystemHealthComponentResponse(entry.getKey(), getStatusCode(entry.getValue())))
                 .sorted(Comparator.comparing(AdminSystemHealthComponentResponse::name))
                 .toList();
     }
@@ -84,25 +75,16 @@ public class AdminSystemService {
 
         List<AdminSystemMetricMeasurementResponse> measurements = descriptor.getMeasurements().stream()
                 .map(sample -> new AdminSystemMetricMeasurementResponse(
-                        sample.getStatistic().name(),
-                        sample.getValue()
-                ))
+                        sample.getStatistic().name(), sample.getValue()))
                 .toList();
 
         List<AdminSystemMetricTagResponse> availableTags = descriptor.getAvailableTags().stream()
                 .map(tag -> new AdminSystemMetricTagResponse(
-                        tag.getTag(),
-                        tag.getValues().stream().sorted().toList()
-                ))
+                        tag.getTag(), tag.getValues().stream().sorted().toList()))
                 .toList();
 
         return new AdminSystemMetricDetailResponse(
-                descriptor.getName(),
-                description,
-                baseUnit,
-                measurements,
-                availableTags
-        );
+                descriptor.getName(), description, baseUnit, measurements, availableTags);
     }
 
     private String getStatusCode(HealthDescriptor descriptor) {

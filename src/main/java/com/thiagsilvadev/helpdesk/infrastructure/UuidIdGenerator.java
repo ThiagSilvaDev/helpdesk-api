@@ -1,8 +1,7 @@
 package com.thiagsilvadev.helpdesk.infrastructure;
 
-import org.springframework.stereotype.Component;
-
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
 @Component
 public class UuidIdGenerator implements IdGenerator {

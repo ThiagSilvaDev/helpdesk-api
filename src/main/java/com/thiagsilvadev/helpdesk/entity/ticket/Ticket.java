@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 
 @Entity
@@ -51,8 +50,7 @@ public class Ticket extends AuditableEntity {
 
     private Instant closedAt;
 
-    public Ticket() {
-    }
+    public Ticket() {}
 
     public Ticket(String title, String description, User client, TicketPriority priority) {
         if (client.getRole() != Roles.ROLE_USER) {

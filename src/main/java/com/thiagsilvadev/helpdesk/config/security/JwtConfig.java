@@ -2,6 +2,12 @@ package com.thiagsilvadev.helpdesk.config.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.thiagsilvadev.helpdesk.security.authentication.JwtClaims;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,13 +24,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties.class)
@@ -58,8 +57,7 @@ public class JwtConfig {
                 audienceValidator(jwtProperties.audience()),
                 accessTokenUseValidator(),
                 subjectValidator(),
-                rolesValidator()
-        ));
+                rolesValidator()));
 
         return jwtDecoder;
     }
@@ -67,11 +65,7 @@ public class JwtConfig {
     private OAuth2TokenValidator<Jwt> audienceValidator(String audience) {
         return jwt -> jwt.getAudience().contains(audience)
                 ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                "invalid_token",
-                "JWT audience is invalid",
-                null
-        ));
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "JWT audience is invalid", null));
     }
 
     private OAuth2TokenValidator<Jwt> accessTokenUseValidator() {
@@ -79,11 +73,8 @@ public class JwtConfig {
             String tokenUse = jwt.getClaimAsString(JwtClaims.TOKEN_USE);
             return Objects.equals(tokenUse, JwtClaims.TOKEN_USE_ACCESS)
                     ? OAuth2TokenValidatorResult.success()
-                    : OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                    "invalid_token",
-                    "JWT token_use must be access",
-                    null
-            ));
+                    : OAuth2TokenValidatorResult.failure(
+                            new OAuth2Error("invalid_token", "JWT token_use must be access", null));
         };
     }
 
@@ -91,22 +82,16 @@ public class JwtConfig {
         return jwt -> {
             String subject = jwt.getSubject();
             if (subject == null || subject.isBlank()) {
-                return OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                        "invalid_token",
-                        "JWT subject must be a user id",
-                        null
-                ));
+                return OAuth2TokenValidatorResult.failure(
+                        new OAuth2Error("invalid_token", "JWT subject must be a user id", null));
             }
 
             try {
                 Long.valueOf(subject);
                 return OAuth2TokenValidatorResult.success();
             } catch (NumberFormatException ex) {
-                return OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                        "invalid_token",
-                        "JWT subject must be a user id",
-                        null
-                ));
+                return OAuth2TokenValidatorResult.failure(
+                        new OAuth2Error("invalid_token", "JWT subject must be a user id", null));
             }
         };
     }
@@ -116,11 +101,8 @@ public class JwtConfig {
             List<String> roles = jwt.getClaimAsStringList(JwtClaims.USER_ROLES);
             return roles != null && !roles.isEmpty()
                     ? OAuth2TokenValidatorResult.success()
-                    : OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                    "invalid_token",
-                    "JWT roles must not be empty",
-                    null
-            ));
+                    : OAuth2TokenValidatorResult.failure(
+                            new OAuth2Error("invalid_token", "JWT roles must not be empty", null));
         };
     }
 
@@ -133,8 +115,9 @@ public class JwtConfig {
         } catch (IllegalArgumentException ignored) {
         }
 
-        logger.warn("JWT secret is not valid Base64 or decodes to less than 256 bits; falling back to plain text encoding. "
-                + "Use a Base64-encoded secret in production environments.");
+        logger.warn(
+                "JWT secret is not valid Base64 or decodes to less than 256 bits; falling back to plain text encoding. "
+                        + "Use a Base64-encoded secret in production environments.");
         return secret.getBytes(StandardCharsets.UTF_8);
     }
 }

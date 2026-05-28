@@ -1,36 +1,33 @@
 package com.thiagsilvadev.helpdesk.security;
 
-import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
-import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
-import com.thiagsilvadev.helpdesk.security.authentication.JwtClaims;
-import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtConfig;
+import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
-import org.junit.jupiter.api.Test;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.test.util.ReflectionTestUtils;
-
+import com.thiagsilvadev.helpdesk.security.authentication.JwtClaims;
+import com.thiagsilvadev.helpdesk.security.authentication.JwtService;
+import com.thiagsilvadev.helpdesk.security.authentication.UserPrincipal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-
 import javax.crypto.SecretKey;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class JwtServiceTest {
 
@@ -41,13 +38,8 @@ class JwtServiceTest {
     private static final Long USER_ID = 42L;
     private static final Instant TOKEN_ISSUED_AT = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     private static final UUID TOKEN_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final JwtProperties JWT_PROPERTIES = new JwtProperties(
-            SECRET,
-            EXPIRATION_MS,
-            604_800_000L,
-            ISSUER,
-            AUDIENCE
-    );
+    private static final JwtProperties JWT_PROPERTIES =
+            new JwtProperties(SECRET, EXPIRATION_MS, 604_800_000L, ISSUER, AUDIENCE);
 
     private final JwtConfig jwtConfig = new JwtConfig();
     private final SecretKey signingKey = jwtConfig.jwtSigningKey(JWT_PROPERTIES);
@@ -87,7 +79,8 @@ class JwtServiceTest {
 
     @Test
     void shouldRejectTokenWithoutNumericSubject() {
-        String token = token("not-a-user-id", List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, List.of(Roles.ROLE_USER.name()));
+        String token =
+                token("not-a-user-id", List.of(AUDIENCE), JwtClaims.TOKEN_USE_ACCESS, List.of(Roles.ROLE_USER.name()));
 
         assertThatExceptionOfType(JwtException.class)
                 .isThrownBy(() -> jwtDecoder.decode(token))
@@ -156,7 +149,9 @@ class JwtServiceTest {
         }
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
+        return jwtEncoder
+                .encode(JwtEncoderParameters.from(header, claims.build()))
+                .getTokenValue();
     }
 
     private User user(Long id, Roles role) {
@@ -164,8 +159,7 @@ class JwtServiceTest {
                 role == Roles.ROLE_TECHNICIAN ? "Tech User" : "Jane User",
                 role == Roles.ROLE_TECHNICIAN ? "tech@helpdesk.local" : "jane@helpdesk.local",
                 "encoded-password",
-                role
-        );
+                role);
         ReflectionTestUtils.setField(user, "id", id);
         return user;
     }

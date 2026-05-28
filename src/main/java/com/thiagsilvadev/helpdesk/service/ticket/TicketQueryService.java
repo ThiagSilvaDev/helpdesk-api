@@ -28,7 +28,8 @@ public class TicketQueryService {
     }
 
     protected Ticket getTicketEntityById(Long ticketId) {
-        return ticketRepository.findById(ticketId)
+        return ticketRepository
+                .findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
 
@@ -39,20 +40,19 @@ public class TicketQueryService {
 
     @PreAuthorize("@ticketAuthorization.canRead(#ticketId, authentication)")
     public TicketResponse getOwnTicketById(Long ticketId, Long userId) {
-        return ticketRepository.findByIdAndClientId(ticketId, userId)
+        return ticketRepository
+                .findByIdAndClientId(ticketId, userId)
                 .map(ticketMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.TICKET, ticketId));
     }
 
     public Page<TicketResponse> findTicketsByClientId(Long clientId, Pageable pageable) {
-        return ticketRepository.findByClientId(clientId, pageable)
-                .map(ticketMapper::toResponse);
+        return ticketRepository.findByClientId(clientId, pageable).map(ticketMapper::toResponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public Page<TicketResponse> findAll(TicketSearchCriteria criteria, Pageable pageable) {
         Specification<Ticket> spec = TicketSpecification.withCriteria(criteria);
-        return ticketRepository.findAll(spec, pageable)
-                .map(ticketMapper::toResponse);
+        return ticketRepository.findAll(spec, pageable).map(ticketMapper::toResponse);
     }
 }

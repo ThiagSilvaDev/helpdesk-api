@@ -1,8 +1,18 @@
 package com.thiagsilvadev.helpdesk.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.jayway.jsonpath.JsonPath;
-import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketStatus;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
@@ -16,16 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class TicketWorkflowIT extends PostgresIntegrationTest {
 
@@ -61,10 +61,12 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
 
     @Test
     void userCanOpenTicketAndTechnicianCanAssignAndCloseIt() throws Exception {
-        String createResponse = mockMvc.perform(post("/api/users/tickets")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createResponse = mockMvc.perform(
+                        post("/api/users/tickets")
+                                .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Printer issue",
                                   "description": "Office printer is not working"
@@ -98,17 +100,20 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(technician)))
                 .andExpect(status().isNoContent());
 
-        assertThat(ticketRepository.findById(ticketId.longValue()).orElseThrow().getStatus()).isEqualTo(TicketStatus.CLOSED);
+        assertThat(ticketRepository.findById(ticketId.longValue()).orElseThrow().getStatus())
+                .isEqualTo(TicketStatus.CLOSED);
     }
 
     @Test
     void userShouldNotReadAnotherUsersTicket() throws Exception {
         User otherClient = saveUser("Other User", "other@helpdesk.local", Roles.ROLE_USER);
 
-        String createResponse = mockMvc.perform(post("/api/users/tickets")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createResponse = mockMvc.perform(
+                        post("/api/users/tickets")
+                                .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Laptop issue",
                                   "description": "Laptop does not turn on"
@@ -128,10 +133,12 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
 
     @Test
     void ticketParticipantsCanCreateListUpdateAndDeleteComments() throws Exception {
-        String createTicketResponse = mockMvc.perform(post("/api/users/tickets")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createTicketResponse = mockMvc.perform(
+                        post("/api/users/tickets")
+                                .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Printer issue",
                                   "description": "Office printer is not working"
@@ -172,7 +179,10 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value("I also checked the paper tray."));
 
-        mockMvc.perform(delete("/api/tickets/{ticketId}/comments/{commentId}", ticketId.longValue(), commentId.longValue())
+        mockMvc.perform(delete(
+                                "/api/tickets/{ticketId}/comments/{commentId}",
+                                ticketId.longValue(),
+                                commentId.longValue())
                         .header(HttpHeaders.AUTHORIZATION, bearer(client)))
                 .andExpect(status().isNoContent());
 
@@ -183,10 +193,12 @@ class TicketWorkflowIT extends PostgresIntegrationTest {
     void userShouldNotCommentOnAnotherUsersTicket() throws Exception {
         User otherClient = saveUser("Other User", "other-comments@helpdesk.local", Roles.ROLE_USER);
 
-        String createTicketResponse = mockMvc.perform(post("/api/users/tickets")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(client))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createTicketResponse = mockMvc.perform(
+                        post("/api/users/tickets")
+                                .header(HttpHeaders.AUTHORIZATION, bearer(client))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "title": "Laptop issue",
                                   "description": "Laptop does not turn on"

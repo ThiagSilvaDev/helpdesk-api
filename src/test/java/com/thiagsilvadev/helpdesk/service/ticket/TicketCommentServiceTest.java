@@ -1,5 +1,11 @@
 package com.thiagsilvadev.helpdesk.service.ticket;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.CreateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.TicketCommentResponse;
 import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
@@ -13,6 +19,8 @@ import com.thiagsilvadev.helpdesk.mapper.TicketCommentMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketCommentRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,15 +31,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class TicketCommentServiceTest {
@@ -92,7 +91,8 @@ class TicketCommentServiceTest {
     void shouldUpdateComment() {
         TicketComment comment = comment("Old content");
         UpdateTicketCommentRequest request = new UpdateTicketCommentRequest("Updated content");
-        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID)).willReturn(Optional.of(comment));
+        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID))
+                .willReturn(Optional.of(comment));
         given(ticketCommentRepository.save(comment)).willReturn(comment);
 
         TicketCommentResponse response = ticketCommentService.update(TICKET_ID, COMMENT_ID, request);
@@ -103,7 +103,8 @@ class TicketCommentServiceTest {
     @Test
     void shouldDeleteComment() {
         TicketComment comment = comment("Comment to delete");
-        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID)).willReturn(Optional.of(comment));
+        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID))
+                .willReturn(Optional.of(comment));
 
         ticketCommentService.delete(TICKET_ID, COMMENT_ID);
 
@@ -112,14 +113,12 @@ class TicketCommentServiceTest {
 
     @Test
     void shouldThrowWhenCommentIsMissing() {
-        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID)).willReturn(Optional.empty());
+        given(ticketCommentRepository.findByIdAndTicketId(COMMENT_ID, TICKET_ID))
+                .willReturn(Optional.empty());
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> ticketCommentService.update(
-                        TICKET_ID,
-                        COMMENT_ID,
-                        new UpdateTicketCommentRequest("Updated content")
-                ))
+                        TICKET_ID, COMMENT_ID, new UpdateTicketCommentRequest("Updated content")))
                 .withMessage("Resource not found.")
                 .satisfies(ex -> assertThat(ex.getProperty())
                         .containsEntry("resourceName", "Comment")
@@ -136,7 +135,8 @@ class TicketCommentServiceTest {
     }
 
     private Ticket ticket() {
-        Ticket ticket = new Ticket("Printer issue", "Office printer is not working", user(10L, Roles.ROLE_USER), TicketPriority.TRIAGE);
+        Ticket ticket = new Ticket(
+                "Printer issue", "Office printer is not working", user(10L, Roles.ROLE_USER), TicketPriority.TRIAGE);
         ReflectionTestUtils.setField(ticket, "id", TICKET_ID);
         return ticket;
     }

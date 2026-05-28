@@ -6,7 +6,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -38,8 +37,7 @@ public class NotificationOutboxEvent {
 
     private Instant publishedAt;
 
-    public NotificationOutboxEvent() {
-    }
+    public NotificationOutboxEvent() {}
 
     public NotificationOutboxEvent(UUID id, String payload, Instant now) {
         this.id = id;

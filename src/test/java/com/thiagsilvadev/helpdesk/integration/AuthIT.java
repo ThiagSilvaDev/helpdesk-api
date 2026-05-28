@@ -1,5 +1,10 @@
 package com.thiagsilvadev.helpdesk.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.jayway.jsonpath.JsonPath;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
@@ -12,11 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthIT extends PostgresIntegrationTest {
 
@@ -44,15 +44,13 @@ class AuthIT extends PostgresIntegrationTest {
     @Test
     void shouldAuthenticateUserAndIssueUsableJwt() throws Exception {
         userRepository.save(new User(
-                "Jane User",
-                "jane@helpdesk.local",
-                passwordEncoder.encode("StrongPass@123"),
-                Roles.ROLE_USER
-        ));
+                "Jane User", "jane@helpdesk.local", passwordEncoder.encode("StrongPass@123"), Roles.ROLE_USER));
 
-        String response = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String response = mockMvc.perform(
+                        post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "email": "jane@helpdesk.local",
                                   "password": "StrongPass@123"
@@ -76,15 +74,13 @@ class AuthIT extends PostgresIntegrationTest {
     @Test
     void shouldRejectBadCredentials() throws Exception {
         userRepository.save(new User(
-                "Jane User",
-                "jane@helpdesk.local",
-                passwordEncoder.encode("StrongPass@123"),
-                Roles.ROLE_USER
-        ));
+                "Jane User", "jane@helpdesk.local", passwordEncoder.encode("StrongPass@123"), Roles.ROLE_USER));
 
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "email": "jane@helpdesk.local",
                                   "password": "wrong-password"

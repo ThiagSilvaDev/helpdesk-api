@@ -1,7 +1,5 @@
 package com.thiagsilvadev.helpdesk.exception;
 
-import org.springframework.web.client.HttpClientErrorException;
-
 public enum ResourceType {
     USER("User"),
     TICKET("Ticket"),

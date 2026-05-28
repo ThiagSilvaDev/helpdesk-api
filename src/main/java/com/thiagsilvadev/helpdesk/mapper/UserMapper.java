@@ -14,13 +14,7 @@ public class UserMapper {
             return null;
         }
 
-        return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole(),
-                user.isActive()
-        );
+        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.isActive());
     }
 
     public User toEntity(CreateUserRequest request, String encodedPassword) {
@@ -28,11 +22,7 @@ public class UserMapper {
             return null;
         }
 
-        return new User(
-                request.name(),
-                request.email(),
-                encodedPassword,
-                request.role());
+        return new User(request.name(), request.email(), encodedPassword, request.role());
     }
 
     public void applyUpdate(UpdateUserNameRequest request, User user) {

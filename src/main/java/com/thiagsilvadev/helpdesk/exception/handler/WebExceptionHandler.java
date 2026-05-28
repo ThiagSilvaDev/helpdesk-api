@@ -1,6 +1,9 @@
 package com.thiagsilvadev.helpdesk.exception.handler;
 
 import com.thiagsilvadev.helpdesk.exception.ProblemDetailFactory;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -9,10 +12,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 @Order(0)

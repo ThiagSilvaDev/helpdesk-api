@@ -2,11 +2,6 @@ package com.thiagsilvadev.helpdesk.security.authentication;
 
 import com.thiagsilvadev.helpdesk.config.security.JwtProperties;
 import com.thiagsilvadev.helpdesk.infrastructure.IdGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RefreshTokenService {
@@ -33,7 +32,8 @@ public class RefreshTokenService {
     private static final String STATUS_USED = "USED";
     private static final String STATUS_REVOKED = "REVOKED";
     private static final int REFRESH_TOKEN_BYTES = 32;
-    private static final String ROTATE_LUA_SCRIPT = """
+    private static final String ROTATE_LUA_SCRIPT =
+            """
             local data = redis.call('HMGET', KEYS[1], 'status', 'userId', 'familyId')
             local status = data[1]
 
@@ -61,19 +61,21 @@ public class RefreshTokenService {
     private final DefaultRedisScript<List> rotateScript;
 
     @Autowired
-    public RefreshTokenService(StringRedisTemplate redisTemplate,
-                               SecureRandom secureRandom,
-                               Clock clock,
-                               IdGenerator idGenerator,
-                               JwtProperties jwtProperties) {
+    public RefreshTokenService(
+            StringRedisTemplate redisTemplate,
+            SecureRandom secureRandom,
+            Clock clock,
+            IdGenerator idGenerator,
+            JwtProperties jwtProperties) {
         this(redisTemplate, secureRandom, clock, idGenerator, Duration.ofMillis(jwtProperties.refreshExpirationMs()));
     }
 
-    RefreshTokenService(StringRedisTemplate redisTemplate,
-                        SecureRandom secureRandom,
-                        Clock clock,
-                        IdGenerator idGenerator,
-                        Duration refreshTokenTtl) {
+    RefreshTokenService(
+            StringRedisTemplate redisTemplate,
+            SecureRandom secureRandom,
+            Clock clock,
+            IdGenerator idGenerator,
+            Duration refreshTokenTtl) {
         this.redisTemplate = redisTemplate;
         this.secureRandom = secureRandom;
         this.clock = clock;
@@ -89,10 +91,7 @@ public class RefreshTokenService {
     public RefreshTokenRotation rotate(String refreshToken) {
         String tokenHash = hash(refreshToken);
 
-        List<String> result = redisTemplate.execute(
-                rotateScript,
-                Collections.singletonList(tokenKey(tokenHash))
-        );
+        List<String> result = redisTemplate.execute(rotateScript, Collections.singletonList(tokenKey(tokenHash)));
 
         if (result == null || result.isEmpty()) {
             throw new IllegalStateException("System error during token rotation");
@@ -146,12 +145,19 @@ public class RefreshTokenService {
         String tokenHash = hash(token);
         Instant expiresAt = clock.instant().plus(refreshTokenTtl);
 
-        redisTemplate.opsForHash().putAll(tokenKey(tokenHash), Map.of(
-                FIELD_USER_ID, userId.toString(),
-                FIELD_FAMILY_ID, familyId,
-                FIELD_STATUS, STATUS_ACTIVE,
-                FIELD_EXPIRES_AT, expiresAt.toString()
-        ));
+        redisTemplate
+                .opsForHash()
+                .putAll(
+                        tokenKey(tokenHash),
+                        Map.of(
+                                FIELD_USER_ID,
+                                userId.toString(),
+                                FIELD_FAMILY_ID,
+                                familyId,
+                                FIELD_STATUS,
+                                STATUS_ACTIVE,
+                                FIELD_EXPIRES_AT,
+                                expiresAt.toString()));
         redisTemplate.expire(tokenKey(tokenHash), refreshTokenTtl);
         return new RefreshTokenIssue(token, getRefreshTokenTtlSeconds());
     }
@@ -192,9 +198,7 @@ public class RefreshTokenService {
         return FAMILY_KEY_PREFIX + familyId;
     }
 
-    public record RefreshTokenIssue(String token, long expiresIn) {
-    }
+    public record RefreshTokenIssue(String token, long expiresIn) {}
 
-    public record RefreshTokenRotation(Long userId, String refreshToken, long refreshExpiresIn) {
-    }
+    public record RefreshTokenRotation(Long userId, String refreshToken, long refreshExpiresIn) {}
 }

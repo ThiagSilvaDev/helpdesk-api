@@ -4,6 +4,9 @@ import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxEvent;
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationOutboxStatus;
 import com.thiagsilvadev.helpdesk.messaging.rabbitmq.RabbitMqConfig;
 import com.thiagsilvadev.helpdesk.repository.NotificationOutboxRepository;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -14,12 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.List;
-
 @Component
-@ConditionalOnProperty(prefix = "app.notifications.rabbit", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        prefix = "app.notifications.rabbit",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 public class NotificationOutboxPublisher {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationOutboxPublisher.class);
@@ -29,10 +32,11 @@ public class NotificationOutboxPublisher {
     private final ObjectMapper objectMapper;
     private final Clock clock;
 
-    public NotificationOutboxPublisher(NotificationOutboxRepository notificationOutboxRepository,
-                                       RabbitTemplate rabbitTemplate,
-                                       ObjectMapper objectMapper,
-                                       Clock clock) {
+    public NotificationOutboxPublisher(
+            NotificationOutboxRepository notificationOutboxRepository,
+            RabbitTemplate rabbitTemplate,
+            ObjectMapper objectMapper,
+            Clock clock) {
         this.notificationOutboxRepository = notificationOutboxRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
@@ -45,18 +49,14 @@ public class NotificationOutboxPublisher {
         List<NotificationOutboxEvent> events = notificationOutboxRepository.findPublishable(
                 List.of(NotificationOutboxStatus.PENDING, NotificationOutboxStatus.FAILED),
                 Instant.from(clock.instant()),
-                PageRequest.of(0, 50)
-        );
+                PageRequest.of(0, 50));
 
         for (NotificationOutboxEvent event : events) {
             try {
                 event.retry();
                 NotificationMessage message = objectMapper.readValue(event.getPayload(), NotificationMessage.class);
                 rabbitTemplate.convertAndSend(
-                        RabbitMqConfig.NOTIFICATIONS_EXCHANGE,
-                        RabbitMqConfig.NOTIFICATIONS_ROUTING_KEY,
-                        message
-                );
+                        RabbitMqConfig.NOTIFICATIONS_EXCHANGE, RabbitMqConfig.NOTIFICATIONS_ROUTING_KEY, message);
                 event.markPublished(clock.instant());
             } catch (Exception ex) {
                 event.markFailed(ex.getMessage(), clock.instant());

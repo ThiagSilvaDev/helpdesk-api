@@ -1,25 +1,24 @@
 package com.thiagsilvadev.helpdesk.service.notification;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import com.thiagsilvadev.helpdesk.entity.notification.Notification;
 import com.thiagsilvadev.helpdesk.entity.notification.NotificationType;
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.mapper.NotificationMapper;
 import com.thiagsilvadev.helpdesk.repository.NotificationRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
@@ -35,11 +34,8 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        notificationService = new NotificationService(
-                notificationRepository,
-                notificationMapper,
-                Clock.fixed(NOW, ZoneOffset.UTC)
-        );
+        notificationService =
+                new NotificationService(notificationRepository, notificationMapper, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
     @Test
@@ -52,8 +48,7 @@ class NotificationServiceTest {
                 100L,
                 null,
                 20L,
-                UUID.randomUUID()
-        );
+                UUID.randomUUID());
 
         given(notificationRepository.findByIdAndRecipientId(1L, 10L)).willReturn(Optional.of(notification));
         given(notificationRepository.save(notification)).willReturn(notification);

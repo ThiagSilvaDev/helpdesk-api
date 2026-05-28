@@ -13,16 +13,15 @@ import com.thiagsilvadev.helpdesk.mapper.TicketMapper;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
 import com.thiagsilvadev.helpdesk.service.UserService;
 import com.thiagsilvadev.helpdesk.service.notification.NotificationDispatchService;
+import java.time.Clock;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Service
 public class TicketCommandService {
@@ -36,10 +35,13 @@ public class TicketCommandService {
     private final NotificationDispatchService notificationDispatchService;
     private final Clock clock;
 
-    public TicketCommandService(TicketRepository ticketRepository, UserService userService,
-                                TicketQueryService ticketQueryService, TicketMapper ticketMapper,
-                                NotificationDispatchService notificationDispatchService,
-                                Clock clock) {
+    public TicketCommandService(
+            TicketRepository ticketRepository,
+            UserService userService,
+            TicketQueryService ticketQueryService,
+            TicketMapper ticketMapper,
+            NotificationDispatchService notificationDispatchService,
+            Clock clock) {
         this.ticketRepository = ticketRepository;
         this.userService = userService;
         this.ticketQueryService = ticketQueryService;
@@ -48,21 +50,25 @@ public class TicketCommandService {
         this.clock = clock;
     }
 
-
     @PreAuthorize("hasRole('USER')")
     @Transactional
     public TicketResponse createByUser(CreateUserTicketRequest userRequest, Long authenticatedUserId) {
-        return createTicket(authenticatedUserId, authenticatedUserId, client -> ticketMapper.toEntityFromUserRequest(userRequest, client));
+        return createTicket(
+                authenticatedUserId,
+                authenticatedUserId,
+                client -> ticketMapper.toEntityFromUserRequest(userRequest, client));
     }
 
     @PreAuthorize("hasAnyRole('TECHNICIAN', 'ADMIN')")
     @Transactional
     public TicketResponse createByStaff(CreateStaffTicketRequest request, Long authenticatedUserId) {
-        return createTicket(request.requesterId(), authenticatedUserId, client -> ticketMapper.toEntityFromStaffRequest(request, client));
+        return createTicket(
+                request.requesterId(),
+                authenticatedUserId,
+                client -> ticketMapper.toEntityFromStaffRequest(request, client));
     }
 
-    private TicketResponse createTicket(Long clientId, Long actorUserId,
-                                        Function<User, Ticket> ticketFactory) {
+    private TicketResponse createTicket(Long clientId, Long actorUserId, Function<User, Ticket> ticketFactory) {
         User client = userService.getUserById(clientId);
         Ticket newTicket = ticketFactory.apply(client);
         Ticket savedTicket = ticketRepository.save(newTicket);

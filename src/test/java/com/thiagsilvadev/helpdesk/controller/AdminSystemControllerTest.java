@@ -1,18 +1,5 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthComponentResponse;
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthResponse;
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricMeasurementResponse;
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
-import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricTagResponse;
-import com.thiagsilvadev.helpdesk.service.AdminSystemService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -20,6 +7,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthComponentResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemHealthResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricMeasurementResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
+import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricTagResponse;
+import com.thiagsilvadev.helpdesk.service.AdminSystemService;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MockMvc;
 
 class AdminSystemControllerTest {
 
@@ -34,10 +33,9 @@ class AdminSystemControllerTest {
 
     @Test
     void shouldReturnHealth() throws Exception {
-        given(adminSystemService.getHealth()).willReturn(new AdminSystemHealthResponse(
-                "UP",
-                List.of(new AdminSystemHealthComponentResponse("db", "UP"))
-        ));
+        given(adminSystemService.getHealth())
+                .willReturn(new AdminSystemHealthResponse(
+                        "UP", List.of(new AdminSystemHealthComponentResponse("db", "UP"))));
 
         mockMvc.perform(get("/api/admin/system/health"))
                 .andExpect(status().isOk())
@@ -63,8 +61,7 @@ class AdminSystemControllerTest {
                         "Used memory",
                         "bytes",
                         List.of(new AdminSystemMetricMeasurementResponse("VALUE", 42.0)),
-                        List.of(new AdminSystemMetricTagResponse("area", List.of("heap")))
-                ));
+                        List.of(new AdminSystemMetricTagResponse("area", List.of("heap")))));
 
         mockMvc.perform(get("/api/admin/system/metrics/jvm.memory.used"))
                 .andExpect(status().isOk())

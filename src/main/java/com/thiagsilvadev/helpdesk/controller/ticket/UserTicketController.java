@@ -8,6 +8,7 @@ import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommandService;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketQueryService;
 import jakarta.validation.Valid;
+import java.net.URI;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 public class UserTicketController implements UserTicketApi {
@@ -31,11 +30,10 @@ public class UserTicketController implements UserTicketApi {
     }
 
     @Override
-    public ResponseEntity<TicketResponse> createTicketAsUser(@RequestBody @Valid CreateUserTicketRequest userRequest,
-                                                             @CurrentUserId Long userId) {
+    public ResponseEntity<TicketResponse> createTicketAsUser(
+            @RequestBody @Valid CreateUserTicketRequest userRequest, @CurrentUserId Long userId) {
         TicketResponse newTicket = ticketCommandService.createByUser(userRequest, userId);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(newTicket.id())
                 .toUri();
@@ -45,23 +43,21 @@ public class UserTicketController implements UserTicketApi {
 
     @Override
     public ResponseEntity<TicketResponse> getTicketByIdForAuthenticatedUser(
-            @PathVariable Long ticketId,
-            @CurrentUserId Long userId) {
+            @PathVariable Long ticketId, @CurrentUserId Long userId) {
         TicketResponse ticket = ticketQueryService.getOwnTicketById(ticketId, userId);
         return ResponseEntity.ok(ticket);
     }
 
     @Override
-    public ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(@CurrentUserId Long userId, Pageable pageable) {
+    public ResponseEntity<Page<TicketResponse>> listAuthenticatedUserTickets(
+            @CurrentUserId Long userId, Pageable pageable) {
         Page<TicketResponse> tickets = ticketQueryService.findTicketsByClientId(userId, pageable);
         return ResponseEntity.ok(tickets);
     }
 
     @Override
     public ResponseEntity<TicketResponse> updateTicketAsUser(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateTicketRequest request
-    ) {
+            @PathVariable Long id, @RequestBody @Valid UpdateTicketRequest request) {
         TicketResponse updatedTicket = ticketCommandService.update(id, request);
         return ResponseEntity.ok(updatedTicket);
     }

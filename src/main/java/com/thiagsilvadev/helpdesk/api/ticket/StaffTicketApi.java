@@ -35,95 +35,64 @@ public interface StaffTicketApi {
     @PostMapping
     @Operation(operationId = "createTicketAsStaff")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Ticket created"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "404", ref = "NotFound")
+        @ApiResponse(responseCode = "201", description = "Ticket created"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest"),
+        @ApiResponse(responseCode = "404", ref = "NotFound")
     })
-    ResponseEntity<TicketResponse> createTicketAsStaff(@RequestBody @Valid CreateStaffTicketRequest request,
-                                                       @CurrentUserId Long userId);
+    ResponseEntity<TicketResponse> createTicketAsStaff(
+            @RequestBody @Valid CreateStaffTicketRequest request, @CurrentUserId Long userId);
 
     @GetMapping("/{ticketId}")
     @Operation(operationId = "getTicketByIdForStaff")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Ticket found"
-            )
-    })
-    ResponseEntity<TicketResponse> getTicketByIdForStaff(
-            @PathVariable Long ticketId
-    );
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Ticket found")})
+    ResponseEntity<TicketResponse> getTicketByIdForStaff(@PathVariable Long ticketId);
 
     @GetMapping
     @Operation(operationId = "listTicketsForStaff")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Tickets retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Tickets retrieved")})
     ResponseEntity<Page<TicketResponse>> listTicketsForStaff(
-            @ParameterObject TicketSearchCriteria criteria,
-            @ParameterObject Pageable pageable
-    );
+            @ParameterObject TicketSearchCriteria criteria, @ParameterObject Pageable pageable);
 
     @PatchMapping("/{ticketId}/priority")
     @Operation(operationId = "updateTicketPriorityAsStaff")
     @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Priority updated"
-            ),
-            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
+        @ApiResponse(responseCode = "200", description = "Priority updated"),
+        @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> updateTicketPriorityAsStaff(
             @PathVariable Long ticketId,
             @RequestBody @Valid UpdateTicketPriorityRequest request,
-            @CurrentUserId Long userId
-    );
+            @CurrentUserId Long userId);
 
     @PatchMapping("/{ticketId}/technician")
     @Operation(operationId = "assignTechnicianToTicket")
     @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Technician assigned"
-            ),
-            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
+        @ApiResponse(responseCode = "200", description = "Technician assigned"),
+        @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
     ResponseEntity<TicketResponse> assignTechnicianToTicket(
             @PathVariable Long ticketId,
             @RequestBody @Valid AssignTechnicianRequest request,
-            @CurrentUserId Long userId
-    );
+            @CurrentUserId Long userId);
 
     @PatchMapping("/{ticketId}/close")
     @Operation(operationId = "closeTicketAsStaff")
     @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Ticket closed"),
-            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
+        @ApiResponse(responseCode = "204", description = "Ticket closed"),
+        @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    ResponseEntity<Void> closeTicketAsStaff(
-            @PathVariable Long ticketId,
-            @CurrentUserId Long userId
-    );
+    ResponseEntity<Void> closeTicketAsStaff(@PathVariable Long ticketId, @CurrentUserId Long userId);
 
     @PatchMapping("/{ticketId}/cancel")
     @Operation(operationId = "cancelTicketAsStaff")
     @ApiByIdErrors
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
-            @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
+        @ApiResponse(responseCode = "204", description = "Ticket cancelled"),
+        @ApiResponse(responseCode = "422", ref = "UnprocessableEntity")
     })
-    ResponseEntity<Void> cancelTicketAsStaff(
-            @PathVariable Long ticketId,
-            @CurrentUserId Long userId
-    );
+    ResponseEntity<Void> cancelTicketAsStaff(@PathVariable Long ticketId, @CurrentUserId Long userId);
 }

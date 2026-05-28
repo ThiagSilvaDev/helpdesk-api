@@ -35,73 +35,40 @@ public interface UserApi {
     @PostMapping
     @Operation(operationId = "createUser")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "User created"
-            ),
-            @ApiResponse(responseCode = "400", ref = "BadRequest"),
-            @ApiResponse(responseCode = "409", ref = "Conflict")
+        @ApiResponse(responseCode = "201", description = "User created"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest"),
+        @ApiResponse(responseCode = "409", ref = "Conflict")
     })
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest request);
 
     @GetMapping("/{id}")
     @Operation(operationId = "getUserById")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User found"
-            )
-    })
-    ResponseEntity<UserResponse> getUserById(
-            @PathVariable @Min(value = 1) Long id
-    );
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "User found")})
+    ResponseEntity<UserResponse> getUserById(@PathVariable @Min(value = 1) Long id);
 
     @GetMapping
     @Operation(operationId = "listUsers")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Users retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Users retrieved")})
     ResponseEntity<Page<UserResponse>> listUsers(@ParameterObject Pageable pageable);
 
     @PatchMapping("/{id}/name")
     @Operation(operationId = "updateUserName")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User updated"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "User updated")})
     ResponseEntity<UserResponse> updateUser(
-            @PathVariable @Min(value = 1) Long id,
-            @RequestBody @Valid UpdateUserNameRequest request
-    );
+            @PathVariable @Min(value = 1) Long id, @RequestBody @Valid UpdateUserNameRequest request);
 
     @PatchMapping("/{id}/role")
     @Operation(operationId = "changeUserRole")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User role changed"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "User role changed")})
     ResponseEntity<UserResponse> changeUserRole(
-            @PathVariable @Min(value = 1) Long id,
-            @RequestBody @Valid ChangeUserRoleRequest request
-    );
+            @PathVariable @Min(value = 1) Long id, @RequestBody @Valid ChangeUserRoleRequest request);
 
     @DeleteMapping("/{id}")
     @Operation(operationId = "deactivateUser")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "User deactivated")
-    })
-    ResponseEntity<Void> deactivateUser(
-            @PathVariable @Min(value = 1) Long id
-    );
+    @ApiResponses({@ApiResponse(responseCode = "204", description = "User deactivated")})
+    ResponseEntity<Void> deactivateUser(@PathVariable @Min(value = 1) Long id);
 }

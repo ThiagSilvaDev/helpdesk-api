@@ -29,9 +29,7 @@ public class AdminSystemController implements AdminSystemApi {
     }
 
     @Override
-    public ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(
-            @PathVariable String metricName
-    ) {
+    public ResponseEntity<AdminSystemMetricDetailResponse> getAdminSystemMetricByName(@PathVariable String metricName) {
         return ResponseEntity.ok(adminSystemService.getMetric(metricName));
     }
 }

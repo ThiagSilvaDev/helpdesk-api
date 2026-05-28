@@ -27,6 +27,6 @@ abstract class PostgresIntegrationTest {
 
     @Container
     @ServiceConnection
-    protected static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
-            .withExposedPorts(6379);
+    protected static final GenericContainer<?> redis =
+            new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
 }

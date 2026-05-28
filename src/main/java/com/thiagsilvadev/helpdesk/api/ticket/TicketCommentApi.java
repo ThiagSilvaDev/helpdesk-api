@@ -34,55 +34,31 @@ public interface TicketCommentApi {
     @PostMapping
     @Operation(operationId = "createTicketComment")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Comment created"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "201", description = "Comment created")})
     ResponseEntity<TicketCommentResponse> createTicketComment(
             @PathVariable Long ticketId,
             @RequestBody @Valid CreateTicketCommentRequest request,
-            @CurrentUserId Long userId
-    );
+            @CurrentUserId Long userId);
 
     @GetMapping
     @Operation(operationId = "listTicketComments")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Comments retrieved"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Comments retrieved")})
     ResponseEntity<Page<TicketCommentResponse>> listTicketComments(
-            @PathVariable Long ticketId,
-            @ParameterObject Pageable pageable
-    );
+            @PathVariable Long ticketId, @ParameterObject Pageable pageable);
 
     @PutMapping("/{commentId}")
     @Operation(operationId = "updateTicketComment")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Comment updated"
-            )
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Comment updated")})
     ResponseEntity<TicketCommentResponse> updateTicketComment(
             @PathVariable Long ticketId,
             @PathVariable Long commentId,
-            @RequestBody @Valid UpdateTicketCommentRequest request
-    );
+            @RequestBody @Valid UpdateTicketCommentRequest request);
 
     @DeleteMapping("/{commentId}")
     @Operation(operationId = "deleteTicketComment")
     @ApiByIdErrors
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Comment deleted")
-    })
-    ResponseEntity<Void> deleteTicketComment(
-            @PathVariable Long ticketId,
-            @PathVariable Long commentId
-    );
+    @ApiResponses({@ApiResponse(responseCode = "204", description = "Comment deleted")})
+    ResponseEntity<Void> deleteTicketComment(@PathVariable Long ticketId, @PathVariable Long commentId);
 }

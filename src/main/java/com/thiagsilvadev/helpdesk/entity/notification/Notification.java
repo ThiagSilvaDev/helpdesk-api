@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -54,11 +53,17 @@ public class Notification extends AuditableEntity {
 
     private Instant readAt;
 
-    public Notification() {
-    }
+    public Notification() {}
 
-    public Notification(User recipient, NotificationType type, String title, String message,
-                        Long ticketId, Long commentId, Long actorUserId, UUID sourceEventId) {
+    public Notification(
+            User recipient,
+            NotificationType type,
+            String title,
+            String message,
+            Long ticketId,
+            Long commentId,
+            Long actorUserId,
+            UUID sourceEventId) {
         this.recipient = Objects.requireNonNull(recipient, "recipient must not be null");
         this.type = Objects.requireNonNull(type, "type must not be null");
         this.title = requireText(title, "title");

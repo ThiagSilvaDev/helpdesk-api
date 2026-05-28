@@ -29,14 +29,11 @@ public interface NotificationApi {
 
     @GetMapping
     @Operation(operationId = "listNotifications")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Notifications retrieved")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Notifications retrieved")})
     ResponseEntity<Page<NotificationResponse>> listNotifications(
             @RequestParam(defaultValue = "false") boolean unreadOnly,
             @CurrentUserId Long userId,
-            @ParameterObject Pageable pageable
-    );
+            @ParameterObject Pageable pageable);
 
     @GetMapping("/unread-count")
     @Operation(operationId = "countUnreadNotifications")
@@ -45,10 +42,7 @@ public interface NotificationApi {
     @PatchMapping("/{id}/read")
     @Operation(operationId = "markNotificationRead")
     @ApiByIdErrors
-    ResponseEntity<NotificationResponse> markNotificationRead(
-            @PathVariable Long id,
-            @CurrentUserId Long userId
-    );
+    ResponseEntity<NotificationResponse> markNotificationRead(@PathVariable Long id, @CurrentUserId Long userId);
 
     @PatchMapping("/read-all")
     @Operation(operationId = "markAllNotificationsRead")

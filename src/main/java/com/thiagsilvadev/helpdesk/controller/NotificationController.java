@@ -23,9 +23,7 @@ public class NotificationController implements NotificationApi {
 
     @Override
     public ResponseEntity<Page<NotificationResponse>> listNotifications(
-            @RequestParam(defaultValue = "false") boolean unreadOnly,
-            @CurrentUserId Long userId,
-            Pageable pageable) {
+            @RequestParam(defaultValue = "false") boolean unreadOnly, @CurrentUserId Long userId, Pageable pageable) {
         return ResponseEntity.ok(notificationService.findForUser(userId, unreadOnly, pageable));
     }
 
@@ -35,7 +33,8 @@ public class NotificationController implements NotificationApi {
     }
 
     @Override
-    public ResponseEntity<NotificationResponse> markNotificationRead(@PathVariable Long id, @CurrentUserId Long userId) {
+    public ResponseEntity<NotificationResponse> markNotificationRead(
+            @PathVariable Long id, @CurrentUserId Long userId) {
         return ResponseEntity.ok(notificationService.markAsRead(id, userId));
     }
 

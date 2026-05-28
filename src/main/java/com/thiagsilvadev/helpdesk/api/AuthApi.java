@@ -26,29 +26,26 @@ public interface AuthApi {
     @PostMapping("/login")
     @Operation(operationId = "authenticateUserAndIssueToken")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Authentication successful"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "400", ref = "BadRequest")
+        @ApiResponse(responseCode = "200", description = "Authentication successful"),
+        @ApiResponse(responseCode = "401", ref = "Unauthorized"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<AuthResponse> authenticateUserAndIssueToken(@RequestBody @Valid AuthLoginRequest request);
 
     @PostMapping("/refresh")
     @Operation(operationId = "refreshAuthenticationTokens")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Tokens refreshed"),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized"),
-            @ApiResponse(responseCode = "400", ref = "BadRequest")
+        @ApiResponse(responseCode = "200", description = "Tokens refreshed"),
+        @ApiResponse(responseCode = "401", ref = "Unauthorized"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<AuthResponse> refreshAuthenticationTokens(@RequestBody @Valid RefreshTokenRequest request);
 
     @PostMapping("/logout")
     @Operation(operationId = "logoutAuthenticatedSession")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Refresh token revoked"),
-            @ApiResponse(responseCode = "400", ref = "BadRequest")
+        @ApiResponse(responseCode = "204", description = "Refresh token revoked"),
+        @ApiResponse(responseCode = "400", ref = "BadRequest")
     })
     ResponseEntity<Void> logoutAuthenticatedSession(@RequestBody @Valid LogoutRequest request);
 
@@ -56,13 +53,8 @@ public interface AuthApi {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(operationId = "getAuthenticatedUser")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Authenticated user retrieved"
-            ),
-            @ApiResponse(responseCode = "401", ref = "Unauthorized")
+        @ApiResponse(responseCode = "200", description = "Authenticated user retrieved"),
+        @ApiResponse(responseCode = "401", ref = "Unauthorized")
     })
-    ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(
-            @CurrentUserId Long userId
-    );
+    ResponseEntity<AuthenticatedUserResponse> getAuthenticatedUser(@CurrentUserId Long userId);
 }

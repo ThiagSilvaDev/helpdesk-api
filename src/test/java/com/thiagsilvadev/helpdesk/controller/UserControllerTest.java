@@ -1,21 +1,5 @@
 package com.thiagsilvadev.helpdesk.controller;
 
-import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
-import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
-import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
-import com.thiagsilvadev.helpdesk.entity.user.Roles;
-import com.thiagsilvadev.helpdesk.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -29,6 +13,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+
+import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
+import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
+import com.thiagsilvadev.helpdesk.dto.user.UserResponse;
+import com.thiagsilvadev.helpdesk.entity.user.Roles;
+import com.thiagsilvadev.helpdesk.service.UserService;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 class UserControllerTest {
 
@@ -45,18 +44,16 @@ class UserControllerTest {
 
     @Test
     void shouldCreateUserAndReturnLocationHeader() throws Exception {
-        CreateUserRequest request = new CreateUserRequest(
-                "Jane User",
-                "jane@helpdesk.local",
-                "StrongPass@123",
-                Roles.ROLE_USER
-        );
+        CreateUserRequest request =
+                new CreateUserRequest("Jane User", "jane@helpdesk.local", "StrongPass@123", Roles.ROLE_USER);
         given(userService.create(any(CreateUserRequest.class)))
                 .willReturn(new UserResponse(42L, request.name(), request.email(), request.role(), true));
 
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/users")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "name": "Jane User",
                                   "email": "jane@helpdesk.local",
@@ -88,8 +85,7 @@ class UserControllerTest {
                 .willReturn(new PageImpl<>(
                         List.of(new UserResponse(1L, "Admin", "admin@helpdesk.local", Roles.ROLE_ADMIN, true)),
                         PageRequest.of(1, 2),
-                        3
-                ));
+                        3));
 
         mockMvc.perform(get("/api/users").param("page", "1").param("size", "2"))
                 .andExpect(status().isOk())
@@ -125,8 +121,7 @@ class UserControllerTest {
 
     @Test
     void shouldDeactivateUser() throws Exception {
-        mockMvc.perform(delete("/api/users/5"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/users/5")).andExpect(status().isNoContent());
 
         then(userService).should().deactivate(5L);
     }

@@ -1,5 +1,11 @@
 package com.thiagsilvadev.helpdesk.repository.specification;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 import com.thiagsilvadev.helpdesk.dto.ticket.TicketSearchCriteria;
 import com.thiagsilvadev.helpdesk.entity.ticket.Ticket;
 import com.thiagsilvadev.helpdesk.entity.ticket.TicketPriority;
@@ -11,12 +17,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.domain.Specification;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 class TicketSpecificationTest {
 
@@ -46,9 +46,8 @@ class TicketSpecificationTest {
         given(criteriaBuilder.equal(priorityPath, TicketPriority.URGENT)).willReturn(priorityPredicate);
         given(criteriaBuilder.and(statusPredicate, priorityPredicate)).willReturn(combinedPredicate);
 
-        Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.URGENT)
-        );
+        Specification<Ticket> specification =
+                TicketSpecification.withCriteria(new TicketSearchCriteria(TicketStatus.OPEN, TicketPriority.URGENT));
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
 
@@ -66,9 +65,8 @@ class TicketSpecificationTest {
         given(root.get("status")).willReturn(statusPath);
         given(criteriaBuilder.equal(statusPath, TicketStatus.CLOSED)).willReturn(statusPredicate);
 
-        Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketSearchCriteria(TicketStatus.CLOSED, null)
-        );
+        Specification<Ticket> specification =
+                TicketSpecification.withCriteria(new TicketSearchCriteria(TicketStatus.CLOSED, null));
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
 
@@ -87,9 +85,8 @@ class TicketSpecificationTest {
         given(root.get("priority")).willReturn(priorityPath);
         given(criteriaBuilder.equal(priorityPath, TicketPriority.HIGH)).willReturn(priorityPredicate);
 
-        Specification<Ticket> specification = TicketSpecification.withCriteria(
-                new TicketSearchCriteria(null, TicketPriority.HIGH)
-        );
+        Specification<Ticket> specification =
+                TicketSpecification.withCriteria(new TicketSearchCriteria(null, TicketPriority.HIGH));
 
         Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
 

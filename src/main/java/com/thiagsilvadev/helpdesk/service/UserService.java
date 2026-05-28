@@ -25,9 +25,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository,
-                       UserMapper userMapper,
-                       PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
@@ -47,8 +45,7 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ResourceType.USER, id));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ResourceType.USER, id));
     }
 
     @PreAuthorize("@userAuthorization.canRead(authentication)")
@@ -58,8 +55,7 @@ public class UserService {
 
     @PreAuthorize("@userAuthorization.canReadAll(authentication)")
     public Page<UserResponse> findAll(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(userMapper::toResponse);
+        return userRepository.findAll(pageable).map(userMapper::toResponse);
     }
 
     @PreAuthorize("@userAuthorization.canUpdate(#id, authentication)")

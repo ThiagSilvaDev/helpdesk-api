@@ -1,5 +1,14 @@
 package com.thiagsilvadev.helpdesk.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.thiagsilvadev.helpdesk.entity.user.Roles;
 import com.thiagsilvadev.helpdesk.entity.user.User;
 import com.thiagsilvadev.helpdesk.repository.TicketRepository;
@@ -13,15 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserManagementIT extends PostgresIntegrationTest {
 
@@ -53,10 +53,12 @@ class UserManagementIT extends PostgresIntegrationTest {
 
     @Test
     void adminShouldCreateAndListUsers() throws Exception {
-        mockMvc.perform(post("/api/users")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(admin))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/users")
+                                .header(HttpHeaders.AUTHORIZATION, bearer(admin))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {
                                   "name": "Tech User",
                                   "email": "tech@helpdesk.local",
@@ -69,8 +71,7 @@ class UserManagementIT extends PostgresIntegrationTest {
                 .andExpect(jsonPath("$.email").value("tech@helpdesk.local"))
                 .andExpect(jsonPath("$.role").value("ROLE_TECHNICIAN"));
 
-        mockMvc.perform(get("/api/users")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(admin)))
+        mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(admin)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.page.totalElements").value(3));
     }
@@ -84,10 +85,10 @@ class UserManagementIT extends PostgresIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Jane Updated"));
 
-        assertThat(userRepository.findById(user.getId()).orElseThrow().getName()).isEqualTo("Jane Updated");
+        assertThat(userRepository.findById(user.getId()).orElseThrow().getName())
+                .isEqualTo("Jane Updated");
 
-        mockMvc.perform(get("/api/users")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+        mockMvc.perform(get("/api/users").header(HttpHeaders.AUTHORIZATION, bearer(user)))
                 .andExpect(status().isForbidden());
     }
 

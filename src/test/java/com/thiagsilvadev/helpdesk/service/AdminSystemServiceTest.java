@@ -1,8 +1,15 @@
 package com.thiagsilvadev.helpdesk.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricDetailResponse;
 import com.thiagsilvadev.helpdesk.dto.adminsystem.AdminSystemMetricNamesResponse;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,14 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.micrometer.metrics.actuate.endpoint.MetricsEndpoint;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class AdminSystemServiceTest {
@@ -46,8 +45,7 @@ class AdminSystemServiceTest {
 
             AdminSystemMetricNamesResponse response = adminSystemService.listMetricNames();
 
-            assertThat(response.names())
-                    .containsExactly("http.requests", "jvm.memory.max", "jvm.memory.used");
+            assertThat(response.names()).containsExactly("http.requests", "jvm.memory.max", "jvm.memory.used");
         }
 
         @Test

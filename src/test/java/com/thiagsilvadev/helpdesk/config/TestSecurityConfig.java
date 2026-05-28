@@ -13,8 +13,7 @@ public class TestSecurityConfig {
 
     @Bean
     SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
@@ -27,4 +26,3 @@ public class TestSecurityConfig {
         return NoOpPasswordEncoder.getInstance();
     }
 }
-

@@ -27,8 +27,7 @@ public class TicketMapper {
                 toUserInfo(ticket.getTechnician()),
                 ticket.getCreatedAt(),
                 ticket.getUpdatedAt(),
-                ticket.getClosedAt()
-        );
+                ticket.getClosedAt());
     }
 
     public Ticket toEntityFromUserRequest(CreateUserTicketRequest userRequest, User client) {
@@ -56,9 +55,6 @@ public class TicketMapper {
             return null;
         }
 
-        return new TicketUserInfo(
-                user.getId(),
-                user.getName()
-        );
+        return new TicketUserInfo(user.getId(), user.getName());
     }
 }

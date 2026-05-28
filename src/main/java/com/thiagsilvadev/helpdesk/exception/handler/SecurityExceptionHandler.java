@@ -34,8 +34,7 @@ public class SecurityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        logger.warn("Access denied for {} on {}",
-                describePrincipal(auth), request.getRequestURI());
+        logger.warn("Access denied for {} on {}", describePrincipal(auth), request.getRequestURI());
 
         return problemDetails.create(HttpStatus.FORBIDDEN, ex.getMessage());
     }
@@ -49,8 +48,10 @@ public class SecurityExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
-        logger.warn("Authentication failed on {} with {}",
-                request.getRequestURI(), ex.getClass().getSimpleName());
+        logger.warn(
+                "Authentication failed on {} with {}",
+                request.getRequestURI(),
+                ex.getClass().getSimpleName());
 
         return problemDetails.create(HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
     }

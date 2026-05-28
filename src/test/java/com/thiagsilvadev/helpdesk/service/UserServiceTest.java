@@ -1,5 +1,13 @@
 package com.thiagsilvadev.helpdesk.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import com.thiagsilvadev.helpdesk.dto.user.ChangeUserRoleRequest;
 import com.thiagsilvadev.helpdesk.dto.user.CreateUserRequest;
 import com.thiagsilvadev.helpdesk.dto.user.UpdateUserNameRequest;
@@ -10,6 +18,8 @@ import com.thiagsilvadev.helpdesk.exception.EmailAlreadyExistsException;
 import com.thiagsilvadev.helpdesk.exception.ResourceNotFoundException;
 import com.thiagsilvadev.helpdesk.mapper.UserMapper;
 import com.thiagsilvadev.helpdesk.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,17 +34,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -65,7 +64,8 @@ class UserServiceTest {
 
             given(userRepository.existsByEmail(request.email())).willReturn(false);
             given(passwordEncoder.encode(request.password())).willReturn(ENCODED_PASSWORD);
-            given(userRepository.save(any(User.class))).willAnswer(invocation -> persist(invocation.getArgument(0), USER_ID));
+            given(userRepository.save(any(User.class)))
+                    .willAnswer(invocation -> persist(invocation.getArgument(0), USER_ID));
 
             UserResponse response = userService.create(request);
 
@@ -96,8 +96,7 @@ class UserServiceTest {
             assertThatExceptionOfType(EmailAlreadyExistsException.class)
                     .isThrownBy(() -> userService.create(request))
                     .withMessage("The provided email address is already in use.")
-                    .satisfies(ex -> assertThat(ex.getProperty())
-                            .containsEntry("email", request.email()));
+                    .satisfies(ex -> assertThat(ex.getProperty()).containsEntry("email", request.email()));
 
             then(userRepository).should().existsByEmail(request.email());
             then(userRepository).should(never()).save(any());
@@ -255,8 +254,7 @@ class UserServiceTest {
 
             userService.deactivate(USER_ID);
 
-            assertThat(existingUser)
-                    .returns(false, User::isActive);
+            assertThat(existingUser).returns(false, User::isActive);
             then(userRepository).should().save(existingUser);
         }
 
@@ -276,12 +274,7 @@ class UserServiceTest {
     }
 
     private CreateUserRequest createUserRequest() {
-        return new CreateUserRequest(
-                "Jane User",
-                "jane@helpdesk.local",
-                RAW_PASSWORD,
-                Roles.ROLE_USER
-        );
+        return new CreateUserRequest("Jane User", "jane@helpdesk.local", RAW_PASSWORD, Roles.ROLE_USER);
     }
 
     private User persistedUser(Long id, String name, String email, Roles role) {

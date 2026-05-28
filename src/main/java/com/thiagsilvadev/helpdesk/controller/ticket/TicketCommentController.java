@@ -7,6 +7,7 @@ import com.thiagsilvadev.helpdesk.dto.ticketcomment.UpdateTicketCommentRequest;
 import com.thiagsilvadev.helpdesk.security.web.CurrentUserId;
 import com.thiagsilvadev.helpdesk.service.ticket.TicketCommentService;
 import jakarta.validation.Valid;
+import java.net.URI;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 public class TicketCommentController implements TicketCommentApi {
@@ -33,8 +32,7 @@ public class TicketCommentController implements TicketCommentApi {
             @RequestBody @Valid CreateTicketCommentRequest request,
             @CurrentUserId Long userId) {
         TicketCommentResponse comment = ticketCommentService.create(ticketId, request, userId);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{commentId}")
                 .buildAndExpand(comment.id())
                 .toUri();
@@ -44,8 +42,7 @@ public class TicketCommentController implements TicketCommentApi {
 
     @Override
     public ResponseEntity<Page<TicketCommentResponse>> listTicketComments(
-            @PathVariable Long ticketId,
-            Pageable pageable) {
+            @PathVariable Long ticketId, Pageable pageable) {
         return ResponseEntity.ok(ticketCommentService.findByTicketId(ticketId, pageable));
     }
 
@@ -58,10 +55,7 @@ public class TicketCommentController implements TicketCommentApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteTicketComment(
-            @PathVariable Long ticketId,
-            @PathVariable Long commentId
-    ) {
+    public ResponseEntity<Void> deleteTicketComment(@PathVariable Long ticketId, @PathVariable Long commentId) {
         ticketCommentService.delete(ticketId, commentId);
         return ResponseEntity.noContent().build();
     }

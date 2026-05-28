@@ -21,8 +21,7 @@ public class TicketCommentMapper {
                 toAuthorInfo(comment.getAuthor()),
                 comment.getContent(),
                 comment.getCreatedAt(),
-                comment.getUpdatedAt()
-        );
+                comment.getUpdatedAt());
     }
 
     public TicketComment toEntity(Ticket ticket, User author, String content) {
@@ -38,9 +37,6 @@ public class TicketCommentMapper {
             return null;
         }
 
-        return new TicketCommentAuthorInfo(
-                author.getId(),
-                author.getName()
-        );
+        return new TicketCommentAuthorInfo(author.getId(), author.getName());
     }
 }

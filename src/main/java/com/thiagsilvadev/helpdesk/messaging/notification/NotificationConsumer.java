@@ -13,7 +13,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@ConditionalOnProperty(prefix = "app.notifications.rabbit", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        prefix = "app.notifications.rabbit",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 public class NotificationConsumer {
 
     private final NotificationRepository notificationRepository;
@@ -31,7 +35,8 @@ public class NotificationConsumer {
             return;
         }
 
-        User recipient = userRepository.findById(message.recipientId())
+        User recipient = userRepository
+                .findById(message.recipientId())
                 .orElseThrow(() -> new ResourceNotFoundException(ResourceType.USER, message.recipientId()));
         notificationRepository.save(new Notification(
                 recipient,
@@ -41,7 +46,6 @@ public class NotificationConsumer {
                 message.ticketId(),
                 message.commentId(),
                 message.actorUserId(),
-                message.sourceEventId()
-        ));
+                message.sourceEventId()));
     }
 }
