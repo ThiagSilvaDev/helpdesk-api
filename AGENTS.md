@@ -13,6 +13,8 @@ Tests mirror the same package layout in `src/test/java`, with integration tests 
 * `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`: run the API locally with the `dev` profile.
 * `./mvnw test`: run unit and slice tests through Surefire.
 * `./mvnw verify`: run the full Maven verification lifecycle, including Failsafe integration tests.
+* `./mvnw spotless:check`: verify Java formatting with Spotless and Palantir Java Format.
+* `./mvnw spotless:apply`: format Java sources before committing style changes.
 * `docker compose -f compose.observability.yaml up -d`: start the local observability stack when needed.
 
 ## Coding Style & Naming Conventions
@@ -22,6 +24,8 @@ Use Java 21 and standard Spring conventions. Prefer constructor injection and ke
 Controllers must remain thin and should not contain persistence or business logic. Services orchestrate application workflows and transaction boundaries. Repositories remain persistence-focused. Prefer a rich domain model where entities encapsulate domain state, invariants, and business behavior instead of acting as anemic data containers.
 
 DTOs should define API payloads rather than exposing entities directly. Prefer manual mapping or dedicated mapper classes instead of exposing JPA entities through the API.
+
+Spotless with Palantir Java Format enforces Java formatting during `./mvnw verify`. Run `./mvnw spotless:apply` after broad edits or before committing if `spotless:check` fails.
 
 ## Testing Guidelines
 
